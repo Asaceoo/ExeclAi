@@ -1,4 +1,5 @@
-# JYYJ助手
+<img width="3199" height="1929" alt="5230e6be6fc4196a" src="https://github.com/user-attachments/assets/1e7cfe1b-663e-44cb-a2f2-d582937984a9" /><img width="3199" height="1929" alt="5230e6be6fc4196a" src="https://github.com/user-attachments/assets/167ea3bf-5410-4d89-b5a5-99b57548b415" />
+#JYYJ助手
 
 Windows Excel 本机智能助手（v2.1.0.18）。基于 .NET Framework 4.8 + VSTO + WebView2 侧边栏，兼容 Excel 2016+ / Microsoft 365，提供 x64 / x86 双架构 Inno Setup 安装包。
 
