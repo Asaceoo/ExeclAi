@@ -1,4 +1,3 @@
-# JYYJ助手 技术手册
 
 [Uploading technical-manual.md…]()
 # JYYJ助手 技术手册
