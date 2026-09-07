@@ -1,8 +1,7 @@
-
-[Uploading technical-manual.md…]()
+[technical-manual.md](https://github.com/user-attachments/files/31926092/technical-manual.md)
 # JYYJ助手 技术手册
 
-> Excel COM Add-in · .NET Framework 4.8 · WebView2 · OpenAI 兼容协议 · 版本 2.19.4.0
+> Excel COM Add-in · .NET Framework 4.8 · WebView2 · OpenAI 兼容协议 · 版本 2.19.6.0
 
 ## 一、总体架构
 
@@ -232,14 +231,14 @@ for (limit = 配置的单轮上限) {
 ## 十、构建与打包
 
 ```text
-src/ExcelAiAssistant.Addin.csproj → 版本 (Version / InformationalVersion) 2.19.4.0
+src/ExcelAiAssistant.Addin.csproj → 版本 (Version / InformationalVersion) 2.19.6.0
 tools/package-xai.ps1  →  分别构建 x64 与 x86 的完整 app + 各架构原生依赖
                           →  dist\JYYJ助手-<ver>-x64\app 与 -x86\app
 tools/installer/*.iss  →  Inno Setup 6 打包合并安装器
                           →  dist\installer\JYYJ助手-<ver>-Setup.exe
 ```
 
-版本维护要点：加载项当前版本需在 `ExcelAiAssistant.Addin.csproj` 的 `Version/InformationalVersion`、ISS 的 `#define AppVersion`、及安装器元数据三处**同步一致**。
+版本维护要点：当前版本统一由 `tools/package-xai.ps1 -BumpVersion` 自动同步——覆盖 `ExcelAiAssistant.Addin.csproj`（Version/InformationalVersion）、README.md、`tools/installer/*.iss`（遍历全部 Setup*.iss）、以及本手册 / user-manual.html / technical-manual.html 的「版本 X.Y.Z.W」戳（v 前缀历史条目不会被改写）；改动后跑 `tools/verify-versionbump.ps1` 回归断言。
 
 ### 双架构依赖布局
 
@@ -252,7 +251,14 @@ app\x86\   → ExcelAiAssistant.*.dll + x86 的 SQLite.Interop.dll + WebView2Loa
 
 ## 十一、安装、COM 注册与卸载
 
-合并安装器 `JYYJ助手-2.19.4.0-Setup.exe`（Inno Setup 6）同时装 x64 与 x86 两套产物，自动探测 Excel 位数并写对应注册表视图：
+合并安装器 `JYYJ助手-2.19.6.0-Setup.exe`（Inno Setup 6）同时装 x64 与 x86 两套产物，自动探测 Excel 位数并写对应注册表视图：
+
+**安装器形态（v2.19.6.0）**：
+
+- **轻量版** `-Setup.exe`（约 4.7MB）：缺 .NET 4.8 / WebView2 时提示并指引下载；
+- **离线完整版** `-Setup-离线完整版.exe`（约 316MB）：捆绑 .NET 4.8 离线包 + WebView2 Standalone x64，`PrepareToInstall` 检测缺失后提权静默安装（WebView2 per-machine 键在 32 位注册表视图，须 HKLM/HKCU 双视图探测，见踩坑手册 §6.7）；
+- 安装前置检测 Excel 是否运行中并重试（`tasklist` 全量输出按名搜索——`/FI` 过滤器实测会静默失灵）；`register-auto.ps1` 按 `CLSID\{GUID}` 带花括号写键，并在注册前/卸载时自愈清理历史无括号死键（干净机器必报「运行错误」的产品级根因，见踩坑手册 §6.8）；
+- 随包整合 `安装说明.txt`（小白版）与 `diagnose.ps1` + `一键诊断.cmd`（桌面生成诊断报告），开始菜单提供「一键诊断」入口。
 
 ### 注册原理
 
@@ -299,7 +305,7 @@ app\x86\   → ExcelAiAssistant.*.dll + x86 的 SQLite.Interop.dll + WebView2Loa
 - `AutoVerifyPolicy.TryPlanAll`：按主工具映射出全部自检计划（批量回写逐格出计划，≤5 格封顶），并从主工具实参自动推导预期参数（写入值即期望值）。
 - `AutoVerifyPolicy.EnrichFromResult`：用主工具执行结果富化计划（追加行的目标地址取自 `AffectedRanges`、透视的输出地址/行数/守恒对账参数取自结果）。
 - `AutoVerifyMonitor`：元自检——每回合统计「可自检写操作数 vs 实际执行的自检计划数」，出现"有写操作但 0 条自检执行"即记 `SELF_CHECK_LINK_SUSPECT` 告警进运行日志（自检链路失效不再静默），摘要同时随 `AgentRunResult.AutoVerifySummary` 返回会话层。
-- 映射覆盖 **16 类主操作**（写入/公式/排序/清洗/去重/追加/批量/格式/条件格式/透视/标记/图表/工作表增删改），另有 55+ 个写能力工具在 `AutoVerifyPolicy.DocumentedWriteToolExemptions` 中**带理由豁免**；`MappedPrimaryTools` 与映射行为由一致性单测锁死。
+- 映射覆盖 **16 类主操作**（写入/公式/排序/清洗/去重/追加/批量/格式/条件格式/透视/标记/图表/工作表增删改），另有 83 个写能力工具在 `AutoVerifyPolicy.DocumentedWriteToolExemptions` 中**带理由豁免**；`MappedPrimaryTools` 与映射行为由一致性单测锁死。
 - 自动自检在 `verify_write_result` 上默认开启 `type_aware`（文本型数字判不通过）。
 
 ### 自检工具族（verify_*）
