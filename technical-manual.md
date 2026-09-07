@@ -1,10 +1,23 @@
 # JYYJ助手 技术手册
 
-> Excel COM Add-in · .NET Framework 4.8 · WebView2 · OpenAI 兼容协议 · 版本 2.1.0.18
+[Uploading technical-manual.md…]()
+# JYYJ助手 技术手册
+
+> Excel COM Add-in · .NET Framework 4.8 · WebView2 · OpenAI 兼容协议 · 版本 2.19.4.0
 
 ## 一、总体架构
 
 JYYJ助手 是一款原生 **Excel COM 加载项**（.NET Framework VSTO 风格的托管 COM Add-in），采用「侧边栏 WebView2 前台 + 托管 COM 桥 + 工具服务层 + Agent 编排」的分层结构。
+
+### 运行环境与 Excel 版本兼容
+
+本加载项采用经典 **COM Add-in（IDTExtensibility2）+ 侧边栏任务窗格** 模型（非 VSTO 定制任务窗格 HKCU 直写），对 Excel 版本为**前向兼容**：只要 Excel 支持 COM 加载项即可运行。
+
+- **支持 Excel 版本**：2013(15.0) / 2016(16.0) / 2019 / 2021 / Microsoft 365(16.x)，**32 位 / 64 位均可**。编译期引用 `office.dll 15.0.0.0`（Office 2013 互操作），运行时经 COM 自动绑定向后兼容，无需按新版 Excel 重编。
+- **按 Excel 位数注册**：安装器/脚本用 `Registry64/Registry32` 分别写 `.NET COM 类 + Software\Microsoft\Office\Excel\Addins<ProgId>`，`LoadBehavior=3`（启动加载）。32/64 位 Excel 各加载对应架构程序集。
+- **运行时依赖**：.NET Framework 4.8、WebView2 Runtime（WebView2 需运行在 Excel 进程内；Win10/11 一般自带，缺失时侧边栏空白，见运行日志/健康监控）。`GetVersion` 自检会上报 `excel_version`（`Application.Version`，15.0/16.0 等）供侧边栏「关于 / 版本」展示与排障。
+- **受 Excel 版本影响的边界**：主要是**内置函数可用范围**（函数库按首版可用版本标徽章，XLOOKUP/动态数组/LAMBDA 等需 2021/365）。加载项自身能力在上述版本一致。
+- **不引入超出运行环境的平台依赖**：全部写操作走自检兜底、可回滚、运行日志留痕（编码器红线），与 Excel 版本无关。
 
 ```text
 ┌────────────────────────────────────────────────────────────┐
@@ -220,7 +233,7 @@ for (limit = 配置的单轮上限) {
 ## 十、构建与打包
 
 ```text
-src/ExcelAiAssistant.Addin.csproj → 版本 (Version / InformationalVersion) 2.1.0.18
+src/ExcelAiAssistant.Addin.csproj → 版本 (Version / InformationalVersion) 2.19.4.0
 tools/package-xai.ps1  →  分别构建 x64 与 x86 的完整 app + 各架构原生依赖
                           →  dist\JYYJ助手-<ver>-x64\app 与 -x86\app
 tools/installer/*.iss  →  Inno Setup 6 打包合并安装器
@@ -240,7 +253,7 @@ app\x86\   → ExcelAiAssistant.*.dll + x86 的 SQLite.Interop.dll + WebView2Loa
 
 ## 十一、安装、COM 注册与卸载
 
-合并安装器 `JYYJ助手-2.1.0.18-Setup.exe`（Inno Setup 6）同时装 x64 与 x86 两套产物，自动探测 Excel 位数并写对应注册表视图：
+合并安装器 `JYYJ助手-2.19.4.0-Setup.exe`（Inno Setup 6）同时装 x64 与 x86 两套产物，自动探测 Excel 位数并写对应注册表视图：
 
 ### 注册原理
 
@@ -274,18 +287,61 @@ app\x86\   → ExcelAiAssistant.*.dll + x86 的 SQLite.Interop.dll + WebView2Loa
 
 ### 运行日志 · 一键自检
 
-`DiagnosticsLog` 实时登记助手本轮的写入数据 / 生成的 VBA 代码 / 创建的图表（登录与否均登记）；侧边栏「运行日志 · 自检」的**一键自检**用 AI 研判最近会话，核验 AI 生成的数据、代码与图表是否正确。
+`DiagnosticsLog` 实时登记助手本轮的写入数据 / 生成的 VBA 代码 / 创建的图表（登录与否均登记）；侧边栏「运行日志 · 自检」的**一键自检**用 AI 研判最近会话，核验 AI 生成的数据、代码与图表是否正确；**全功能巡检**按钮对全部核心子系统逐项体检（详见下文），结果同样写入运行日志。
 
-### 写入后自检工具
+**v2.19.4.0 运行日志全功能覆盖**：新增 `Core\Diagnostics\AppLog.cs` 跨程序集日志门面（`Action<LogEntry> Sink` + Info/Warn/Error 三级 + 可选 category），`ExcelAiAddIn` 启动时 `AppLog.SetSink` 注入 `DiagnosticsLog`，打通 Core/Excel 层无法直取 Addin 层日志的架构隔离——此后全部写操作/工具执行统一汇入运行日志，按级别过滤即可排查任意功能错误。链路点：
+- `AgentRunner.ExecuteToolAsync` 逐工具记耗时与**三路径**日志（成功→`Info("tool")`、失败→`Info` 带错误码、异常→`Error` 带 SafeDetail），成功摘要截 200 字符；子项自动自检同样记 `"verify"` 耗时。
+- `PythonWorkerHost.DrainStderr` 用 `BeginErrorReadLine` 捕获原被静默丢弃的 Python stderr 并记 `Warn("python")`；新增 `NoCr()` 折行（换行折叠 + Trim，>300 截断加省略号）防多行 traceback 撑爆单行日志。
+
+### 自动自检体系（执行层硬保证）
+
+写入类工具成功后，服务端在 `AgentRunner` 执行层**自动**调用配套 `verify_*` 工具回读核对，不依赖模型自觉：
+
+- `AutoVerifyPolicy.TryPlanAll`：按主工具映射出全部自检计划（批量回写逐格出计划，≤5 格封顶），并从主工具实参自动推导预期参数（写入值即期望值）。
+- `AutoVerifyPolicy.EnrichFromResult`：用主工具执行结果富化计划（追加行的目标地址取自 `AffectedRanges`、透视的输出地址/行数/守恒对账参数取自结果）。
+- `AutoVerifyMonitor`：元自检——每回合统计「可自检写操作数 vs 实际执行的自检计划数」，出现"有写操作但 0 条自检执行"即记 `SELF_CHECK_LINK_SUSPECT` 告警进运行日志（自检链路失效不再静默），摘要同时随 `AgentRunResult.AutoVerifySummary` 返回会话层。
+- 映射覆盖 **16 类主操作**（写入/公式/排序/清洗/去重/追加/批量/格式/条件格式/透视/标记/图表/工作表增删改），另有 55+ 个写能力工具在 `AutoVerifyPolicy.DocumentedWriteToolExemptions` 中**带理由豁免**；`MappedPrimaryTools` 与映射行为由一致性单测锁死。
+- 自动自检在 `verify_write_result` 上默认开启 `type_aware`（文本型数字判不通过）。
+
+### 自检工具族（verify_*）
 
 | 自检方向 | 验证器 |
 |----------|--------|
-| 图表 | `verify_chart`：类型 / 系列 / 点数 / data_ranges / selfcheck，不合格须先修正再回复自检结论 |
+| 图表 | `verify_chart`：类型 / 系列 / 点数 / data_ranges / 渲染像素核验 / selfcheck |
 | 单元格格式 | `verify_cell_format` |
 | 条件格式 | `verify_conditional_format` |
 | 排序 / 筛选 | `verify_sort_filter` |
-| 公式 | `verify_formula` |
+| 公式 | `verify_formula`（错误值 #DIV/0! 等判 error） |
+| 写入结果 | `verify_write_result`（逐格比对 + `type_aware` 文本型数字检测） |
+| 数据清洗 | `verify_data_clean`（no_blank_rows/no_blanks/no_duplicates/dates_valid/no_text_numbers） |
+| 透视 | `verify_pivot`（行值抽查 + 明细/汇总**数量守恒对账**） |
+| 标记 | `verify_marker` |
+| 结构 | `verify_structure`（工作表存在/缺席断言 + 区域行列数） |
+
+统一产出 `verdict + issues + selfcheck` 三要素；verdict≠ok 时模型必须先修正再向用户报告（系统提示词强制）。
+
+### 语义守恒护栏
+
+- **排序行守恒**：`sort_range` 写入前比对排序前后身体行多重集，不一致返回 `CONSERVATION_VIOLATED` 并拒绝写入。
+- **透视数量守恒**：明细列合计 == 汇总列合计，口径与 `PivotTableService.SumByRow` 严格对齐。
+- **类型感知回读**：期望数值 vs 实际文本型数字判不通过。
+
+### 踩坑失败模式库
+
+`PitfallLibrary`（Core.Diagnostics）把《踩坑记录与规避手册》提炼为「日志签名 → 症状 → 手册级建议」规则表（15+ 条，含 HRESULT 0x800A9C68、RCW、WebView2 跨线程、CONFIRM_TIMEOUT 等）。一键自检 AI 研判对运行日志逐条签名比对，命中即并入问题清单与研判提示词。新坑在手册补充章节后同步追加规则即可被自动识别。
+
+### 全功能健康巡检
+
+`FeatureHealthSweep`（Addin）：在**新建临时工作簿**（不触碰用户数据）中对全部核心子系统逐项体检——写入/公式/排序/清洗/追加/批量/透视守恒/格式/条件格式/标记/图表/结构操作各自跑「主工具+自动自检闭环」，另含回滚链路端到端（写入→覆写→undo→断言恢复）、自检覆盖审计、踩坑库、自检历史库、配置与技能加载。逐项结果写入运行日志并回传前端。VBA/Python 数据通道由一键自检覆盖，两者互补。
+
+### 自检历史与趋势
+
+`SelfCheckHistoryStore`（SQLite，`%APPDATA%\ExcelAiAssistant\selfcheck-history.db`）：回合元监控摘要与每次研判结论落库（上限 500 条自动裁剪）；`Stats(20)` 计算最近通过率与高频问题 Top3，随一键自检结果返回前端展示；侧边栏在每轮对话结束弹「本轮自检」摘要。
+
+### 发布门禁
+
+`tools\package-xai.ps1` 打包前强制执行双关：①全量单元测试（含 Sidebar 内联 JS 括号/引号静态审计，拦截踩坑 §4.1）；②真机自检回归（`tools\RealMachineVerify`：独立 Excel 实例 + 临时工作簿，正向/负向/覆盖审计 21 用例组 80 断言）。任一失败中止打包；`-SkipReleaseGate` 可显式跳过但会打印警告。`package-xai.ps1 -BumpVersion` 从 csproj 读当前版本按 `-BumpPart`（默认 Patch）递增，并自动同步三处版本号（csproj `Version/InformationalVersion`、`README.md`、复制生成 `<新版本>-Setup.iss`），再跑双关打包。
 
 ### 测试与验证
 
-`ExcelAiAssistant.Tests` 含大量 NUnit 单测（安全管线、撤销、协议解析、技能目录、公式分析、异常检测、写偏好、VBA 门控等）；`tools\Verify*` 系列是真机 harness，遵循**无状态**原则：每次操作前重新解析工作表、跨表断言显式按 `Workbooks[...].Worksheets["name"]` 定位、不依赖 `ActiveSheet`、用 `range.Cells.Item[1,1]` 作写回锚点。
+`ExcelAiAssistant.Tests` 含 800+ xUnit 单测（安全管线、撤销、协议解析、技能目录、公式分析、异常检测、写偏好、VBA 门控、自动自检策略/元监控/粘合层集成、JS 静态审计等）；`tools\Verify*` 与 `tools\RealMachineVerify` 是真机 harness，遵循**无状态**原则：每次操作前重新解析工作表、跨表断言显式按 `Workbooks[...].Worksheets["name"]` 定位、不依赖 `ActiveSheet`、用 `range.Cells.Item[1,1]` 作写回锚点；out-of-proc 收尾不调 Close/Quit（动态 COM 退出路径会硬故障，见踩坑 §5.12），按 PID 强杀兜底。
