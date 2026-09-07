@@ -2,6 +2,8 @@
 <img width="3199" height="1931" alt="0576e5c2efc96902" src="https://github.com/user-attachments/assets/d274be95-8222-4039-aded-9f61709cee93" />
 <img width="3199" height="1916" alt="61a0fba95552aff3" src="https://github.com/user-attachments/assets/03c5f344-a2dd-4433-832f-932a50efe0e9" />
 
+通过网盘分享的文件：JYYJ助手
+链接: https://pan.baidu.com/s/1Ssg_czSMuOqmUK45z55SZA?pwd=1111 提取码: 1111
 
 #JYYJ助手
 
