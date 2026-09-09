@@ -1,7 +1,7 @@
-[technical-manual.md](https://github.com/user-attachments/files/31926092/technical-manual.md)
+[Uploading JYYJ助手技术手册-3.7.1.6.md…]()
 # JYYJ助手 技术手册
 
-> Excel COM Add-in · .NET Framework 4.8 · WebView2 · OpenAI 兼容协议 · 版本 2.19.6.0
+> Excel COM Add-in · .NET Framework 4.8 · WebView2 · OpenAI 兼容协议 · 版本 3.7.1.6
 
 ## 一、总体架构
 
@@ -34,7 +34,7 @@ JYYJ助手 是一款原生 **Excel COM 加载项**（.NET Framework VSTO 风格�
 │  └───────────────┬──────────────────────────────────────┘  │
 │                  │ 读取/写入/分析                          │
 │  ┌───────────────▼──────────────────────────────────────┐  │
-│  │ ExcelAiAssistant.Excel (80+ 工具服务层)              │  │
+│  │ ExcelAiAssistant.Excel (144 工具服务层)              │  │
 │  │  读取/编辑/数据/高级/图表/透视/导入/报告/解释/标记/     │  │
 │  │  工具/验证/网页/工作簿/脚本 等 *Service + 注册表        │  │
 │  └──────────────────────────────────────────────────────┘  │
@@ -53,7 +53,7 @@ JYYJ助手 是一款原生 **Excel COM 加载项**（.NET Framework VSTO 风格�
 ## 二、目录结构与工程
 
 ```text
-d:\execl1.0
+D:\execl1.0-wps
 ├─ src\
 │  ├─ ExcelAiAssistant.Addin\      # COM 加载项宿主 + 侧边栏 UI
 │  │   ├─ ExcelAiAddIn.cs / ExcelAiTaskPaneHost.cs / DeepSeekTaskPaneHost.cs
@@ -69,14 +69,15 @@ d:\execl1.0
 │  │   ├─ Skills\        # SkillCatalog
 │  │   ├─ Tools\         # ToolRegistry / VbaPresetCatalog / VbaReusabilizer / BlankFill / Formula / Outlier / CustomToolStore
 │  │   └─ Models\ Workflow\  # ModelProfile / ToolCall / WorkflowExecutor
-│  ├─ ExcelAiAssistant.Excel\    # 全部 Excel 工具服务 + schema + 注册
-│  └─ ExcelAiAssistant.Tests\    # NUnit 单元测试
+│  ├─ ExcelAiAssistant.Excel\    # 全部 Excel 工具服务 + schema + 注册（144 工具 / 18 个 verify_* 自检）
+│  └─ ExcelAiAssistant.Tests\    # xUnit 单元测试（979 个）
 ├─ tools\
-│  ├─ installer\        # *.iss (Inno Setup) + register-*.ps1 / unregister-*.ps1
-│  ├─ package-xai.ps1   # 构建 x64/x86 产物并打包
-│  ├─ install-xai.ps1   # 开发者本机安装注册
-│  └─ Verify* / Probe*  # 真机/协议验证工具
-└─ dist\                # 构建产物与安装器
+│  ├─ installer\         # JYYJ助手-Setup-wps.iss (Inno Setup 6) + register-auto.ps1 等注册脚本
+│  ├─ release\           # release.py（bump/pack 唯一发版入口）、gate.py（一键门禁）、
+│  │                     # check_wps_full.py（WPS full 基线校验）+ expected_wps_full.tsv
+│  ├─ RealMachineVerify\ # Excel 真机验证 harness（23 用例组 119 断言）
+│  └─ WpsToolVerify\     # WPS 真机验证 harness（full 基线 131 组）
+└─ dist\                 # 构建产物与安装器（WPS 版产物一律带 wps 后缀）
 ```
 
 依赖要点（见各 `.csproj`）：`Newtonsoft.Json`、`System.Data.SQLite`（含按架构的 `SQLite.Interop.dll`）、`WebView2Loader.dll`；目标框架为 .NET Framework 4.8。
@@ -144,7 +145,8 @@ for (limit = 配置的单轮上限) {
 | `ExcelFlagToolsRegistration` | 异常值标记高亮 | `ExcelFlagCellsService + OutlierDetector` |
 | `ExcelStructure / Pivot / Chart` | 结构整理 / 透视表 / 图表 | `ExcelStructureService / PivotTableService / ExcelChartService / ExcelPivotChartService` |
 | `ExcelUtilityToolsRegistration` | 工具集（文本、统计等） | `ExcelUtilityToolsService + JyyjtoolAlgorithms` |
-| `ExcelVerifyRegistration` | 自检（格式/条件格式/排序筛选/公式/图表） | `ExcelVerifyService + ExcelVerifyJudgments` |
+| `ExcelVerifyRegistration` | 自检（18 个 verify_*：写入/格式/条件格式/排序筛选/公式/图表/清洗/透视/标记/结构/迷你图/数据验证/合并/超链接/表格/图片/冻结窗格/保护态） | `ExcelVerifyService + ExcelVerifyJudgments` |
+| `ExcelProfileRegistration` | 列质量画像（只读：空值/唯一值/错误值分布，Power Query 同口径） | `ColumnProfileEngine` |
 | `ExcelWebToolsRegistration` | 网页取数 | `WebFetchService` |
 | `ExcelExternalBookTools` | 多工作簿只读协同 | `ExternalBookRegistry` |
 | 数据分析 / 报告 | 统计建模 / 文本报告 | `ExcelAnalysisService / ExcelReportService + ReportTextBuilder` |
@@ -231,14 +233,23 @@ for (limit = 配置的单轮上限) {
 ## 十、构建与打包
 
 ```text
-src/ExcelAiAssistant.Addin.csproj → 版本 (Version / InformationalVersion) 2.19.6.0
-tools/package-xai.ps1  →  分别构建 x64 与 x86 的完整 app + 各架构原生依赖
-                          →  dist\JYYJ助手-<ver>-x64\app 与 -x86\app
-tools/installer/*.iss  →  Inno Setup 6 打包合并安装器
-                          →  dist\installer\JYYJ助手-<ver>-Setup.exe
+Directory.Build.props         → 版本号单一来源（<Version> / <InformationalVersion>，csproj 继承）
+tools/release/release.py      → bump --ver X.Y.Z.W：props + README + 四份手册（文件名/版本戳/引用）一键同步
+                                pack：双架构全量重建 → 组装 dist → zip → 版本戳断言 → ISCC
+tools/release/gate.py --pack  → 一键门禁直通发版（见 §十二 发布门禁）
+tools/installer/*.iss         → Inno Setup 6（/DAppVersion 注入版本，版本号不落 iss）
 ```
 
-版本维护要点：当前版本统一由 `tools/package-xai.ps1 -BumpVersion` 自动同步——覆盖 `ExcelAiAssistant.Addin.csproj`（Version/InformationalVersion）、README.md、`tools/installer/*.iss`（遍历全部 Setup*.iss）、以及本手册 / user-manual.html / technical-manual.html 的「版本 X.Y.Z.W」戳（v 前缀历史条目不会被改写）；改动后跑 `tools/verify-versionbump.ps1` 回归断言。
+产物命名（WPS 版一律带 `wps` 后缀）：
+
+```text
+dist\JYYJ助手-<ver>-wps-x64\ / -wps-x86\   便携解包目录
+dist\JYYJ助手-<ver>-wps-x64.zip / -x86.zip 便携包
+dist\installer\JYYJ助手-<ver>-Setup-wps.exe 安装器
+dist\JYYJ助手-<ver>-wps-安装说明.txt        安装说明
+```
+
+版本维护要点：当前版本统一由 `tools/release/release.py bump --ver` 自动同步——`Directory.Build.props`（Version/InformationalVersion）、`README.md`、四份手册（JYYJ助手技术手册/用户手册-<版本>.md/.html，**文件名、版本戳、以及 CLAUDE.md / AI交接文档 / README 中的手册引用**一并改名改写）；改动后跑门禁回归。禁止手工 sed 三处版本号（历史红线：M15 增量编译旧戳事故）。
 
 ### 双架构依赖布局
 
@@ -251,13 +262,13 @@ app\x86\   → ExcelAiAssistant.*.dll + x86 的 SQLite.Interop.dll + WebView2Loa
 
 ## 十一、安装、COM 注册与卸载
 
-合并安装器 `JYYJ助手-2.19.6.0-Setup.exe`（Inno Setup 6）同时装 x64 与 x86 两套产物，自动探测 Excel 位数并写对应注册表视图：
+安装器 `JYYJ助手-3.7.1.6-Setup-wps.exe`（Inno Setup 6，约 4.7MB）与便携包 `-wps-x64.zip`/`-wps-x86.zip`（约 3.4MB），自动探测 Excel/WPS 位数并写对应注册表视图：
 
-**安装器形态（v2.19.6.0）**：
+**安装器形态（v3.7.1.5，WPS 版）**：
 
-- **轻量版** `-Setup.exe`（约 4.7MB）：缺 .NET 4.8 / WebView2 时提示并指引下载；
-- **离线完整版** `-Setup-离线完整版.exe`（约 316MB）：捆绑 .NET 4.8 离线包 + WebView2 Standalone x64，`PrepareToInstall` 检测缺失后提权静默安装（WebView2 per-machine 键在 32 位注册表视图，须 HKLM/HKCU 双视图探测，见踩坑手册 §6.7）；
-- 安装前置检测 Excel 是否运行中并重试（`tasklist` 全量输出按名搜索——`/FI` 过滤器实测会静默失灵）；`register-auto.ps1` 按 `CLSID\{GUID}` 带花括号写键，并在注册前/卸载时自愈清理历史无括号死键（干净机器必报「运行错误」的产品级根因，见踩坑手册 §6.8）；
+- **轻量版** `-Setup-wps.exe`（约 4.7MB）：缺 .NET 4.8 / WebView2 时提示并指引下载；离线完整版形态仅 Excel 主版本提供（`-Setup-离线完整版.exe`，约 316MB），WPS 版暂无；WebView2 缺失检测逻辑同源（per-machine 键在 32 位注册表视图，须 HKLM/HKCU 双视图探测，见踩坑手册 §6.7）；
+- **宿主检测与强杀（v3.7.1.5 重构，M17.2/M17.5）**：检测 Excel / WPS 宿主进程（`tasklist` 全量输出按名搜索——`/FI` 过滤器实测会静默失灵）→ 普通权限 `taskkill /F /T` 强杀全家族进程名（EXCEL.EXE / et.exe / wps.exe / wpp.exe / wpsoffice.exe）≤3 轮 → 仍存活则 `ShellExec('runas')` 弹 UAC 以管理员再强杀。**注意 `PrivilegesRequired=lowest` 下 Inno 永远以普通权限运行，用户右键"以管理员身份运行"也会被降权**，`ShellExec('runas')` 是唯一有效提权路径；击杀输出持久化到 `%LocalAppData%\XaiAssistant\logs\hostkill.log`（原 `{tmp}` 安装结束即删、失败无据可查，M17.5 改持久化）；`/SILENT` 静默安装自动强杀宿主（批量部署 + 自动化验证前提）；
+- `register-auto.ps1` 按 `CLSID\{GUID}` 带花括号写键，并在注册前/卸载时自愈清理历史无括号死键（干净机器必报「运行错误」的产品级根因，见踩坑手册 §6.8）；
 - 随包整合 `安装说明.txt`（小白版）与 `diagnose.ps1` + `一键诊断.cmd`（桌面生成诊断报告），开始菜单提供「一键诊断」入口。
 
 ### 注册原理
@@ -277,7 +288,7 @@ app\x86\   → ExcelAiAssistant.*.dll + x86 的 SQLite.Interop.dll + WebView2Loa
 
 ### 前置检测（ISS [Code]）
 
-- 检测 Excel 是否运行（`FindWindow("XLMAIN")`），占用则提示关闭（重试/取消，阻断）。
+- 检测 Excel / WPS 宿主进程并多轮强杀（含 UAC 提权轮，详见上文「宿主检测与强杀」）；交互模式失败时弹归因弹窗（UAC 未确认 / 安全软件拦截 / WPS 后台组件拉起 / 服务或自动化拉起需重启四类指引）。
 - 检测 .NET Framework 4.x（`NDP\v4\Full`）与 WebView2 Runtime（`EdgeUpdate\Clients\{GUID}`），缺失仅友好提示、不阻断。
 
 ### 卸载
@@ -305,7 +316,7 @@ app\x86\   → ExcelAiAssistant.*.dll + x86 的 SQLite.Interop.dll + WebView2Loa
 - `AutoVerifyPolicy.TryPlanAll`：按主工具映射出全部自检计划（批量回写逐格出计划，≤5 格封顶），并从主工具实参自动推导预期参数（写入值即期望值）。
 - `AutoVerifyPolicy.EnrichFromResult`：用主工具执行结果富化计划（追加行的目标地址取自 `AffectedRanges`、透视的输出地址/行数/守恒对账参数取自结果）。
 - `AutoVerifyMonitor`：元自检——每回合统计「可自检写操作数 vs 实际执行的自检计划数」，出现"有写操作但 0 条自检执行"即记 `SELF_CHECK_LINK_SUSPECT` 告警进运行日志（自检链路失效不再静默），摘要同时随 `AgentRunResult.AutoVerifySummary` 返回会话层。
-- 映射覆盖 **16 类主操作**（写入/公式/排序/清洗/去重/追加/批量/格式/条件格式/透视/标记/图表/工作表增删改），另有 83 个写能力工具在 `AutoVerifyPolicy.DocumentedWriteToolExemptions` 中**带理由豁免**；`MappedPrimaryTools` 与映射行为由一致性单测锁死。
+- 映射覆盖 **26 类主操作**（写入/公式/排序/清洗/去重/追加/批量/格式/条件格式/透视/标记/图表/工作表增删改/图片/冻结窗格等），另有 77 个写能力工具在 `AutoVerifyPolicy.DocumentedWriteToolExemptions` 中**带理由豁免**；`MappedPrimaryTools` 与映射行为由一致性单测锁死，覆盖审计在 Excel 真机 harness（用例组 17）与全功能巡检两处执行。
 - 自动自检在 `verify_write_result` 上默认开启 `type_aware`（文本型数字判不通过）。
 
 ### 自检工具族（verify_*）
@@ -318,12 +329,20 @@ app\x86\   → ExcelAiAssistant.*.dll + x86 的 SQLite.Interop.dll + WebView2Loa
 | 排序 / 筛选 | `verify_sort_filter` |
 | 公式 | `verify_formula`（错误值 #DIV/0! 等判 error） |
 | 写入结果 | `verify_write_result`（逐格比对 + `type_aware` 文本型数字检测） |
-| 数据清洗 | `verify_data_clean`（no_blank_rows/no_blanks/no_duplicates/dates_valid/no_text_numbers） |
+| 数据清洗 | `verify_data_clean`（no_blank_rows/no_blanks/no_duplicates/dates_valid/no_text_numbers/no_text_matches/all_blank） |
 | 透视 | `verify_pivot`（行值抽查 + 明细/汇总**数量守恒对账**） |
 | 标记 | `verify_marker` |
 | 结构 | `verify_structure`（工作表存在/缺席断言 + 区域行列数） |
+| 迷你图 | `verify_sparkline` |
+| 数据验证 | `verify_data_validation` |
+| 合并单元格 | `verify_merge` |
+| 超链接 | `verify_hyperlink` |
+| 表格 | `verify_table` |
+| 图片 | `verify_image`（Shapes 锚点/数量/尺寸，容差 2 磅；尺寸断言不配 anchor 时 fail-closed） |
+| 冻结窗格 | `verify_freeze_panes`（SplitRow/SplitColumn + 锚点行列 -1 判定） |
+| 保护态 | `verify_protection`（只读探测，配合 SheetProtectionGuard 负向用例） |
 
-统一产出 `verdict + issues + selfcheck` 三要素；verdict≠ok 时模型必须先修正再向用户报告（系统提示词强制）。
+共 **18 个** verify_* 验证器，统一产出 `verdict + issues + selfcheck` 三要素；verdict≠ok 时模型必须先修正再向用户报告（系统提示词强制）。
 
 ### 语义守恒护栏
 
@@ -343,10 +362,16 @@ app\x86\   → ExcelAiAssistant.*.dll + x86 的 SQLite.Interop.dll + WebView2Loa
 
 `SelfCheckHistoryStore`（SQLite，`%APPDATA%\ExcelAiAssistant\selfcheck-history.db`）：回合元监控摘要与每次研判结论落库（上限 500 条自动裁剪）；`Stats(20)` 计算最近通过率与高频问题 Top3，随一键自检结果返回前端展示；侧边栏在每轮对话结束弹「本轮自检」摘要。
 
-### 发布门禁
+### 发布门禁（gate.py）
 
-`tools\package-xai.ps1` 打包前强制执行双关：①全量单元测试（含 Sidebar 内联 JS 括号/引号静态审计，拦截踩坑 §4.1）；②真机自检回归（`tools\RealMachineVerify`：独立 Excel 实例 + 临时工作簿，正向/负向/覆盖审计 21 用例组 80 断言）。任一失败中止打包；`-SkipReleaseGate` 可显式跳过但会打印警告。`package-xai.ps1 -BumpVersion` 从 csproj 读当前版本按 `-BumpPart`（默认 Patch）递增，并自动同步三处版本号（csproj `Version/InformationalVersion`、`README.md`、复制生成 `<新版本>-Setup.iss`），再跑双关打包。
+`python tools\release\gate.py --pack` 一条命令直通发版，fail-fast 任一环失败即中止：
+
+1. Release 构建 + 全量 xUnit 单测（979 个，含 Sidebar 内联 JS 静态审计、AutoVerify 一致性锁、缺陷原型审计 M16DefectPatternAudit）；
+2. Excel 真机回归（`tools\RealMachineVerify`：独立 Excel 实例 + 临时工作簿，23 用例组 119 断言，含负路径）；
+3. **宿主进程泄漏断言（M17.5 新增）**：真机步前后对 Excel/WPS 宿主进程快照对比，harness 中断泄漏当场亮红（堵死"遗留僵尸进程毒害下一次安装"通路）；
+4. WPS full 真机 harness（`tools\WpsToolVerify`）+ `check_wps_full.py` 基线校验（OK/预期 FAIL/工具数 144 逐组锁定，`EXPECTED_TOOL_COUNT` 常量为有意设置的变更卡点）；
+5. `release.py pack`：双架构全量重建（`--no-incremental`，M15 红线）→ 组装 dist → zip → 版本戳断言（新戳在位 ≥3 / 旧戳零残留 / 守卫符号在位）→ ISCC 打安装器（Error 32 暂态锁定自动退避重试）。
 
 ### 测试与验证
 
-`ExcelAiAssistant.Tests` 含 800+ xUnit 单测（安全管线、撤销、协议解析、技能目录、公式分析、异常检测、写偏好、VBA 门控、自动自检策略/元监控/粘合层集成、JS 静态审计等）；`tools\Verify*` 与 `tools\RealMachineVerify` 是真机 harness，遵循**无状态**原则：每次操作前重新解析工作表、跨表断言显式按 `Workbooks[...].Worksheets["name"]` 定位、不依赖 `ActiveSheet`、用 `range.Cells.Item[1,1]` 作写回锚点；out-of-proc 收尾不调 Close/Quit（动态 COM 退出路径会硬故障，见踩坑 §5.12），按 PID 强杀兜底。
+`ExcelAiAssistant.Tests` 含 **979 个 xUnit 单测**（安全管线、撤销、协议解析、技能目录、公式分析、异常检测、写偏好、VBA 门控、自动自检策略/元监控/粘合层集成、JS 静态审计、M16 缺陷原型审计等）；`tools\RealMachineVerify`（Excel）与 `tools\WpsToolVerify`（WPS）是真机 harness，遵循**无状态**原则：每次操作前重新解析工作表、跨表断言显式按 `Workbooks[...].Worksheets["name"]` 定位、不依赖 `ActiveSheet`、用 `range.Cells.Item[1,1]` 作写回锚点；out-of-proc 收尾不调 Close/Quit（动态 COM 退出路径会硬故障，见踩坑 §5.12），按 PID 强杀兜底；门禁对真机步执行宿主进程泄漏断言（M17.5）。
