@@ -1,7 +1,7 @@
-[Uploading JYYJ助手技术手册-3.7.1.6.md…]()
+[JYYJ助手技术手册-3.8.1.68.md](https://github.com/user-attachments/files/32165236/JYYJ.-3.8.1.68.md)
 # JYYJ助手 技术手册
 
-> Excel COM Add-in · .NET Framework 4.8 · WebView2 · OpenAI 兼容协议 · 版本 3.7.1.6
+> Excel COM Add-in · .NET Framework 4.8 · WebView2 · OpenAI 兼容协议 · 版本 3.8.1.68
 
 ## 一、总体架构
 
@@ -34,7 +34,7 @@ JYYJ助手 是一款原生 **Excel COM 加载项**（.NET Framework VSTO 风格�
 │  └───────────────┬──────────────────────────────────────┘  │
 │                  │ 读取/写入/分析                          │
 │  ┌───────────────▼──────────────────────────────────────┐  │
-│  │ ExcelAiAssistant.Excel (144 工具服务层)              │  │
+│  │ ExcelAiAssistant.Excel (140 代码注册工具服务层)              │  │
 │  │  读取/编辑/数据/高级/图表/透视/导入/报告/解释/标记/     │  │
 │  │  工具/验证/网页/工作簿/脚本 等 *Service + 注册表        │  │
 │  └──────────────────────────────────────────────────────┘  │
@@ -69,7 +69,7 @@ D:\execl1.0-wps
 │  │   ├─ Skills\        # SkillCatalog
 │  │   ├─ Tools\         # ToolRegistry / VbaPresetCatalog / VbaReusabilizer / BlankFill / Formula / Outlier / CustomToolStore
 │  │   └─ Models\ Workflow\  # ModelProfile / ToolCall / WorkflowExecutor
-│  ├─ ExcelAiAssistant.Excel\    # 全部 Excel 工具服务 + schema + 注册（144 工具 / 18 个 verify_* 自检）
+│  ├─ ExcelAiAssistant.Excel\    # 全部 Excel 工具服务 + schema + 注册（140 代码注册工具（另含 ct_ 用户沉淀动态注册） / 18 个 verify_* 自检）
 │  └─ ExcelAiAssistant.Tests\    # xUnit 单元测试（979 个）
 ├─ tools\
 │  ├─ installer\         # JYYJ助手-Setup-wps.iss (Inno Setup 6) + register-auto.ps1 等注册脚本
@@ -151,6 +151,17 @@ for (limit = 配置的单轮上限) {
 | `ExcelExternalBookTools` | 多工作簿只读协同 | `ExternalBookRegistry` |
 | 数据分析 / 报告 | 统计建模 / 文本报告 | `ExcelAnalysisService / ExcelReportService + ReportTextBuilder` |
 | 脚本 / 高进度 | 脚本、外部进程、数据转换 | `ScriptRunnerService / PythonWorkerHost / DataTransformService / ExcelScratchpadService / ExcelImportService` |
+| 看板渲染 / 截图 | 六类看板 + 超级看板 + 三维度截图 | `ExcelDashboardService`（部分方法经 dashboard 专用注册块，仅 Excel 宿主） |
+
+### 5.1 截图链路（screenshot_dashboard）
+
+只读工具，三个参数维度按优先级分流：`chart_name`（图表级）> `address`（任意选区级）> `dashboard_sheet`（看板全景级）；全部不传时缺省截**当前活动选区**（「选中哪儿截哪儿」）。
+
+- **图表级**：`Chart.Export` 直接导出 PNG；存在性预检，未找到回 `CHART_NOT_FOUND` 人话错误。
+- **选区级**：`CopyPicture(xlBitmap)` → 独立 STA 线程剪贴板直取 Bitmap → PNG（`address_clipboard` 路线）；失败降级「EMF 复制 + 临时 ChartObject 粘贴 + Export」（`address_chart_paste`）。
+- **看板级**：截图区域 = `UsedRange ∪ 全部浮动对象`（图表/切片器在 UsedRange 之外，须扩展包围盒换算行列）；剪贴板直取失败降级同上（`chart_paste`）。
+- **健壮性**（v3.7.1.65）：`CopyPictureWithRetry` 3 次退避重试（400/800ms，防前次剪贴板直取刚完成即 CopyPicture 的瞬态 `0x800A03EC` 竞争）；看板级首拷异常改走降级路线而非外抛；空白 fail-closed 防御扩展到**全部路线**（非白占比 <0.5% 判 `SCREENSHOT_BLANK` 并删除产物，绝不假成功）。
+- **AI 读图闭环**：返回值含 `screenshot_path / route / non_blank_ratio / image_data_uri`（宽 ≤720px PNG base64 缩略图）；SKILL.md 契约要求 AI 读图自审（排版/遮挡/空白）→修复→重截复检后再交付。
 
 > **关键约束**
 >
@@ -202,6 +213,18 @@ for (limit = 配置的单轮上限) {
 ### 智能填充参考上下文
 
 采用“整行邻近上下文（同行各列值）+ 同列分布”双料；数值空格无语义依据时填 `待补`；默认参考范围 `same_sheet`，跨表需显式请求并提供来源。
+
+### 快捷宏与数据分析报告链路
+
+快捷宏由前端 `MACRO_CATALOG`（29 条，group 分组）驱动，精选行上限由前端 `MACRO_FEATURED_MAX` 单点把关（C# 侧 Get/SaveCustomMacros 仅透传）；老用户升级迁移语义：持久化精选与旧默认完全一致视为从未自定义，自动升级为新默认，自定义过则保留（`reconcileFeaturedNames` 做"精确→去 emoji 宽松→丢弃告警"三段对账）。
+
+「📊 数据分析报告」宏（精选第一位）的编排契约：
+
+1. **视角识别（第 0 步）**：显式指定 > 列名推断 > 通用资深分析师兜底；9 个职能视角包（生产/PMC物控/质量/销售/电商运营/财务/采购供应链/人效HR/CEO）内联于宏 prompt，六段式骨架不变，仅切换第②段指标框架、第③④段典型分析与第⑤段建议方向；CEO 包为唯一特殊输出格式（决策备忘录式：经营健康度一句话判断 + 影响金额/影响面标注 + 建议决策清单 + 少术语）。
+2. **工具链**：`read_business_glossary`（口径命中逐条引用原文，口径条目优先于包内默认定义）→ `analyze_column_profile` / `analyze_range_statistics` / `analyze_column_correlation` / `analyze_value_distribution`（均返回 basis 计算依据）→ `generate_analysis_report(output=html)`（output_path 优先工作簿同目录，缺省落用户文档目录）→ `recommend_excel_chart` 只读推荐清单（用户回「创建第 N 个」再建图，不自动建图）。
+3. **硬性要求**：全部数字基于工具真实返回、禁止编造；不默认写工作表网格。
+4. **路由同源**：`report-analyst` 技能（v1.1.0）与宏同口径支持 9 视角（`/skill` 路由与快捷宏两条入口行为一致）。
+5. **真机守护**：MacroChainProbe（XaiProbe `macrochain` 模式）按宏编排执行 6 用例——口径读取（缺文件返模板）、列画像/统计摘要/相关性/分布（断言 basis 字段在）、HTML 报告落盘六章节标题齐。
 
 ---
 
@@ -262,7 +285,7 @@ app\x86\   → ExcelAiAssistant.*.dll + x86 的 SQLite.Interop.dll + WebView2Loa
 
 ## 十一、安装、COM 注册与卸载
 
-安装器 `JYYJ助手-3.7.1.6-Setup-wps.exe`（Inno Setup 6，约 4.7MB）与便携包 `-wps-x64.zip`/`-wps-x86.zip`（约 3.4MB），自动探测 Excel/WPS 位数并写对应注册表视图：
+安装器 `JYYJ助手-3.8.1.68-Setup-wps.exe`（Inno Setup 6，约 4.7MB）与便携包 `-wps-x64.zip`/`-wps-x86.zip`（约 3.4MB），自动探测 Excel/WPS 位数并写对应注册表视图：
 
 **安装器形态（v3.7.1.5，WPS 版）**：
 
@@ -369,7 +392,7 @@ app\x86\   → ExcelAiAssistant.*.dll + x86 的 SQLite.Interop.dll + WebView2Loa
 1. Release 构建 + 全量 xUnit 单测（979 个，含 Sidebar 内联 JS 静态审计、AutoVerify 一致性锁、缺陷原型审计 M16DefectPatternAudit）；
 2. Excel 真机回归（`tools\RealMachineVerify`：独立 Excel 实例 + 临时工作簿，23 用例组 119 断言，含负路径）；
 3. **宿主进程泄漏断言（M17.5 新增）**：真机步前后对 Excel/WPS 宿主进程快照对比，harness 中断泄漏当场亮红（堵死"遗留僵尸进程毒害下一次安装"通路）；
-4. WPS full 真机 harness（`tools\WpsToolVerify`）+ `check_wps_full.py` 基线校验（OK/预期 FAIL/工具数 144 逐组锁定，`EXPECTED_TOOL_COUNT` 常量为有意设置的变更卡点）；
+4. WPS full 真机 harness（`tools\WpsToolVerify`）+ `check_wps_full.py` 基线校验（OK/预期 FAIL/工具数 139（剔除 ct_ 动态注册）逐组锁定，`EXPECTED_TOOL_COUNT` 常量为有意设置的变更卡点）；
 5. `release.py pack`：双架构全量重建（`--no-incremental`，M15 红线）→ 组装 dist → zip → 版本戳断言（新戳在位 ≥3 / 旧戳零残留 / 守卫符号在位）→ ISCC 打安装器（Error 32 暂态锁定自动退避重试）。
 
 ### 测试与验证
