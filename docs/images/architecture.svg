@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="880" height="420" viewBox="0 0 880 420">
+  <defs>
+    <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1e6f5c"/><stop offset="1" stop-color="#2ea380"/>
+    </linearGradient>
+    <linearGradient id="g2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2563a8"/><stop offset="1" stop-color="#3b82c4"/>
+    </linearGradient>
+  </defs>
+  <rect width="880" height="420" fill="#f7faf9"/>
+  <text x="440" y="42" text-anchor="middle" font-size="22" font-weight="bold" fill="#134e4a">JYYJ助手 · 架构总览</text>
+
+  <!-- 用户层 -->
+  <rect x="40" y="80" width="180" height="110" rx="12" fill="url(#g1)"/>
+  <text x="130" y="122" text-anchor="middle" font-size="15" fill="#fff" font-weight="bold">用户</text>
+  <text x="130" y="146" text-anchor="middle" font-size="12" fill="#e0fff5">自然语言对话</text>
+  <text x="130" y="166" text-anchor="middle" font-size="12" fill="#e0fff5">"帮我按月汇总做个图"</text>
+
+  <!-- 侧边栏 -->
+  <rect x="290" y="80" width="200" height="110" rx="12" fill="url(#g2)"/>
+  <text x="390" y="116" text-anchor="middle" font-size="15" fill="#fff" font-weight="bold">WebView2 侧边栏</text>
+  <text x="390" y="140" text-anchor="middle" font-size="11" fill="#e3f2ff">聊天 / 公式 / VBA / Python</text>
+  <text x="390" y="158" text-anchor="middle" font-size="11" fill="#e3f2ff">函数 / 流程 / 设置 七大板块</text>
+  <text x="390" y="176" text-anchor="middle" font-size="11" fill="#e3f2ff">工具确认·进度·回滚入口</text>
+
+  <!-- AI 引擎 -->
+  <rect x="560" y="80" width="180" height="110" rx="12" fill="#8b5cf6"/>
+  <text x="650" y="116" text-anchor="middle" font-size="15" fill="#fff" font-weight="bold">AI 引擎</text>
+  <text x="650" y="140" text-anchor="middle" font-size="11" fill="#f1e9ff">OpenAI 兼容双协议</text>
+  <text x="650" y="158" text-anchor="middle" font-size="11" fill="#f1e9ff">tool_calls + JSON 降级</text>
+  <text x="650" y="176" text-anchor="middle" font-size="11" fill="#f1e9ff">156 工具自动选型</text>
+
+  <!-- Excel -->
+  <rect x="290" y="260" width="200" height="100" rx="12" fill="#217346"/>
+  <text x="390" y="298" text-anchor="middle" font-size="15" fill="#fff" font-weight="bold">Excel / WPS 表格</text>
+  <text x="390" y="322" text-anchor="middle" font-size="11" fill="#d7f5e3">COM Add-in 宿主</text>
+  <text x="390" y="340" text-anchor="middle" font-size="11" fill="#d7f5e3">2013~365 双架构</text>
+
+  <!-- 安全底座 -->
+  <rect x="560" y="260" width="180" height="100" rx="12" fill="#b45309"/>
+  <text x="650" y="294" text-anchor="middle" font-size="14" fill="#fff" font-weight="bold">安全底座</text>
+  <text x="650" y="316" text-anchor="middle" font-size="11" fill="#ffedd5">保护态守卫 · 确认门</text>
+  <text x="650" y="334" text-anchor="middle" font-size="11" fill="#ffedd5">verify_* 自检 · 回滚 · 日志</text>
+
+  <line x1="220" y1="135" x2="290" y2="135" stroke="#134e4a" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="490" y1="135" x2="560" y2="135" stroke="#134e4a" stroke-width="2"/>
+  <line x1="650" y1="190" x2="650" y2="240" stroke="#134e4a" stroke-width="2"/>
+  <line x1="560" y1="250" x2="490" y2="270" stroke="#134e4a" stroke-width="2"/>
+  <line x1="650" y1="240" x2="650" y2="260" stroke="#134e4a" stroke-width="2"/>
+  <text x="255" y="126" text-anchor="middle" font-size="11" fill="#475569">输入指令</text>
+  <text x="525" y="126" text-anchor="middle" font-size="11" fill="#475569">选工具</text>
+  <text x="668" y="222" text-anchor="start" font-size="11" fill="#475569">执行+自检</text>
+</svg>

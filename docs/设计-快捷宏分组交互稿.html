@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>交互稿 · 快捷宏分组（v3.7.1.43 提案）</title>
+<style>
+  body{font-family:"Segoe UI","Microsoft YaHei",sans-serif;background:#eef1f5;margin:0;padding:20px;display:flex;gap:24px;flex-wrap:wrap}
+  .panel{background:#fff;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.08);overflow:hidden;flex:0 0 380px}
+  .titlebar{background:#1f3a5f;color:#fff;padding:10px 14px;font-weight:600}
+  .titlebar small{display:block;font-weight:400;font-size:10px;opacity:.75;margin-top:2px}
+  .screen{height:560px;overflow:auto;position:relative;background:#f7f9fc}
+  .cap{padding:6px 12px;font-size:11px;color:#667;background:#fff;border-top:1px dashed #d5dce6}
+  .cap b{color:#1f3a5f}
+  .msg{padding:8px 12px;font-size:12px;color:#333;border-bottom:1px solid #eef1f5}
+  .inputbar{padding:8px 12px;border-top:1px solid #e2e8f0;background:#fff;position:sticky;bottom:0}
+  .inputbar .box{border:1px solid #cbd5e1;border-radius:8px;padding:6px 8px;font-size:11px;color:#94a3b8}
+  /* 旧版一行 */
+  .quick{display:flex;gap:6px;overflow:auto;padding:6px 12px;background:#fff}
+  .chip{white-space:nowrap;background:#fff;border:1px solid #d5dce6;border-radius:99px;padding:5px 9px;font-size:11px;color:#344054;cursor:pointer;position:relative}
+  .chip:hover{border-color:#9db5d8;color:#1f3a5f}
+  .chip.custom{border-color:#c7d7f0;background:#f2f6fc}
+  .chip.skill{border-color:#c7d2fe;background:#eef2ff;color:#4f46e5}
+  .chip .x{margin-left:4px;color:#b45309;font-weight:700}
+  .chip.add{border-style:dashed;color:#1f3a5f;background:transparent}
+  .scrollhint{font-size:10px;color:#b45309;padding:2px 12px 6px}
+</style>
+</head>
+<body>
+
+<!-- ① 现状对照 -->
+<div class="panel">
+  <div class="titlebar">JYYJ助手<small>现状对照：单行混排 · 横向滚动 · 三类混杂</small></div>
+  <div class="screen" style="height:300px">
+    <div class="msg">AI：已生成图表并附三份报告…</div>
+    <div class="quick">
+      <span class="chip">结构摘要</span><span class="chip">清洗数据</span><span class="chip">生成公式</span>
+      <span class="chip">透视图表</span><span class="chip">解释公式</span><span class="chip">智能填充</span>
+      <span class="chip">推荐图表</span><span class="chip custom">数据 <span class="x">×</span></span>
+      <span class="chip custom">测试 <span class="x">×</span></span>
+      <span class="chip skill">excel-live</span><span class="chip skill">data-clean</span>
+      <span class="chip skill">date-number-normalize</span><span class="chip add">+ 新增宏</span>
+    </div>
+    <div class="scrollhint">⚠ 问题：18 个新宏加入后长度 ×3；内置/自定义/技能混排；名称截断；localStorage 重装即丢</div>
+  </div>
+  <div class="cap"><b>① 现状</b>：单行滚动，找不到、管不了、会丢</div>
+</div>
+
+<!-- ② 方案：默认态 -->
+<div class="panel">
+  <div class="titlebar">JYYJ助手<small>方案 · 默认态：精选一行 + 「全部宏 ▾」展开入口</small></div>
+  <div class="screen">
+    <div class="msg">AI：已生成图表并附三份报告…</div>
+    <div style="padding:6px 12px 2px;font-size:10px;color:#8896ab">快捷宏（精选）</div>
+    <div class="quick" style="flex-wrap:wrap;overflow:visible">
+      <span class="chip">📊 生成看板</span><span class="chip">📸 截图</span>
+      <span class="chip">📈 统计摘要</span><span class="chip">🧹 清洗数据</span>
+      <span class="chip">💡 智能填充</span><span class="chip">↩️ 撤销</span>
+      <span class="chip add">▾ 全部宏</span>
+    </div>
+    <div style="padding:2px 12px 6px;font-size:10px;color:#8896ab">↑ 精选可自定义（长按/右键替换）· 组内点击=立即执行</div>
+    <div class="msg">AI 回复示例：…（结论先行 + 三报告）</div>
+    <div class="inputbar"><div class="box">输入给助手的任务…</div></div>
+  </div>
+  <div class="cap"><b>② 默认态</b>：精选 6 个一行放下不滚动；<b>▾ 全部宏</b>进分组面板；精选可换</div>
+</div>
+
+<!-- ③ 方案：展开面板 -->
+<div class="panel">
+  <div class="titlebar">JYYJ助手<small>方案 · 展开面板：分组 Tab + 搜索 + 网格</small></div>
+  <div class="screen">
+    <div style="padding:8px 10px 4px;display:flex;gap:6px;flex-wrap:wrap">
+      <span class="chip" style="background:#1f3a5f;color:#fff;border-color:#1f3a5f">全部</span>
+      <span class="chip">⭐ 精选</span><span class="chip">🔍 数据体检</span><span class="chip">📋 一键报表</span>
+      <span class="chip">📊 图表进阶</span><span class="chip">🧱 表格整形</span>
+      <span class="chip custom">我的宏</span><span class="chip skill">技能</span>
+    </div>
+    <div style="padding:4px 10px"><input placeholder="🔍 搜索宏 / 技能…" style="width:100%;box-sizing:border-box;border:1px solid #cbd5e1;border-radius:8px;padding:6px 8px;font-size:11px"></div>
+    <div style="padding:2px 10px;font-size:10px;color:#8896ab">🔍 数据体检（4）</div>
+    <div style="padding:0 10px;display:grid;grid-template-columns:1fr 1fr;gap:6px">
+      <span class="chip">📈 统计摘要</span><span class="chip">🔗 列相关性</span>
+      <span class="chip">🎡 分布透视</span><span class="chip">👥 重复值体检</span>
+    </div>
+    <div style="padding:6px 10px 2px;font-size:10px;color:#8896ab">📋 一键报表（6）</div>
+    <div style="padding:0 10px;display:grid;grid-template-columns:1fr 1fr;gap:6px">
+      <span class="chip">📊 生成看板</span><span class="chip">🎯 KPI 速览</span>
+      <span class="chip">📉 目标达成</span><span class="chip">💰 损益简报</span>
+      <span class="chip">📄 导出 PDF</span><span class="chip">🧾 查看数据来源</span>
+    </div>
+    <div style="padding:6px 10px 2px;font-size:10px;color:#8896ab">📊 图表进阶（4）</div>
+    <div style="padding:0 10px;display:grid;grid-template-columns:1fr 1fr;gap:6px">
+      <span class="chip">🚀 高级图表</span><span class="chip">🔀 双轴组合图</span>
+      <span class="chip">🎨 条件格式</span><span class="chip">✨ 一键美化</span>
+    </div>
+    <div style="padding:6px 10px 2px;font-size:10px;color:#8896ab">🧱 表格整形（4）</div>
+    <div style="padding:0 10px 4px;display:grid;grid-template-columns:1fr 1fr;gap:6px">
+      <span class="chip">🧊 冻结窗格</span><span class="chip">↔️ 转置</span>
+      <span class="chip">✂️ 拆分文本</span><span class="chip">📅 日期规范化</span>
+      <span class="chip">↩️ 撤销上一步</span>
+    </div>
+    <div style="padding:6px 10px;border-top:1px dashed #e2e8f0;font-size:10px;color:#8896ab">
+      我的宏（2）· 技能（3）在右侧分组 · 悬停 chip 显示分步说明 · 管理入口见设置
+    </div>
+  </div>
+  <div class="cap"><b>③ 展开面板</b>：分组 Tab + 搜索 + 双列网格；悬停看分步说明；我的宏可删可加</div>
+</div>
+
+<!-- ④ 我的宏管理 -->
+<div class="panel">
+  <div class="titlebar">JYYJ助手<small>方案 · 我的宏管理（持久化升级）</small></div>
+  <div class="screen" style="height:auto">
+    <div style="padding:8px 10px;font-size:11px;color:#333;line-height:1.8">
+      <b>新增/编辑弹窗（替代裸 prompt()）：</b><br>
+      <div style="border:1px solid #cbd5e1;border-radius:8px;padding:8px;margin:6px 0;background:#f8fafc">
+        名称：<input value="按月汇总" style="width:180px;border:1px solid #cbd5e1;border-radius:6px;padding:3px 6px;font-size:11px">
+        <span style="color:#b45309;font-size:10px">≤12 字 · 动词+对象</span><br><br>
+        描述：<input value="按月份列汇总金额并出柱形图" style="width:150px;border:1px solid #cbd5e1;border-radius:6px;padding:3px 6px;font-size:11px">
+        <span style="color:#8896ab;font-size:10px">悬停即见</span><br><br>
+        指令：<textarea style="width:96%;height:44px;border:1px solid #cbd5e1;border-radius:6px;font-size:11px">先调用 create_excel_pivot_summary…</textarea><br>
+        <span style="font-size:10px;color:#8896ab">分组：<b>我的宏</b> · 存储：JSON 文件（重装/换机不丢，随技能包导入导出）· 旧 localStorage 宏首次启动自动迁移</span>
+      </div>
+      <b>与现有体系的关系：</b><br>
+      · 技能 chip（紫蓝）= 本地 quick 技能，仍发 /技能名，进面板「技能」分组<br>
+      · 沉淀工具（ct_ 前缀）= AI 沉淀的 VBA/流程，在「技能」分组内以技能形态出现，不重复造第三套<br>
+      · 内置宏仍硬编码（跟随版本升级自动更新）
+    </div>
+  </div>
+  <div class="cap"><b>④ 管理形态</b>：三字段弹窗 + JSON 文件持久化 + 自动迁移；不新造第三套沉淀体系</div>
+</div>
+
+</body>
+</html>
