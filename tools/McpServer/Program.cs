@@ -455,7 +455,7 @@ namespace ExcelAiAssistant.McpServer
         }
 
         /// <summary>M26：等待 Excel 后台预热完成；失败抛人话异常。</summary>
-        private static void EnsureReady(int timeoutMs = 90000)
+        private static void EnsureReady(int timeoutMs = 50000) // 审查 D-3：低于常见宿主 60s 请求超时
         {
             if (!_readyEvent.Wait(timeoutMs))
             {

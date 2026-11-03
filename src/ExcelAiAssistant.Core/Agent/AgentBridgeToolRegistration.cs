@@ -59,7 +59,7 @@ namespace ExcelAiAssistant.Core.Agent
                         "buddy_append_memory：追加记忆条目（NormalWrite，走审计）",
                         "list_agent_bridges：本清单"
                     },
-                    excel_tools = "同进程另有 167 个 Excel 工具（MCP 客户端可一并调用）",
+                    excel_tools = "同进程另有 " + (registry.Tools.Count - 4) + " 个 Excel 工具（MCP 客户端可一并调用；只读模式下仅剩 ReadOnly 子集）",
                     memory_root = AgentMemoryBridge.ResolveMemoryRoot(memoryRoot)
                 })));
         }

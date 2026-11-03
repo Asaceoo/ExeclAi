@@ -168,10 +168,15 @@ namespace ExcelAiAssistant.Excel
                 ws = GetSheet(workbook, sheet);
                 if (kind == "textbox")
                 {
-                    double top = GetOptionalDouble(args, "top", 20);
-                    double left = GetOptionalDouble(args, "left", 20);
-                    double width = GetOptionalDouble(args, "width", 160);
-                    double height = GetOptionalDouble(args, "height", 40);
+                    // FIX（审查 B-3）：数值非法显式报错，不再静默回退默认值（原 top="abc" 会 ok:true 但位置不对，误导 AI）
+                    var okTop = TryDoubleArg(args, "top", 20, out var top, out var topErr);
+                    var okLeft = TryDoubleArg(args, "left", 20, out var left, out var leftErr);
+                    var okWidth = TryDoubleArg(args, "width", 160, out var width, out var widthErr);
+                    var okHeight = TryDoubleArg(args, "height", 40, out var height, out var heightErr);
+                    if (!(okTop && okLeft && okWidth && okHeight))
+                    {
+                        return new ToolResult { Ok = false, ErrorCode = "INVALID_ARGS", Data = topErr ?? leftErr ?? widthErr ?? heightErr };
+                    }
                     string text = GetOptionalString(args, "text") ?? "";
                     var sh = ws.Shapes.AddTextbox(1, left, top, width, height); // 1 = msoTextOrientationHorizontal
                     sh.TextFrame.Characters().Text = text;
@@ -257,7 +262,18 @@ namespace ExcelAiAssistant.Excel
             var filePath = Required(args, "file_path");
             if (!System.IO.File.Exists(filePath))
                 return new ToolResult { Ok = false, ErrorCode = "FILE_NOT_FOUND", Data = "文件不存在：" + filePath };
-            var sheetName = GetOptionalString(args, "sheet_name") ?? ("CSV_" + System.IO.Path.GetFileNameWithoutExtension(filePath));
+
+            // FIX（审查 C2）：大小上限 50MB（对照 ExcelImportService 口径），防 OOM 与超大文件灌入
+            var fileInfo = new System.IO.FileInfo(filePath);
+            if (fileInfo.Length > 50L * 1024 * 1024)
+                return new ToolResult { Ok = false, ErrorCode = "FILE_TOO_LARGE", Data = "CSV 文件超过 50MB 上限，请拆分后导入。" };
+
+            // FIX（审查 C5）：表名清洗——Excel 上限 31 字符且禁 [ ] : * ? / \
+            var rawName = GetOptionalString(args, "sheet_name") ?? ("CSV_" + System.IO.Path.GetFileNameWithoutExtension(filePath));
+            var sheetName = rawName;
+            foreach (var bad in new[] { '[', ']', ':', '*', '?', '/', '\\' }) sheetName = sheetName.Replace(bad, '_');
+            if (sheetName.Length > 31) sheetName = sheetName.Substring(0, 31);
+            if (sheetName.Length == 0) sheetName = "CSV_import";
             var delimiter = GetOptionalString(args, "delimiter") ?? ",";
             dynamic workbook = null;
             dynamic ws = null;
@@ -273,22 +289,37 @@ namespace ExcelAiAssistant.Excel
                 var bytes = System.IO.File.ReadAllBytes(filePath);
                 var enc = DetectEncoding(bytes);
                 var text = enc.GetString(bytes);
-                var lines = text.Split(new[] { "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries);
-                for (int r = 0; r < lines.Length && r < 100000; r++)
+                // FIX（审查 C4/BOM/性能）：去 BOM；NumberFormat="@" 前置防公式注入与日期强转（CLAUDE.md §7）；
+                // 整块 object[,] 一次写（原逐格 COM 最坏 10万×256=2560万次调用会挂死）
+                if (text.Length > 0 && text[0] == '\uFEFF') text = text.Substring(1);
+                var rows = text.Split(new[] { "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries);
+                int maxRows = Math.Min(rows.Length, 100000);
+                int maxCols = 0;
+                for (int r = 0; r < maxRows; r++)
                 {
-                    var cells = lines[r].Split(new[] { delimiter }, StringSplitOptions.None);
-                    for (int c = 0; c < cells.Length && c < 256; c++)
+                    var n = rows[r].Split(new[] { delimiter }, StringSplitOptions.None).Length;
+                    if (n > maxCols) maxCols = n;
+                }
+                maxCols = Math.Min(maxCols, 256);
+                if (maxRows > 0 && maxCols > 0)
+                {
+                    var block = new object[maxRows, maxCols];
+                    for (int r = 0; r < maxRows; r++)
                     {
-                        var cell = (dynamic)ws.Cells[r + 1, c + 1];
-                        cell.Value2 = cells[c];
-                        if (System.Runtime.InteropServices.Marshal.IsComObject(cell)) System.Runtime.InteropServices.Marshal.FinalReleaseComObject(cell);
+                        var cells = rows[r].Split(new[] { delimiter }, StringSplitOptions.None);
+                        for (int c = 0; c < maxCols; c++) block[r, c] = c < cells.Length ? cells[c] : null;
                     }
+                    dynamic target = (dynamic)ws.Range[ws.Cells[1, 1], ws.Cells[maxRows, maxCols]];
+                    target.NumberFormat = "@";
+                    target.Value2 = block;
                 }
                 return new ToolResult
                 {
                     Ok = true,
-                    Data = new { sheet = sheetName, rows = Math.Min(lines.Length, 100000), columns = lines.Length > 0 ? lines[0].Split(new[] { delimiter }, StringSplitOptions.None).Length : 0, encoding = enc.EncodingName },
-                    AffectedRanges = new List<string> { "'" + sheetName + "'!A1" }
+                    Truncated = rows.Length > maxRows,
+                    Data = new { sheet = sheetName, rows = maxRows, columns = maxCols, encoding = enc.EncodingName },
+                    // FIX（审查 E5）：AffectedRanges 报完整覆盖区（原只报 A1 不足以支撑核对与回滚）
+                    AffectedRanges = new List<string> { "'" + sheetName.Replace("'", "''") + "'!A1:" + ColLetter(maxCols) + maxRows }
                 };
             }
             finally
@@ -345,5 +376,29 @@ namespace ExcelAiAssistant.Excel
                 try { System.Runtime.InteropServices.Marshal.FinalReleaseComObject(o); } catch { }
             }
         }
+        private static bool TryDoubleArg(Dictionary<string, object> args, string key, double def, out double value, out string error)
+        {
+            error = null;
+            value = def;
+            if (args != null && args.TryGetValue(key, out var v) && v != null)
+            {
+                var s = Convert.ToString(v);
+                if (s.Length > 0)
+                {
+                    if (double.TryParse(s, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out value)) return true;
+                    error = "参数 " + key + " 需为数值，收到：" + s;
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        private static string ColLetter(int c)
+        {
+            var s = "";
+            while (c > 0) { var m = (c - 1) % 26; s = (char)('A' + m) + s; c = (c - 1) / 26; }
+            return s;
+        }
+
     }
 }

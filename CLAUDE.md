@@ -46,7 +46,7 @@
 
 ## 6. 验证与门禁（写工具必过）
 
-- **覆盖审计**：所有写能力工具（NormalWrite/StructuralChange/Dangerous）必须在 `MappedPrimaryTools`(26 类)或 `DocumentedWriteToolExemptions`(77 条带理由豁免)里；`ct_`前缀用户自定义工具自动豁免。判定入口 `AutoVerifyPolicy.IsExemptedFromAutoVerify`，两个执行点：harness 用例17、全功能巡检。**新工具不表态就发不出去**。
+- **覆盖审计**：所有写能力工具（NormalWrite/StructuralChange/Dangerous）必须在 `MappedPrimaryTools`(45 类)或 `DocumentedWriteToolExemptions`(89 条带理由豁免)里；`ct_`前缀用户自定义工具自动豁免。判定入口 `AutoVerifyPolicy.IsExemptedFromAutoVerify`，两个执行点：harness 用例17、全功能巡检。**新工具不表态就发不出去**。
 - **保护态守卫（M17）**：所有写能力工具默认受 `SheetProtectionGuard` 前置探测（目标表 ProtectContents / 结构类 ProtectStructure），豁免必须带理由（`SheetProtectionGuard.Exemptions`，ct_ 前缀自动豁免）；守卫是加法前置——探测异常一律放行，不得在守卫内拦截或改写工具自身错误路径。**探测类 COM 代码零 FinalRelease**（RCW 身份共享，见兼容差异清单 M17 条目）。
 - **verify_* 自检族（18 个）**：write_result / cell_format / conditional_format / sort_filter / formula / chart / data_clean / pivot / marker / structure / data_validation / sparkline / merge / hyperlink / table / protection / image / freeze_panes（以源码注册为准）；判定无期望值时 fail-closed，不得静默放行。
 - **流程编排**：内置模板 verify 工具必须带 `{selection_sheet}`；自检结果与主步骤独立命名空间，失败标红且 ok 必须为主结果+自检均通过。

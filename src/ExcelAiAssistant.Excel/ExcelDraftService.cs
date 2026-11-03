@@ -81,7 +81,7 @@ namespace ExcelAiAssistant.Excel
         {
             var draftName = Required(args, "draft_sheet");
             if (!drafts.TryGetValue(draftName, out var session))
-                return new ToolResult { Ok = false, ErrorCode = "DRAFT_NOT_FOUND", Data = "草稿不存在或已结束：" + draftName };
+                return new ToolResult { Ok = false, ErrorCode = "DRAFT_NOT_FOUND", Data = "草稿不存在或已结束：" + draftName + "。可重新 start_draft。" };
             dynamic workbook = null;
             try
             {
@@ -130,7 +130,7 @@ namespace ExcelAiAssistant.Excel
         {
             var draftName = Required(args, "draft_sheet");
             if (!drafts.TryGetValue(draftName, out var session))
-                return new ToolResult { Ok = false, ErrorCode = "DRAFT_NOT_FOUND", Data = "草稿不存在或已结束：" + draftName };
+                return new ToolResult { Ok = false, ErrorCode = "DRAFT_NOT_FOUND", Data = "草稿不存在或已结束：" + draftName + "。可重新 start_draft。" };
             dynamic workbook = null;
             try
             {
@@ -168,7 +168,22 @@ namespace ExcelAiAssistant.Excel
         {
             var draftName = Required(args, "draft_sheet");
             if (!drafts.TryGetValue(draftName, out var session))
-                return new ToolResult { Ok = false, ErrorCode = "DRAFT_NOT_FOUND", Data = "草稿不存在或已结束：" + draftName };
+            {
+                // FIX（审查 E6）：进程重启后草稿表成孤儿（内存字典丢失）——draft_ 前缀允许指名清理
+                if (draftName.StartsWith("draft_", StringComparison.OrdinalIgnoreCase))
+                {
+                    dynamic wb2 = null;
+                    try
+                    {
+                        wb2 = GetWorkbook();
+                        dynamic orphan = wb2.Worksheets[draftName];
+                        orphan.Delete();
+                        return new ToolResult { Ok = true, Data = new { discarded = draftName, note = "孤儿草稿已清理（不在当前会话登记表中）" } };
+                    }
+                    catch { }
+                }
+                return new ToolResult { Ok = false, ErrorCode = "DRAFT_NOT_FOUND", Data = "草稿不存在或已结束：" + draftName + "。可重新 start_draft，或 query_elements(element_type=sheets) 查看现存 draft_* 表。" };
+            }
             dynamic workbook = null;
             try
             {
