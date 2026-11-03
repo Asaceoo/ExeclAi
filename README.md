@@ -2,7 +2,7 @@
 
 **内嵌 Excel 的 AI 办公助手** —— 用自然语言操作表格：写入、清洗、分析、图表、看板、VBA、流程编排，AI 经 **156 个内置工具**直接完成，所有写操作**自动自检、可回滚、全量留痕**。
 
-> 软件地址：https://github.com/Asaceoo/ExeclAi · 当前版本（v3.8.3.3） · Windows / .NET Framework 4.8 / Excel 2013~365 与 WPS 表格（x64 + x86）
+> 软件地址：https://github.com/Asaceoo/ExeclAi · 当前版本（v3.8.5.0） · Windows / .NET Framework 4.8 / Excel 2013~365 与 WPS 表格（x64 + x86）
 
 ---
 
@@ -45,7 +45,7 @@ AI 从 **156 个工具**里自动选型执行——每个写动作都带前置�
 
 ## 快速开始
 
-1. **安装**：从 [Releases v3.8.3.3](https://github.com/Asaceoo/ExeclAi/releases/tag/v3.8.3.3) 下载 `JYYJ-3.8.3.3-Setup-wps.exe`（安装版）或 `JYYJ-3.8.3.3-wps-x64.zip`（便携版），自动匹配 Excel/WPS 位数。
+1. **安装**：从 [Releases v3.8.3.3](https://github.com/Asaceoo/ExeclAi/releases/tag/v3.8.3.3) 下载 `JYYJ-3.8.5.0-Setup-wps.exe`（安装版）或 `JYYJ-3.8.5.0-wps-x64.zip`（便携版），自动匹配 Excel/WPS 位数。
 2. **配置模型**：打开侧边栏 → 设置 → 填 OpenAI 兼容的 Base URL / API Key / 模型名（本机 DPAPI 加密存储）。
 3. **开聊**：选中数据区域，直接说需求。
 
@@ -140,14 +140,14 @@ ExcelAiCli exec preview_excel_range --address A1:C10     # 带参数执行
 19. **Python 深度分析**：「用 Python 对这份数据跑聚类，把分群结果写回新列」→ `run_python_excel`（确认门）
 20. **MCP/CLI 集成**：Claude Desktop 接入后「帮我把桌面 data.xlsx 的 Sheet1 汇总成月度报告」→ MCP 156 工具直调；或 CLI `ExcelAiCli exec create_excel_pivot_summary --json "{...}" --allow-write`
 
-> 更多工具级用法见 [用户手册](docs/JYYJ助手用户手册-3.8.3.3.md) 第十一章「功能全景：全部工具速查」。
+> 更多工具级用法见 [用户手册](docs/JYYJ助手用户手册-3.8.5.0.md) 第十一章「功能全景：全部工具速查」。
 
 ---
 
 ## 文档
 
-- **用户手册**：[docs/JYYJ助手用户手册-3.8.3.3.md](docs/JYYJ助手用户手册-3.8.3.3.md)（同名 HTML/PDF）
-- **技术手册**：[docs/JYYJ助手技术手册-3.8.3.3.md](docs/JYYJ助手技术手册-3.8.3.3.md)
+- **用户手册**：[docs/JYYJ助手用户手册-3.8.5.0.md](docs/JYYJ助手用户手册-3.8.5.0.md)（同名 HTML/PDF）
+- **技术手册**：[docs/JYYJ助手技术手册-3.8.5.0.md](docs/JYYJ助手技术手册-3.8.5.0.md)
 - **踩坑手册**：[docs/踩坑记录与规避手册.md](docs/踩坑记录与规避手册.md)（120+ 真实血泪条目）
 - **AI 交接文档**：[docs/AI交接文档.md](docs/AI交接文档.md)（AI 接手开发先读）
 

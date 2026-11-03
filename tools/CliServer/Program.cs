@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using ExcelAiAssistant.Core.Models;
+using ExcelAiAssistant.Core.Agent;
 using ExcelAiAssistant.Core.Operations;
 using ExcelAiAssistant.Core.Tools;
 using ExcelAiAssistant.Excel;
@@ -74,6 +75,8 @@ namespace ExcelAiAssistant.Cli
                 _repo = new OperationRepository(Path.Combine(repoDir, "operations-cli.db"));
                 _host = new ExcelToolHost(appLocal, _repo, null, "cli-" + Guid.NewGuid().ToString("N").Substring(0, 8));
                 _registry = _host.CreateRegistry();
+                // M26：外部 AI 智能体桥接（workbuddy 记忆读写）
+                AgentBridgeToolRegistration.Register(_registry, null);
 
                 if (!allowWrite)
                 {

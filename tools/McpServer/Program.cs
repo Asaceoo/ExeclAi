@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using ExcelAiAssistant.Core.Models;
+using ExcelAiAssistant.Core.Agent;
 using ExcelAiAssistant.Core.Operations;
 using ExcelAiAssistant.Core.Tools;
 using ExcelAiAssistant.Excel;
@@ -37,9 +38,13 @@ namespace ExcelAiAssistant.McpServer
         private static dynamic _app;
         internal static bool _readOnlyMode = true;
         private static bool _allowWrite;
+        private static string _memoryRoot; // M26：workbuddy 记忆根（可选覆盖）
         private static readonly DateTime _serverStartUtc = DateTime.UtcNow;
         private static StreamWriter _log;
         private static int _spawnedPid;
+        // M26 懒初始化同步原语：后台预热完成后置位；初始化异常记录在 _initError
+        private static readonly System.Threading.ManualResetEventSlim _readyEvent = new System.Threading.ManualResetEventSlim(false);
+        private static string _initError;
 
         private static int Main(string[] args)
         {
@@ -48,6 +53,7 @@ namespace ExcelAiAssistant.McpServer
             for (var i = 0; i < args.Length - 1; i++)
             {
                 if (args[i] == "--log") { logPath = args[i + 1]; }
+                if (args[i] == "--memory-root") { _memoryRoot = args[i + 1]; }
             }
 
             // 日志绝不上 stdout——stdout 是 MCP 协议通道，污染即协议崩
@@ -56,66 +62,21 @@ namespace ExcelAiAssistant.McpServer
                 try { _log = new StreamWriter(logPath, false, new UTF8Encoding(false)) { AutoFlush = true }; } catch { }
             }
 
-            try
+            // M26 懒初始化：后台线程预热 Excel（冷启动 15-25s），stdio 循环立即启动响应 MCP 握手——
+            // 修复「宿主等待握手超时 → host-tools-pending 连不上」的根因。
+            var initThread = new System.Threading.Thread(() =>
             {
-                var excelType = Type.GetTypeFromProgID("Excel.Application");
-                if (excelType == null)
+                try { InitializeExcel(); }
+                catch (Exception ex)
                 {
-                    Console.Error.WriteLine("ExcelAiMcpServer: 未找到 Excel.Application COM 组件（本机未安装 Excel？）");
-                    return 2;
+                    _initError = ex.Message;
+                    Log("启动失败: " + ex);
+                    _readyEvent.Set(); // 释放等待者，由 EnsureReady 抛出错误
                 }
-
-                _app = Activator.CreateInstance(excelType);
-                // R2 修复：从自身 COM 对象取确定 PID 记账（进程名差集法有快照-激活窗口竞态，
-                // 且 WPS 兼容机上 ProgID 解析到 et.exe 时 "EXCEL" 进程名永不匹配——双失效）。
-                try
-                {
-                    var hwnd = (int)_app.Hwnd;
-                    var pid = new uint[1];
-                    Win32Native.GetWindowThreadProcessId(hwnd, pid);
-                    if (pid[0] != 0)
-                    {
-                        SpawnedPids.Add((int)pid[0]);
-                        _spawnedPid = (int)pid[0];
-                        Log("spawn PID=" + pid[0] + "（来自自身实例 Hwnd 归因）");
-                    }
-                }
-                catch (Exception pidException)
-                {
-                    Log("PID 归因失败（会话结束仅靠 Quit 兜底）: " + pidException.Message);
-                }
-
-                _app.Visible = false;
-                try { _app.DisplayAlerts = false; } catch { }
-                try { _app.AutomationSecurity = 1; } catch { }
-
-                // 新建未存盘内存工作簿（真机 harness 同款）：全程不 SaveAs、不打开用户文件
-                _app.Workbooks.Add();
-
-                // P0-1：接入审计/回滚——独立 operations-mcp.db（与加载项 operations.db 分离，互不污染）
-                var repoDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "ExcelAiAssistant");
-                _repo = new OperationRepository(Path.Combine(repoDir, "operations-mcp.db"));
-                _host = new ExcelToolHost(_app, _repo, null, "mcp-" + Guid.NewGuid().ToString("N").Substring(0, 8));
-                _registry = _host.CreateRegistry();
-                _readOnlyMode = !_allowWrite;
-
-                if (_readOnlyMode)
-                {
-                    foreach (var tool in _registry.Tools.Where(t => t.RiskLevel != RiskLevel.ReadOnly).ToList())
-                    {
-                        _registry.Remove(tool.Name);
-                    }
-                }
-
-                Log("MCP server 启动：工具数=" + _registry.Tools.Count + "，模式=" + (_readOnlyMode ? "只读" : "读写") + "，Excel PID=" + _spawnedPid);
-            }
-            catch (Exception ex)
-            {
-                Log("启动失败: " + ex);
-                Console.Error.WriteLine("ExcelAiMcpServer 启动失败: " + ex.Message);
-                Cleanup();
-                return 3;
-            }
+            });
+            initThread.IsBackground = true;
+            initThread.Start();
+            Log("MCP server：stdio 循环启动，Excel 后台预热中…");
 
             // R1 修复：stdio 主循环任何异常（客户端断连 IOException/畸形输入）都不得跳过 Cleanup——
             // 泄漏 Visible=false 的 EXCEL.EXE 是红线级故障。
@@ -129,6 +90,65 @@ namespace ExcelAiAssistant.McpServer
                 try { Cleanup(); } catch (Exception cleanupException) { Log("Cleanup 异常: " + cleanupException.Message); }
             }
             return 0;
+        }
+
+        /// <summary>M26 懒初始化：Excel COM 冷启动耗时 15-25 秒，宿主 MCP 握手窗口远小于此——
+        /// 改为后台线程预热；stdio 循环立即响应握手，tools 调用经 EnsureReady 等待就绪。</summary>
+        private static void InitializeExcel()
+        {
+            var excelType = Type.GetTypeFromProgID("Excel.Application");
+            if (excelType == null)
+            {
+                _initError = "未找到 Excel.Application COM 组件（本机未安装 Excel？）";
+                return;
+            }
+
+            _app = Activator.CreateInstance(excelType);
+            // R2 修复：从自身 COM 对象取确定 PID 记账（进程名差集法有快照-激活窗口竞态，
+            // 且 WPS 兼容机上 ProgID 解析到 et.exe 时 "EXCEL" 进程名永不匹配——双失效）。
+            try
+            {
+                var hwnd = (int)_app.Hwnd;
+                var pid = new uint[1];
+                Win32Native.GetWindowThreadProcessId(hwnd, pid);
+                if (pid[0] != 0)
+                {
+                    SpawnedPids.Add((int)pid[0]);
+                    _spawnedPid = (int)pid[0];
+                    Log("spawn PID=" + pid[0] + "（来自自身实例 Hwnd 归因）");
+                }
+            }
+            catch (Exception pidException)
+            {
+                Log("PID 归因失败（会话结束仅靠 Quit 兜底）: " + pidException.Message);
+            }
+
+            _app.Visible = false;
+            try { _app.DisplayAlerts = false; } catch { }
+            try { _app.AutomationSecurity = 1; } catch { }
+
+            // 新建未存盘内存工作簿（真机 harness 同款）：全程不 SaveAs、不打开用户文件
+            _app.Workbooks.Add();
+
+            // P0-1：接入审计/回滚——独立 operations-mcp.db（与加载项 operations.db 分离，互不污染）
+            var repoDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "ExcelAiAssistant");
+            _repo = new OperationRepository(Path.Combine(repoDir, "operations-mcp.db"));
+            _host = new ExcelToolHost(_app, _repo, null, "mcp-" + Guid.NewGuid().ToString("N").Substring(0, 8));
+            _registry = _host.CreateRegistry();
+            // M26：外部 AI 智能体桥接（workbuddy 记忆读写）——DSH/workbuddy 等经 MCP 直连
+            AgentBridgeToolRegistration.Register(_registry, _memoryRoot);
+            _readOnlyMode = !_allowWrite;
+
+            if (_readOnlyMode)
+            {
+                foreach (var tool in _registry.Tools.Where(t => t.RiskLevel != RiskLevel.ReadOnly).ToList())
+                {
+                    _registry.Remove(tool.Name);
+                }
+            }
+
+            Log("Excel 预热完成：工具数=" + _registry.Tools.Count + "，模式=" + (_readOnlyMode ? "只读" : "读写") + "，Excel PID=" + _spawnedPid);
+            _readyEvent.Set();
         }
 
         /// <summary>强杀本进程新建的 EXCEL.EXE；用户既有实例绝不动。</summary>
@@ -430,8 +450,28 @@ namespace ExcelAiAssistant.McpServer
             return CleanSchemaNode(propertiesValue, isPropertyDefinition: false);
         }
 
+        /// <summary>M26：等待 Excel 后台预热完成；失败抛人话异常。</summary>
+        private static void EnsureReady(int timeoutMs = 90000)
+        {
+            if (!_readyEvent.Wait(timeoutMs))
+            {
+                throw new InvalidOperationException("Excel 初始化超时（" + (timeoutMs / 1000) + " 秒）。本机 Excel COM 可能被占用或响应缓慢，请稍后重试。");
+            }
+            if (!string.IsNullOrEmpty(_initError))
+            {
+                throw new InvalidOperationException("Excel 初始化失败：" + _initError);
+            }
+        }
+
         private static void HandleToolsList(JToken id, Stream stdout)
         {
+            try { EnsureReady(); }
+            catch (Exception readyEx)
+            {
+                Emit(stdout, new JObject { ["jsonrpc"] = "2.0", ["id"] = id, ["error"] = new JObject { ["code"] = -32000, ["message"] = readyEx.Message } });
+                return;
+            }
+
             var tools = new JArray();
             foreach (var tool in _registry.Tools.OrderBy(t => t.Name, StringComparer.OrdinalIgnoreCase))
             {
@@ -460,6 +500,13 @@ namespace ExcelAiAssistant.McpServer
 
         private static void HandleToolsCall(JToken id, JObject msg, Stream stdout)
         {
+            try { EnsureReady(); }
+            catch (Exception readyEx)
+            {
+                Emit(stdout, new JObject { ["jsonrpc"] = "2.0", ["id"] = id, ["error"] = new JObject { ["code"] = -32000, ["message"] = readyEx.Message } });
+                return;
+            }
+
             var name = (string)msg["params"]?["name"];
             var rawArgs = msg["params"]?["arguments"] as JObject;
 

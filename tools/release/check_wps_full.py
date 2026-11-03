@@ -28,7 +28,7 @@ BASELINE = os.path.join(HERE, "expected_wps_full.tsv")
 # 2026-09-10 二修：对账口径改为【排除 ct_ 动态注册】——用户沉淀工具（ct_ 前缀）由
 # harness 巡检样例动态写入用户工具库（如 ct_hf_review_tool），计数随用户库浮动，
 # 不属于代码注册口径；对账时两侧同步剔除 ct_ 计数（见 TOOL_COUNT 记录行后的说明）。
-EXPECTED_TOOL_COUNT = 156  # 代码注册数（2026-09-18 +build_formula/eval_formula/diagnose_formula/rewrite_formulas 公式构造与验证闭环；2026-09-15 gate 实测口径：+web_search（联网搜索，ReadOnly）；2026-09-14：+analyze_trend_forecast、+analyze_hypothesis_test、+analyze_cluster、+analyze_regression、+analyze_text_variants、+add_insight_card（ThirdPhase 注册）；其余历史增量见下）
+EXPECTED_TOOL_COUNT = 167  # M26：156 + 11（L2 元素层 6 + import_csv 1 + 草稿模式 4）  # 代码注册数（2026-09-18 +build_formula/eval_formula/diagnose_formula/rewrite_formulas 公式构造与验证闭环；2026-09-15 gate 实测口径：+web_search（联网搜索，ReadOnly）；2026-09-14：+analyze_trend_forecast、+analyze_hypothesis_test、+analyze_cluster、+analyze_regression、+analyze_text_variants、+add_insight_card（ThirdPhase 注册）；其余历史增量见下）
 
 
 def read_text_any_encoding(path):

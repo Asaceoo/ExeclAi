@@ -192,7 +192,13 @@ namespace ExcelAiAssistant.Excel
                 new Func<Dictionary<string, object>, object[,], string, string, ToolResult>(WriteGenericRange),
                 RecordStructuralUndo);
 
-            ExcelDataToolsRegistration.RegisterDataTools(
+            // P0-2 L2 通用结构操作层 + P1-3 外部数据源（M24 优化路线图）
+            var elementOps = new ExcelElementOps((object)application);
+            var draftService = new ExcelDraftService((object)application);
+            ExcelToolHostRegistration.RegisterElementOps(registry, elementOps, draftService);
+            ExcelToolHostRegistration.RegisterExternalData(registry, elementOps);
+
+                        ExcelDataToolsRegistration.RegisterDataTools(
                 registry,
                 application,
                 new Func<Dictionary<string, object>, object[,], string, string, ToolResult>(WriteGenericRange));

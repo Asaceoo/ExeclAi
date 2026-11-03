@@ -59,6 +59,32 @@ namespace ExcelAiAssistant.Excel
             }
         }
 
+        /// <summary>P0-2 L2 通用结构操作层（对齐 OfficeCLI L2 DOM）：统一元素模型六操作。</summary>
+        public static void RegisterElementOps(
+            ToolRegistry registry,
+            ExcelElementOps elementOps,
+            ExcelDraftService draftService)
+        {
+            registry.Register(new ToolDescriptor("query_elements", "按类型枚举结构元素（sheets/shapes/charts/usedrange），列出名称与属性。发现未知结构时先调用。", RiskLevel.ReadOnly, args => Execute(() => elementOps.QueryElements(args))));
+            registry.Register(new ToolDescriptor("get_element", "读取任意区域/单元格的值与公式（values 二维矩阵）。", RiskLevel.ReadOnly, args => Execute(() => elementOps.GetElement(args)), ElementOpSchemas.GetElement()));
+            registry.Register(new ToolDescriptor("set_element", "设置任意区域/单元格的值（before/after 回显）。", RiskLevel.NormalWrite, args => Execute(() => elementOps.SetElement(args)), ElementOpSchemas.SetElement()));
+            registry.Register(new ToolDescriptor("add_element", "新增元素：textbox 文本框（可指定 top/left/width/height/text）。", RiskLevel.StructuralChange, args => Execute(() => elementOps.AddElement(args)), ElementOpSchemas.AddElement()));
+            registry.Register(new ToolDescriptor("remove_element", "删除元素：shape 或 chart（按名称，指定 kind）。", RiskLevel.StructuralChange, args => Execute(() => elementOps.RemoveElement(args)), ElementOpSchemas.RemoveElement()));
+            registry.Register(new ToolDescriptor("move_element", "移动元素：shape 或 chart（按名称改 top/left）。", RiskLevel.StructuralChange, args => Execute(() => elementOps.MoveElement(args)), ElementOpSchemas.MoveElement()));
+            registry.Register(new ToolDescriptor("start_draft", "草稿模式：复制源工作表为隐藏草稿副本，AI 在副本上执行变更（P1-1）。", RiskLevel.StructuralChange, args => Execute(() => draftService.StartDraft(args)), ElementOpSchemas.DraftStart()));
+            registry.Register(new ToolDescriptor("diff_draft", "草稿差异预览：对比草稿与源表的单元格级变更列表，供人工审阅。", RiskLevel.ReadOnly, args => Execute(() => draftService.DiffDraft(args)), ElementOpSchemas.DraftDiff()));
+            registry.Register(new ToolDescriptor("apply_draft", "采纳草稿：把草稿变更落盘到源工作表并删除草稿。", RiskLevel.NormalWrite, args => Execute(() => draftService.ApplyDraft(args)), ElementOpSchemas.DraftApply()));
+            registry.Register(new ToolDescriptor("discard_draft", "放弃草稿：删除草稿不做任何修改。", RiskLevel.StructuralChange, args => Execute(() => draftService.DiscardDraft(args)), ElementOpSchemas.DraftDiscard()));
+        }
+
+        /// <summary>P1-3 外部数据源接入（对齐 Data-Analysis-Agent 多源）：只读源→临时 sheet。</summary>
+        public static void RegisterExternalData(
+            ToolRegistry registry,
+            ExcelElementOps elementOps)
+        {
+            registry.Register(new ToolDescriptor("import_csv", "导入 CSV 文件到新工作表（自动探测编码 BOM→UTF8→GBK，来自 TextEncodingDetector）。", RiskLevel.StructuralChange, args => Execute(() => elementOps.ImportCsv(args)), ElementOpSchemas.ImportCsv()));
+        }
+
         private static ToolResult Execute(Func<ToolResult> action)
         {
             try

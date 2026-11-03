@@ -48,7 +48,7 @@ th{background:var(--bg);font-weight:600}
 <body>
 <header><div class="wrap">
   <div class="logo">JY</div>
-  <div><h1>JYYJ助手 技术手册</h1><div class="sub">Excel COM Add-in · .NET Framework 4.8 · WebView2 · OpenAI 兼容协议 · 版本 3.8.3.3（2026-11-03：M21-M23 三轮对抗审查收敛 33 项修复；新增 MCP server（tools/McpServer，173 工具面 stdio）与 CLI（tools/CliServer，list/schema/exec）两个外部入口，安全语义同源：默认只读/--allow-write/Dangerous 确认门/PID 归因强杀；CLI 教训=dynamic 字段在 RCW 断连后 null 比较也走 DLR，COM 宿主字段一律 object+反射调用）（2026-11-03：MCP server tools/McpServer 两轮对抗性审查收敛、WPS 32 位 SQLite.Interop 预加载修复、Replace 风险级等值校验、单测 1309）</div></div>
+  <div><h1>JYYJ助手 技术手册</h1><div class="sub">Excel COM Add-in · .NET Framework 4.8 · WebView2 · OpenAI 兼容协议 · 版本 3.8.5.0（2026-11-03：M26 期——L2 元素层 ExcelElementOps / 草稿模式 ExcelDraftService / import_csv / AgentMemoryBridge 桥接 / MCP 懒初始化握手 405ms）（2026-11-03：M21-M23 三轮对抗审查收敛 33 项修复；新增 MCP server（tools/McpServer，173 工具面 stdio）与 CLI（tools/CliServer，list/schema/exec）两个外部入口，安全语义同源：默认只读/--allow-write/Dangerous 确认门/PID 归因强杀；CLI 教训=dynamic 字段在 RCW 断连后 null 比较也走 DLR，COM 宿主字段一律 object+反射调用）（2026-11-03：MCP server tools/McpServer 两轮对抗性审查收敛、WPS 32 位 SQLite.Interop 预加载修复、Replace 风险级等值校验、单测 1309）</div></div>
 </div></header>
 <nav><div class="wrap"><a href="#sec0">一、总体架构</a><a href="#sec1">二、目录结构与工程</a><a href="#sec2">三、加载项宿主（ExcelAiAssistant.Addin）</a><a href="#sec3">四、Agent 引擎（ExcelAiAssistant.Core.Agent）</a><a href="#sec4">五、工具层（ExcelAiAssistant.Excel）</a><a href="#sec5">六、安全与撤销</a><a href="#sec6">七、对话、偏好与配置</a><a href="#sec7">八、VBA 生成、执行与沉淀</a><a href="#sec8">九、技能包与流程编排</a><a href="#sec9">十、构建与打包</a><a href="#sec10">十一、安装、COM 注册与卸载</a><a href="#sec11">附：文档边界与免责声明</a><a href="#sec12">十二、可观测性与质量保证</a></div></nav>
 <div class="wrap">
@@ -547,7 +547,7 @@ dist\JYYJ助手-&lt;ver&gt;-wps-安装说明.txt        安装说明</code></pre
 app\x86\   → ExcelAiAssistant.*.dll + x86 的 SQLite.Interop.dll + WebView2Loader.dll</code></pre>
 </section>
 <section id="sec10"><h2>十一、安装、COM 注册与卸载</h2>
-<p>安装器 <code>JYYJ助手-3.8.3.3-Setup-wps.exe</code>（Inno Setup 6，约 4.7MB）与便携包 <code>-wps-x64.zip</code>/<code>-wps-x86.zip</code>（约 3.4MB），自动探测 Excel/WPS 位数并写对应注册表视图：</p>
+<p>安装器 <code>JYYJ助手-3.8.5.0-Setup-wps.exe</code>（Inno Setup 6，约 4.7MB）与便携包 <code>-wps-x64.zip</code>/<code>-wps-x86.zip</code>（约 3.4MB），自动探测 Excel/WPS 位数并写对应注册表视图：</p>
 <p><strong>安装器形态（v3.7.1.5，WPS 版）</strong>：</p>
 <ul>
 <li><strong>轻量版</strong> <code>-Setup-wps.exe</code>（约 4.7MB）：缺 .NET 4.8 / WebView2 时提示并指引下载；离线完整版形态仅 Excel 主版本提供（<code>-Setup-离线完整版.exe</code>，约 316MB），WPS 版暂无；WebView2 缺失检测逻辑同源（per-machine 键在 32 位注册表视图，须 HKLM/HKCU 双视图探测，见踩坑手册 §6.7）；</li>
@@ -650,6 +650,6 @@ app\x86\   → ExcelAiAssistant.*.dll + x86 的 SQLite.Interop.dll + WebView2Loa
 <p><code>ExcelAiAssistant.Tests</code> 含 <strong>1291 个 xUnit 单测</strong>（安全管线、撤销、协议解析、技能目录、公式分析、异常检测、写偏好、VBA 门控、自动自检策略/元监控/粘合层集成、JS 静态审计、M16 缺陷原型审计等）；<code>tools\RealMachineVerify</code>（Excel）与 <code>tools\WpsToolVerify</code>（WPS）是真机 harness，遵循<strong>无状态</strong>原则：每次操作前重新解析工作表、跨表断言显式按 <code>Workbooks[...].Worksheets["name"]</code> 定位、不依赖 <code>ActiveSheet</code>、用 <code>range.Cells.Item[1,1]</code> 作写回锚点；out-of-proc 收尾不调 Close/Quit（动态 COM 退出路径会硬故障，见踩坑 §5.12），按 PID 强杀兜底；门禁对真机步执行宿主进程泄漏断言（M17.5）。</p>
 </section>
 </div>
-<footer><div class="wrap">JYYJ助手 · Excel COM Add-in · .NET Framework 4.8 · WebView2 · OpenAI 兼容协议 · 版本 3.8.3.3（2026-11-03：M21-M23 三轮对抗审查收敛 33 项修复；新增 MCP server（tools/McpServer，173 工具面 stdio）与 CLI（tools/CliServer，list/schema/exec）两个外部入口，安全语义同源：默认只读/--allow-write/Dangerous 确认门/PID 归因强杀；CLI 教训=dynamic 字段在 RCW 断连后 null 比较也走 DLR，COM 宿主字段一律 object+反射调用）（2026-11-03：MCP server tools/McpServer 两轮对抗性审查收敛、WPS 32 位 SQLite.Interop 预加载修复、Replace 风险级等值校验、单测 1309）</div></footer>
+<footer><div class="wrap">JYYJ助手 · Excel COM Add-in · .NET Framework 4.8 · WebView2 · OpenAI 兼容协议 · 版本 3.8.5.0（2026-11-03：M26 期——L2 元素层 ExcelElementOps / 草稿模式 ExcelDraftService / import_csv / AgentMemoryBridge 桥接 / MCP 懒初始化握手 405ms）（2026-11-03：M21-M23 三轮对抗审查收敛 33 项修复；新增 MCP server（tools/McpServer，173 工具面 stdio）与 CLI（tools/CliServer，list/schema/exec）两个外部入口，安全语义同源：默认只读/--allow-write/Dangerous 确认门/PID 归因强杀；CLI 教训=dynamic 字段在 RCW 断连后 null 比较也走 DLR，COM 宿主字段一律 object+反射调用）（2026-11-03：MCP server tools/McpServer 两轮对抗性审查收敛、WPS 32 位 SQLite.Interop 预加载修复、Replace 风险级等值校验、单测 1309）</div></footer>
 </body>
 </html>

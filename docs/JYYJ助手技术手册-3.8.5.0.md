@@ -1,6 +1,6 @@
 ﻿# JYYJ助手 技术手册
 
-> Excel COM Add-in · .NET Framework 4.8 · WebView2 · OpenAI 兼容协议 · 版本 3.8.3.3（2026-11-03：M21-M23 三轮对抗审查收敛 33 项修复；新增 MCP server（tools/McpServer，173 工具面 stdio）与 CLI（tools/CliServer，list/schema/exec）两个外部入口，安全语义同源：默认只读/--allow-write/Dangerous 确认门/PID 归因强杀；CLI 教训=dynamic 字段在 RCW 断连后 null 比较也走 DLR，COM 宿主字段一律 object+反射调用）（2026-11-03：MCP server tools/McpServer 两轮对抗性审查收敛、WPS 32 位 SQLite.Interop 预加载修复、Replace 风险级等值校验、单测 1309）
+> Excel COM Add-in · .NET Framework 4.8 · WebView2 · OpenAI 兼容协议 · 版本 3.8.5.0（2026-11-03：M26 期——L2 元素层 ExcelElementOps / 草稿模式 ExcelDraftService / import_csv / AgentMemoryBridge 桥接 / MCP 懒初始化握手 405ms）（2026-11-03：M21-M23 三轮对抗审查收敛 33 项修复；新增 MCP server（tools/McpServer，173 工具面 stdio）与 CLI（tools/CliServer，list/schema/exec）两个外部入口，安全语义同源：默认只读/--allow-write/Dangerous 确认门/PID 归因强杀；CLI 教训=dynamic 字段在 RCW 断连后 null 比较也走 DLR，COM 宿主字段一律 object+反射调用）（2026-11-03：MCP server tools/McpServer 两轮对抗性审查收敛、WPS 32 位 SQLite.Interop 预加载修复、Replace 风险级等值校验、单测 1309）
 
 ## 一、总体架构
 
@@ -608,7 +608,7 @@ app\x86\   → ExcelAiAssistant.*.dll + x86 的 SQLite.Interop.dll + WebView2Loa
 
 ## 十一、安装、COM 注册与卸载
 
-安装器 `JYYJ助手-3.8.3.3-Setup-wps.exe`（Inno Setup 6，约 4.7MB）与便携包 `-wps-x64.zip`/`-wps-x86.zip`（约 3.4MB），自动探测 Excel/WPS 位数并写对应注册表视图：
+安装器 `JYYJ助手-3.8.5.0-Setup-wps.exe`（Inno Setup 6，约 4.7MB）与便携包 `-wps-x64.zip`/`-wps-x86.zip`（约 3.4MB），自动探测 Excel/WPS 位数并写对应注册表视图：
 
 **安装器形态（v3.7.1.5，WPS 版）**：
 
