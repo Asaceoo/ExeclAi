@@ -297,7 +297,7 @@ namespace ExcelAiAssistant.Excel
                 int maxCols = 0;
                 for (int r = 0; r < maxRows; r++)
                 {
-                    var n = rows[r].Split(new[] { delimiter }, StringSplitOptions.None).Length;
+                    var n = SplitCsvLine(rows[r], delimiter).Length; // FIX（M27R2）：引号感知统计，裸 Split 会把 "a,b" 数成两列
                     if (n > maxCols) maxCols = n;
                 }
                 maxCols = Math.Min(maxCols, 256);
@@ -306,7 +306,7 @@ namespace ExcelAiAssistant.Excel
                     var block = new object[maxRows, maxCols];
                     for (int r = 0; r < maxRows; r++)
                     {
-                        var cells = rows[r].Split(new[] { delimiter }, StringSplitOptions.None);
+                        var cells = SplitCsvLine(rows[r], delimiter); // FIX（M27R2）：恢复引号感知切分（此前重放时退回裸 Split）
                         for (int c = 0; c < maxCols; c++) block[r, c] = c < cells.Length ? cells[c] : null;
                     }
                     dynamic target = (dynamic)ws.Range[ws.Cells[1, 1], ws.Cells[maxRows, maxCols]];

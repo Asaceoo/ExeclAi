@@ -2,7 +2,7 @@
 # 前置：①代理 127.0.0.1:7897 在跑 ②SSH config 已配 ③Releases 需 token: set GITHUB_TOKEN=ghp_xxx
 $ErrorActionPreference = "Continue"
 $repo = "Asaceoo/ExeclAi"
-$ver = "3.8.3.3"
+$ver = (Select-Xml -Path (Join-Path $PSScriptRoot "..\..\Directory.Build.props") -XPath "//Version").Node.InnerText.Trim()  # 版本号单一来源（M17.1 红线）
 $tag = "v$ver"
 Write-Host "=== 1/3 push source (github-main -> main) ==="
 & "C:\Program Files\Git\mingw64\bin\git.exe" push git@github.com:Asaceoo/ExeclAi.git github-main:main --force

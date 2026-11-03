@@ -59,6 +59,18 @@ namespace ExcelAiAssistant.Tests
         }
 
         [Fact]
+        public void Import_csv_without_sheet_name_still_produces_expectation()
+        {
+            // M27 审查 B 回归锁：sheet_name 可选，缺省时 plan 必须复刻引擎推导（CSV_文件名），
+            // 否则 verify_structure 收到空期望 → no_expected → fail-closed 误判导入失败。
+            var map = new Dictionary<string, object> { ["file_path"] = "D:\\tmp\\销售明细.csv" };
+            Assert.True(AutoVerifyPolicy.TryPlan("import_csv", map, out var plan));
+            Assert.Equal("verify_structure", plan.VerifyTool);
+            Assert.True(plan.Args.ContainsKey("expected_sheet_exists"), "缺省 sheet_name 时也必须给出 expected_sheet_exists");
+            Assert.Equal("CSV_销售明细", Convert.ToString(plan.Args["expected_sheet_exists"]));
+        }
+
+        [Fact]
         public void All_mapped_tools_plans_use_known_verify_params()
         {
             // 全量扫描：对每个 mapped 工具用最小可用参数试 plan，校验参数键合法性

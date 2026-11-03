@@ -795,7 +795,7 @@ namespace ExcelAiAssistant.Core.Agent
                     {
                         VerifyTool = "verify_structure",
                         Reason = "导入后自动核对新工作表已创建",
-                        Args = Build(map, ("expected_sheet_exists", GetString(map, "sheet_name")))
+                        Args = Build(map, ("expected_sheet_exists", ResolveCsvSheetName(map)))
                     };
                     return true;
 
@@ -1128,6 +1128,30 @@ namespace ExcelAiAssistant.Core.Agent
             }
 
             return (null, null);
+        }
+
+        /// <summary>
+        /// M27 审查 B：import_csv 的 sheet_name 是可选参数，引擎缺省时按 CSV_文件名 推导表名。
+        /// 自检 plan 必须复刻同一推导——否则 plan 无期望值 → verify_structure 判 no_expected → fail-closed
+        /// 把「未传 sheet_name 的合法导入」误判失败。
+        /// </summary>
+        private static string ResolveCsvSheetName(IReadOnlyDictionary<string, object> map)
+        {
+            // FIX（M27R2 审查 B）：引擎对最终表名无条件清洗——显式名同样要走
+            // 「非法字符→_、31 截断、空回退」，否则自检核对到的名字与真实建表不同。
+            var raw = GetString(map, "sheet_name");
+            if (string.IsNullOrWhiteSpace(raw))
+            {
+                var filePath = GetString(map, "file_path");
+                if (string.IsNullOrWhiteSpace(filePath)) { return null; }
+                raw = "CSV_" + System.IO.Path.GetFileNameWithoutExtension(filePath);
+            }
+
+            var name = raw;
+            foreach (var bad in new[] { '[', ']', ':', '*', '?', '/', '\\' }) { name = name.Replace(bad, '_'); }
+            if (name.Length > 31) { name = name.Substring(0, 31); }
+            if (name.Length == 0) { name = "CSV_import"; }
+            return name;
         }
 
         private static Dictionary<string, object> Build(

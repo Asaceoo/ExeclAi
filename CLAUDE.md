@@ -1,12 +1,12 @@
 ﻿﻿﻿﻿# JYYJ助手 · AI 行为准则
 
-> 本文档告诉**接手本仓库的 AI 助手**"在这里该怎么做事"：红线、命令、文档去哪读、验证门禁、发版约定。完整项目现状/架构/功能清单见 `docs/AI交接文档.md`（它是你 10 分钟建认知的入口）；技术细节见 `docs/JYYJ助手技术手册-3.9.1.1.md`；经验教训见 `docs/踩坑记录与规避手册.md`。
+> 本文档告诉**接手本仓库的 AI 助手**"在这里该怎么做事"：红线、命令、文档去哪读、验证门禁、发版约定。完整项目现状/架构/功能清单见 `docs/AI交接文档.md`（它是你 10 分钟建认知的入口）；技术细节见 `docs/JYYJ助手技术手册-3.9.1.2.md`；经验教训见 `docs/踩坑记录与规避手册.md`。
 
 <!-- neat-freak: initialized at 2026-09-06 -->
 
 ## 1. 项目定性
 
-**JYYJ助手**：内嵌 Excel 的 AI 办公助手——COM Add-in + WebView2 侧边栏，用户用自然语言操作表格，AI 经 167 个工具执行（口径 = `tools/release/check_wps_full.py` 的 EXPECTED_TOOL_COUNT，2026-11-03 校准：156+11 L2元素层/草稿模式/外部数据源）写入/清洗/分析/图表/超链接/VBA/流程编排；**所有写操作被执行层自动自检兜底、可回滚、运行日志全量留痕**。
+**JYYJ助手**：内嵌 Excel 的 AI 办公助手——COM Add-in + WebView2 侧边栏，用户用自然语言操作表格，AI 经 167 个工具执行（口径 = `tools/release/check_wps_full.py` 的 EXPECTED_TOOL_COUNT，2026-11-03 校准：156+11 L2元素层/草稿模式/外部数据源）写入/清洗/分析/图表/超链接/VBA/流程编排（口径解释：167=代码注册面；WPS 全量巡检 184=167+桥接4+看板浮动；MCP tools/list 188=167+桥接4+用户沉淀 ct_ 17）；**所有写操作被执行层自动自检兜底、可回滚、运行日志全量留痕**。
 
 - 当前版本：**v3.8.5.0**（源码即最新；2026-11-03 M26 落地 L2元素层/草稿模式/外部数据源/AI智能体桥接/MCP懒初始化，167 工具/1309 单测；MCP 客户端可经 tools/McpServer 直连）。2026-09-19 工具分类审查十一批收官：侧边栏七大板块全部扫完（末批：聊天附件白名单制+2MB/10MB 护栏），累计修复 20 真缺陷，单测 1291。批次详录见 docs/版本史.md。**版本号书写约定：本文件与 docs/AI交接文档.md 头部中历史版本号一律带 v 前缀**（bump 只替换裸版本号，v 前缀免疫）。
 ## 2. 你在这里做什么
@@ -46,7 +46,7 @@
 
 ## 6. 验证与门禁（写工具必过）
 
-- **覆盖审计**：所有写能力工具（NormalWrite/StructuralChange/Dangerous）必须在 `MappedPrimaryTools`(44 类)或 `DocumentedWriteToolExemptions`(95 条带理由豁免)里；`ct_`前缀用户自定义工具自动豁免。判定入口 `AutoVerifyPolicy.IsExemptedFromAutoVerify`，两个执行点：harness 用例17、全功能巡检。**新工具不表态就发不出去**。
+- **覆盖审计**：所有写能力工具（NormalWrite/StructuralChange/Dangerous）必须在 `MappedPrimaryTools`(46 类)或 `DocumentedWriteToolExemptions`(89 条带理由豁免)里；`ct_`前缀用户自定义工具自动豁免。判定入口 `AutoVerifyPolicy.IsExemptedFromAutoVerify`，两个执行点：harness 用例17、全功能巡检。**新工具不表态就发不出去**。
 - **保护态守卫（M17）**：所有写能力工具默认受 `SheetProtectionGuard` 前置探测（目标表 ProtectContents / 结构类 ProtectStructure），豁免必须带理由（`SheetProtectionGuard.Exemptions`，ct_ 前缀自动豁免）；守卫是加法前置——探测异常一律放行，不得在守卫内拦截或改写工具自身错误路径。**探测类 COM 代码零 FinalRelease**（RCW 身份共享，见兼容差异清单 M17 条目）。
 - **verify_* 自检族（18 个）**：write_result / cell_format / conditional_format / sort_filter / formula / chart / data_clean / pivot / marker / structure / data_validation / sparkline / merge / hyperlink / table / protection / image / freeze_panes（以源码注册为准）；判定无期望值时 fail-closed，不得静默放行。
 - **流程编排**：内置模板 verify 工具必须带 `{selection_sheet}`；自检结果与主步骤独立命名空间，失败标红且 ok 必须为主结果+自检均通过。
@@ -65,8 +65,8 @@
 | 想知道 | 去读 |
 |--------|------|
 | 项目整体/接手 10 分钟 | `docs/AI交接文档.md` |
-| 用户怎么用 | `docs/JYYJ助手用户手册-3.9.1.1.md`、同名 `.html`（`docs/readme.md` 仅是迁移指针） |
-| 技术细节（注册/COM/侧边栏/打包） | `docs/JYYJ助手技术手册-3.9.1.1.md` |
+| 用户怎么用 | `docs/JYYJ助手用户手册-3.9.1.2.md`、同名 `.html`（`docs/readme.md` 仅是迁移指针） |
+| 技术细节（注册/COM/侧边栏/打包） | `docs/JYYJ助手技术手册-3.9.1.2.md` |
 | 踩过的坑（血泪） | `docs/踩坑记录与规避手册.md`（docs 层权威，勿再另建 project_memory.md——已废弃） |
 | Ribbon 命令/技能编写 | Excel 主副本 `D:\execl1.0\.trae\documents\ribbon-command-authoring-guide.md`（本 WPS 副本内无此文件） |
 | 新增功能设计 | `docs/设计-*.md`、`docs/功能扩展调研报告.md` |

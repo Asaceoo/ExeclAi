@@ -92,12 +92,19 @@ namespace ExcelAiAssistant.Excel
                 // FIX（审查 C-2）：以源表 UsedRange 为比较域（草稿未覆盖的源数据也算变更），
                 // 并同时比 Formula 与 Value（impl E2：公式改了值未变也要报差异）。
                 var srcUsed = src.UsedRange;
-                int rows = Convert.ToInt32(srcUsed.Rows.Count);
-                int cols = Convert.ToInt32(srcUsed.Columns.Count);
-                int originRow = Convert.ToInt32(srcUsed.Row);
-                int originCol = Convert.ToInt32(srcUsed.Column);
-                object srcVals = rows * cols == 1 ? (object)srcUsed.Value2 : srcUsed.Value2;
-                object srcFormula = rows * cols == 1 ? (object)srcUsed.Formula : srcUsed.Formula;
+                var draftUsed = draft.UsedRange;
+                // FIX（M27R2 使用方实测）：比较窗必须取「源表 ∪ 草稿」并集——
+                // 原只用 src.UsedRange 尺寸，源表仅 A1 时草稿在 B5 的改动既算不出差异也回写不到，
+                // 却返回 ok:true，属静默丢数据。
+                int rows = Math.Max(Convert.ToInt32(srcUsed.Rows.Count), Convert.ToInt32(draftUsed.Row) + Convert.ToInt32(draftUsed.Rows.Count) - 1);
+                int cols = Math.Max(Convert.ToInt32(srcUsed.Columns.Count), Convert.ToInt32(draftUsed.Column) + Convert.ToInt32(draftUsed.Columns.Count) - 1);
+                int originRow = 1;
+                int originCol = 1;
+                // FIX（M27R2 补）：源值必须按**并集区域**显式取范围——
+                // 直接用 srcUsed.Value2 时，源表只有 1 格会返回标量而非 matrix，越界格比较全部失真。
+                dynamic srcRange = src.Range[src.Cells[originRow, originCol], src.Cells[originRow + rows - 1, originCol + cols - 1]];
+                object srcVals = srcRange.Value2;
+                object srcFormula = srcRange.Formula;
                 dynamic draftRange = draft.Range[draft.Cells[originRow, originCol], draft.Cells[originRow + rows - 1, originCol + cols - 1]];
                 object draftVals = rows * cols == 1 ? (object)draftRange.Value2 : draftRange.Value2;
                 object draftFormula = rows * cols == 1 ? (object)draftRange.Formula : draftRange.Formula;
@@ -139,10 +146,13 @@ namespace ExcelAiAssistant.Excel
                 dynamic src = workbook.Worksheets[session.SourceSheet];
                 // FIX（impl E2/E3 + 审查 E4）：按源表原点回写；用 Formula 保公式；AffectedRanges 精确到列末
                 var srcUsed = src.UsedRange;
-                int rows = Convert.ToInt32(srcUsed.Rows.Count);
-                int cols = Convert.ToInt32(srcUsed.Columns.Count);
-                int originRow = Convert.ToInt32(srcUsed.Row);
-                int originCol = Convert.ToInt32(srcUsed.Column);
+                var draftUsed2 = draft.UsedRange;
+                // FIX（M27R2 使用方实测 🔴）：回写窗必须取「源表 ∪ 草稿」并集——
+                // 原只按 src.UsedRange 回写，草稿在窗口外的改动（如源表仅 A1 而草稿改 B5）被静默丢弃却返回 ok:true。
+                int rows = Math.Max(Convert.ToInt32(srcUsed.Rows.Count), Convert.ToInt32(draftUsed2.Row) + Convert.ToInt32(draftUsed2.Rows.Count) - 1);
+                int cols = Math.Max(Convert.ToInt32(srcUsed.Columns.Count), Convert.ToInt32(draftUsed2.Column) + Convert.ToInt32(draftUsed2.Columns.Count) - 1);
+                int originRow = 1;
+                int originCol = 1;
                 if (rows > 0 && cols > 0)
                 {
                     dynamic draftRange = draft.Range[draft.Cells[originRow, originCol], draft.Cells[originRow + rows - 1, originCol + cols - 1]];

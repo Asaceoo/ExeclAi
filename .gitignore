@@ -28,3 +28,6 @@ __pycache__/
 # 大型离线安装器不入库（GitHub 单文件 100MB 硬限 + 推送带宽）
 tools/installer/redist/*.exe
 %SystemDrive%/
+.adv-review/
+_audit_tmp/
+tmp-m27/

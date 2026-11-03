@@ -34,7 +34,16 @@ namespace ExcelAiAssistant.McpServer
         private static ExcelToolHost _host;
         private static OperationRepository _repo;
         // P0-3：确认码强制门——工具名→一次性确认码（人工从确认文件读码后回传）
-        internal static readonly Dictionary<string, string> PendingConfirmations = new Dictionary<string, string>(); // P0-1：审计/回滚落库（M21 前为 null 的 N3 缺口已收口）
+        internal static readonly Dictionary<string, PendingConfirmation> PendingConfirmations = new Dictionary<string, PendingConfirmation>(); // P0-1 审计接入；M27R2：带 TTL/失败计数
+
+        /// <summary>M27R2 审查：确认码携带过期时间与失败计数——防长驻进程内无限穷举。</summary>
+        internal sealed class PendingConfirmation
+        {
+            public string Code;
+            public DateTime ExpiryUtc;
+            public int Failures;
+        }
+
         private static dynamic _app;
         internal static bool _readOnlyMode = true;
         private static bool _allowWrite;
@@ -183,7 +192,7 @@ namespace ExcelAiAssistant.McpServer
                 try
                 {
                     var p = System.Diagnostics.Process.GetProcessById(pid);
-                    if (p.StartTime >= _serverStartUtc)
+                    if (p.StartTime.ToUniversalTime() >= _serverStartUtc) // FIX(M27R2)：StartTime 是 Local，直接与 Utc 比会因 Kind 被忽略而恒真
                     {
                         p.Kill();
                         Log("已强杀 spawn 进程 PID=" + pid + " name=" + p.ProcessName);
@@ -243,33 +252,53 @@ namespace ExcelAiAssistant.McpServer
                             continue;
                         }
 
-                        string skip;
-                        do { skip = reader.ReadLine(); } while (skip != null && skip.Length > 0);
-                        // LSP 字节错位修复（P3）：Content-Length 语义是 UTF-8 字节数；原按「字符数」
-                        // 读体——JSON 含中文时每字 3 字节会少读正文、把下一帧的字节当本帧尾巴，
-                        // 帧边界错位。改为逐字符累计 UTF-8 字节直到 len（代理对合算 4 字节）。
+                        // （空行跳过逻辑见下方有界循环）
+                        // M27R2：有界跳过空行（原 do/while 在「无空行」宽容帧下会把正文首行当头部吞掉）
+                        for (int blank = 0; blank < 2; blank++)
+                        {
+                            var peekChar = reader.Peek();
+                            if (peekChar < 0) { break; }
+                            if (peekChar == '\r') { reader.Read(); continue; }
+                            if (peekChar == '\n') { reader.Read(); break; }
+                            break; // 非空行：认为正文立即开始，不再吞行
+                        }
+                        // M27R2：非破坏性按 UTF-8 字节读帧——先 Peek 预估该字符字节数，
+                        // 若会越过 len 则不消费（留给下一帧），彻底消除「多吞下一帧字节 → 流永久错位」。
                         var sb = new System.Text.StringBuilder();
                         int frameBytes = 0;
-                        int ch;
-                        while (frameBytes < len && (ch = reader.Read()) >= 0)
+                        while (frameBytes < len)
                         {
-                            char c = (char)ch;
-                            int cb;
+                            int peek = reader.Peek();
+                            if (peek < 0) { break; }
+                            char c = (char)peek;
                             if (char.IsHighSurrogate(c))
                             {
-                                int lo = reader.Read();
-                                if (lo >= 0 && char.IsLowSurrogate((char)lo)) { sb.Append(c); sb.Append((char)lo); cb = 4; }
-                                else { sb.Append(c); cb = 3; if (lo >= 0) sb.Append((char)lo); }
+                                if (frameBytes + 4 > len) { break; } // 代理对整体放不下：留给下一帧
+                                reader.Read();
+                                sb.Append(c);
+                                int lo = reader.Peek();
+                                if (lo >= 0 && char.IsLowSurrogate((char)lo)) { reader.Read(); sb.Append((char)lo); frameBytes += 4; }
+                                else { frameBytes += 3; } // 孤立高代理（.NET 编码为 3 字节 U+FFFD）
                             }
-                            else if (c <= 0x7F) { sb.Append(c); cb = 1; }
-                            else if (c <= 0x7FF) { sb.Append(c); cb = 2; }
-                            else { sb.Append(c); cb = 3; }
-                            frameBytes += cb;
-                            // 超界说明对端帧长与实际编码不一致：仍收满该字符（不可劈开），交解析层报错
-                            if (frameBytes > len) { break; }
+                            else
+                            {
+                                int cb = c <= 0x7F ? 1 : (c <= 0x7FF ? 2 : 3);
+                                if (frameBytes + cb > len) { break; } // 该字符属于下一帧：不消费
+                                reader.Read();
+                                sb.Append(c);
+                                frameBytes += cb;
+                            }
                         }
 
-                        HandleMessage(sb.ToString(), stdout);
+                        // 重同步：若声明长度与实际消费字节不符（畸形帧），按剩余字节数丢弃，
+                        // 避免残余字节被外层 ReadLine 当成下一条消息（此前会连环污染后续所有帧）。
+                        int residual = len - frameBytes;
+                        for (int d = 0; d < residual && residual < 1024 * 1024; d++)
+                        {
+                            if (reader.Read() < 0) { break; }
+                        }
+
+                        HandleMessage(sb.ToString(), stdout); // FIX(M27R2 回归)：读满正文后必须派发，否则整帧被吞
                         continue;
                     }
 
@@ -656,16 +685,24 @@ namespace ExcelAiAssistant.McpServer
         {
             if (!args.TryGetValue("confirmed", out var v) || v == null) { return false; }
             var supplied = Convert.ToString(v);
-            if (PendingConfirmations.TryGetValue(toolName, out var expected))
+            if (!PendingConfirmations.TryGetValue(toolName, out var pending)) { return false; } // 无待确认记录 fail-closed
+
+            // M27R2：TTL（10 分钟）——过期即作废并要求重新发起，压缩穷举窗口
+            if (DateTime.UtcNow > pending.ExpiryUtc)
             {
-                if (string.Equals(supplied, expected, StringComparison.OrdinalIgnoreCase))
-                {
-                    PendingConfirmations.Remove(toolName); // 一次性消费
-                    return true;
-                }
-                return false; // 有待确认码但不匹配
+                PendingConfirmations.Remove(toolName);
+                return false;
             }
-            // 无待确认记录（如进程重启后直接带码）——fail-closed
+
+            if (string.Equals(supplied, pending.Code, StringComparison.OrdinalIgnoreCase))
+            {
+                PendingConfirmations.Remove(toolName); // 一次性消费
+                return true;
+            }
+
+            // M27R2：连续错码 ≥5 次即作废该待确认记录（防无限试）
+            pending.Failures++;
+            if (pending.Failures >= 5) { PendingConfirmations.Remove(toolName); }
             return false;
         }
 
@@ -761,8 +798,8 @@ namespace ExcelAiAssistant.McpServer
         /// AI 无法自答——码只存在于文件中，人工读码后由客户端回传 confirmed=<code>。</summary>
         internal static string BuildConfirmationText(string name, Dictionary<string, object> args)
         {
-            var code = Guid.NewGuid().ToString("N").Substring(0, 8).ToUpperInvariant();
-            PendingConfirmations[name] = code;
+            var code = (Guid.NewGuid().ToString("N") + Guid.NewGuid().ToString("N")).Substring(0, 12).ToUpperInvariant(); // M27R2：8→12 hex（48bit），压缩穷举空间
+            PendingConfirmations[name] = new PendingConfirmation { Code = code, ExpiryUtc = DateTime.UtcNow.AddMinutes(10), Failures = 0 }; // M27R2：10 分钟 TTL
             var argsText = JsonConvert.SerializeObject(args);
             if (argsText.Length > 500) { argsText = argsText.Substring(0, 500) + "...[截断]"; }
 
@@ -792,7 +829,7 @@ namespace ExcelAiAssistant.McpServer
                 "该确认码一次性，使用后作废。");
 
             return "该工具为 Dangerous 级（" + name + "），已拦截等待人工确认。" +
-                   "确认文件已生成: " + file + "\n" +
+                   "确认文件已写入待确认目录（%AppData%\\ExcelAiAssistant\\pending-confirmations，文件名 " + name + "-pending.txt）——本响应不提供可直接读取的完整路径。\n" +
                    "请将此确认文件路径原样转告用户：用户核对后用文件中的确认码重新调用（confirmed=<用户提供的码>）。本响应不携带确认码。" +
                    "注意：确认码一次性；写操作已接入审计库，执行后可用 undo_excel_operation 回滚。" +
                    "当前参数：" + argsText;
@@ -809,10 +846,10 @@ namespace ExcelAiAssistant.McpServer
                 char c = s[chars];
                 int cb;
                 if (char.IsHighSurrogate(c) && chars + 1 < s.Length && char.IsLowSurrogate(s[chars + 1])) cb = 4;
-                else if (char.IsSurrogate(c)) cb = 1; // 孤立代理：.NET UTF8 编码器输出 '?'（1 字节），不可按 3 计
+                else if (char.IsSurrogate(c)) cb = 3; // 孤立代理：.NET UTF8 编码为 U+FFFD（实测 3 字节），按 3 计才不超预算
                 else if (c <= 0x7F) cb = 1;
                 else if (c <= 0x7FF) cb = 2;
-                else cb = 3; // 含孤立代理/BMP 字符
+                else cb = 3;
                 if (bytes + cb > maxBytes) break;
                 bytes += cb;
                 chars += (cb == 4 ? 2 : 1);
