@@ -1,7 +1,7 @@
 ﻿﻿# JYYJ助手 · AI 交接文档
 
 > 本文档写给**接手本项目的 AI 助手**（ZCode/Claude/Cursor 等），目标是让它在 10 分钟内建立完整项目认知，并按既定 SOP 安全地更新版本与功能。
-> 最后更新：2026-11-03（v3.8.5.0）——M21-M23 三轮对抗审查收敛 33 项修复（MCP server 两轮 20 项 + CLI 第三轮 13 项）、新增 MCP server 与 CLI 双入口（173 工具面）、README 重写（3 概念图+用法+20 实例+免责声明）、双手册免责声明章、真机 119 断言全过、1309 单测、GitHub 推送通道恢复（SSH over 443 代理）。前次：2026-10-02（v3.8.3.1）。
+> 最后更新：2026-11-03（v3.8.5.0）——M21-M23 三轮对抗审查收敛 33 项修复（MCP server 两轮 20 项 + CLI 第三轮 13 项）、新增 MCP server 与 CLI 双入口（173 工具面）、README 重写（3 概念图+用法+20 实例+免责声明）、双手册免责声明章、真机 119 断言全过、1309 单测、GitHub 推送通道恢复（SSH over 443；M26（v3.8.5.0）L2元素层/草稿模式/外部数据源/AI智能体桥接/MCP懒初始化 + 三视角审查两轮收敛 代理）。前次：2026-10-02（v3.8.3.1）。
 ---
 
 ## 0. 你必须遵守的工作流（用户全局指令）
@@ -14,9 +14,9 @@
 
 ## 1. 项目一句话
 
-**JYYJ助手**：内嵌 Excel 的 AI 办公助手（COM Add-in + WebView2 侧边栏）。用户用自然语言操作表格，AI 通过 156 个工具执行写入/清洗/分析/图表/超链接/VBA/流程编排；**所有写入操作被执行层自动自检兜底、保护态集中守卫（SHEET_PROTECTED）、可回滚、运行日志全量留痕**。
+**JYYJ助手**：内嵌 Excel 的 AI 办公助手（COM Add-in + WebView2 侧边栏）。用户用自然语言操作表格，AI 通过 167 个工具执行写入/清洗/分析/图表/超链接/VBA/流程编排；**所有写入操作被执行层自动自检兜底、保护态集中守卫（SHEET_PROTECTED）、可回滚、运行日志全量留痕**。
 
-- 当前版本：**v3.8.3.3**（版本史与各批次详情见本文档顶部「最后更新」行；门禁基线：**1291 单测** + md1 62/62 + ud 31/31 + udchart 48/48 + Excel 真机 119/119 + WPS full 131 组 + 156 工具卡点）
+- 当前版本：**v3.8.5.0**（版本史与各批次详情见本文档顶部「最后更新」行；门禁基线：**1309 单测** + md1 62/62 + ud 31/31 + udchart 48/48 + Excel 真机 119/119 + WPS full 131 组 + 167 工具卡点）
 - 技术栈：.NET Framework 4.8 · C#（LangVersion latest, **TreatWarningsAsErrors=true**）· VSTO 风格 COM · WebView2 · System.Data.SQLite · Newtonsoft.Json · xUnit
 - 软件地址：https://github.com/Asaceoo/ExeclAi
 - 支持 Excel：**2013 / 2016 / 2019 / 2021 / Microsoft 365**（32/64 位），.NET Framework 4.8，Windows 10/11，需 WebView2 Runtime

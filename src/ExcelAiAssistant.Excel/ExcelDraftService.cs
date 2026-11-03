@@ -40,29 +40,21 @@ namespace ExcelAiAssistant.Excel
                 try { src = workbook.Worksheets[source]; }
                 catch { return new ToolResult { Ok = false, ErrorCode = "INVALID_SHEET", Data = "工作表不存在：" + source }; }
 
-                // FIX：毫秒级命名防同秒撞名；源名过长时截断防 31 字符上限（审查询 D-1/C-4）
-                var suffix = DateTime.Now.ToString("HHmmssfff");
-                var baseName = source.Length > 18 ? source.Substring(0, 18) : source;
-                var draftName = "draft_" + baseName + "_" + suffix;
+                var draftName = "draft_" + source + "_" + DateTime.Now.ToString("HHmmss");
                 if (SheetExists(workbook, draftName))
                     return new ToolResult { Ok = false, ErrorCode = "SHEET_EXISTS", Data = "草稿已存在：" + draftName };
 
                 var after = (dynamic)workbook.Worksheets.Add(After: workbook.Worksheets[workbook.Worksheets.Count]);
                 after.Name = draftName;
-                // FIX（审查 C-1/C-3 + impl E2/E3）：隐藏草稿 + 按 UsedRange 原点对齐 + Formula 复制保公式
-                try { after.Visible = 0; } catch { } // xlSheetHidden
+                // 全量复制值
                 var used = src.UsedRange;
                 int rows = Convert.ToInt32(used.Rows.Count);
                 int cols = Convert.ToInt32(used.Columns.Count);
-                int originRow = Convert.ToInt32(used.Row);
-                int originCol = Convert.ToInt32(used.Column);
                 if (rows > 0 && cols > 0)
                 {
-                    // 目标区域从同一原点开始（不再固定 A1）——避免复制后错位与回写重复
-                    dynamic target = (dynamic)after.Range[after.Cells[originRow, originCol], after.Cells[originRow + rows - 1, originCol + cols - 1]];
-                    try { target.Formula = rows * cols == 1 ? (object)used.Formula : used.Formula; }
-                    catch { target.Value2 = rows * cols == 1 ? (object)used.Value2 : used.Value2; }
-                    try { target.NumberFormat = rows * cols == 1 ? (object)used.NumberFormat : used.NumberFormat; } catch { }
+                    var vals = rows * cols == 1 ? (object)used.Value2 : used.Value2;
+                    var target = (dynamic)after.Range[after.Cells[1, 1], after.Cells[rows, cols]];
+                    target.Value2 = vals;
                 }
 
                 drafts[draftName] = new DraftSession { DraftSheet = draftName, SourceSheet = source };
@@ -81,7 +73,7 @@ namespace ExcelAiAssistant.Excel
         {
             var draftName = Required(args, "draft_sheet");
             if (!drafts.TryGetValue(draftName, out var session))
-                return new ToolResult { Ok = false, ErrorCode = "DRAFT_NOT_FOUND", Data = "草稿不存在或已结束：" + draftName + "。可重新 start_draft。" };
+                return new ToolResult { Ok = false, ErrorCode = "DRAFT_NOT_FOUND", Data = "草稿不存在或已结束：" + draftName };
             dynamic workbook = null;
             try
             {
@@ -89,18 +81,12 @@ namespace ExcelAiAssistant.Excel
                 dynamic draft = workbook.Worksheets[draftName];
                 dynamic src = workbook.Worksheets[session.SourceSheet];
                 var diffs = new List<object>();
-                // FIX（审查 C-2）：以源表 UsedRange 为比较域（草稿未覆盖的源数据也算变更），
-                // 并同时比 Formula 与 Value（impl E2：公式改了值未变也要报差异）。
-                var srcUsed = src.UsedRange;
-                int rows = Convert.ToInt32(srcUsed.Rows.Count);
-                int cols = Convert.ToInt32(srcUsed.Columns.Count);
-                int originRow = Convert.ToInt32(srcUsed.Row);
-                int originCol = Convert.ToInt32(srcUsed.Column);
-                object srcVals = rows * cols == 1 ? (object)srcUsed.Value2 : srcUsed.Value2;
-                object srcFormula = rows * cols == 1 ? (object)srcUsed.Formula : srcUsed.Formula;
-                dynamic draftRange = draft.Range[draft.Cells[originRow, originCol], draft.Cells[originRow + rows - 1, originCol + cols - 1]];
-                object draftVals = rows * cols == 1 ? (object)draftRange.Value2 : draftRange.Value2;
-                object draftFormula = rows * cols == 1 ? (object)draftRange.Formula : draftRange.Formula;
+                var used = draft.UsedRange;
+                int rows = Convert.ToInt32(used.Rows.Count);
+                int cols = Convert.ToInt32(used.Columns.Count);
+                var draftVals = rows * cols == 1 ? (object)used.Value2 : used.Value2;
+                var srcRange = src.Range[src.Cells[1, 1], src.Cells[rows, cols]];
+                var srcVals = rows * cols == 1 ? (object)srcRange.Value2 : srcRange.Value2;
                 int changed = 0;
                 for (int r = 1; r <= rows && changed < 500; r++)
                 {
@@ -108,14 +94,9 @@ namespace ExcelAiAssistant.Excel
                     {
                         object dv = rows * cols == 1 ? draftVals : SafeGet(draftVals, r, c);
                         object sv = rows * cols == 1 ? srcVals : SafeGet(srcVals, r, c);
-                        object df = rows * cols == 1 ? draftFormula : SafeGet(draftFormula, r, c);
-                        object sf = rows * cols == 1 ? srcFormula : SafeGet(srcFormula, r, c);
-                        // 公式优先：任一为公式且公式串不同 → 视为变更
-                        var formulaChanged = !Equals(FormatVal(df), FormatVal(sf));
-                        var valueChanged = !Equals(FormatVal(dv), FormatVal(sv));
-                        if (formulaChanged || valueChanged)
+                        if (!Equals(FormatVal(dv), FormatVal(sv)))
                         {
-                            diffs.Add(new { cell = ColName(originCol + c - 1) + (originRow + r - 1), before = FormatVal(sv), after = FormatVal(dv), before_formula = FormatVal(sf), after_formula = FormatVal(df) });
+                            diffs.Add(new { cell = ColName(c) + r, before = FormatVal(sv), after = FormatVal(dv) });
                             changed++;
                         }
                     }
@@ -130,26 +111,21 @@ namespace ExcelAiAssistant.Excel
         {
             var draftName = Required(args, "draft_sheet");
             if (!drafts.TryGetValue(draftName, out var session))
-                return new ToolResult { Ok = false, ErrorCode = "DRAFT_NOT_FOUND", Data = "草稿不存在或已结束：" + draftName + "。可重新 start_draft。" };
+                return new ToolResult { Ok = false, ErrorCode = "DRAFT_NOT_FOUND", Data = "草稿不存在或已结束：" + draftName };
             dynamic workbook = null;
             try
             {
                 workbook = GetWorkbook();
                 dynamic draft = workbook.Worksheets[draftName];
                 dynamic src = workbook.Worksheets[session.SourceSheet];
-                // FIX（impl E2/E3 + 审查 E4）：按源表原点回写；用 Formula 保公式；AffectedRanges 精确到列末
-                var srcUsed = src.UsedRange;
-                int rows = Convert.ToInt32(srcUsed.Rows.Count);
-                int cols = Convert.ToInt32(srcUsed.Columns.Count);
-                int originRow = Convert.ToInt32(srcUsed.Row);
-                int originCol = Convert.ToInt32(srcUsed.Column);
+                var used = draft.UsedRange;
+                int rows = Convert.ToInt32(used.Rows.Count);
+                int cols = Convert.ToInt32(used.Columns.Count);
                 if (rows > 0 && cols > 0)
                 {
-                    dynamic draftRange = draft.Range[draft.Cells[originRow, originCol], draft.Cells[originRow + rows - 1, originCol + cols - 1]];
-                    dynamic target = (dynamic)src.Range[src.Cells[originRow, originCol], src.Cells[originRow + rows - 1, originCol + cols - 1]];
-                    object formulaData = rows * cols == 1 ? (object)draftRange.Formula : draftRange.Formula;
-                    try { target.Formula = formulaData; }
-                    catch { target.Value2 = rows * cols == 1 ? (object)draftRange.Value2 : draftRange.Value2; }
+                    var vals = rows * cols == 1 ? (object)used.Value2 : used.Value2;
+                    var target = (dynamic)src.Range[src.Cells[1, 1], src.Cells[rows, cols]];
+                    target.Value2 = vals;
                 }
                 draft.Delete();
                 drafts.Remove(draftName);
@@ -168,22 +144,7 @@ namespace ExcelAiAssistant.Excel
         {
             var draftName = Required(args, "draft_sheet");
             if (!drafts.TryGetValue(draftName, out var session))
-            {
-                // FIX（审查 E6）：进程重启后草稿表成孤儿（内存字典丢失）——draft_ 前缀允许指名清理
-                if (draftName.StartsWith("draft_", StringComparison.OrdinalIgnoreCase))
-                {
-                    dynamic wb2 = null;
-                    try
-                    {
-                        wb2 = GetWorkbook();
-                        dynamic orphan = wb2.Worksheets[draftName];
-                        orphan.Delete();
-                        return new ToolResult { Ok = true, Data = new { discarded = draftName, note = "孤儿草稿已清理（不在当前会话登记表中）" } };
-                    }
-                    catch { }
-                }
-                return new ToolResult { Ok = false, ErrorCode = "DRAFT_NOT_FOUND", Data = "草稿不存在或已结束：" + draftName + "。可重新 start_draft，或 query_elements(element_type=sheets) 查看现存 draft_* 表。" };
-            }
+                return new ToolResult { Ok = false, ErrorCode = "DRAFT_NOT_FOUND", Data = "草稿不存在或已结束：" + draftName };
             dynamic workbook = null;
             try
             {

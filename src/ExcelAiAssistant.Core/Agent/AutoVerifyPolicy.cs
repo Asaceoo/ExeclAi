@@ -82,11 +82,8 @@ namespace ExcelAiAssistant.Core.Agent
             "create_excel_table",
             "insert_image",
             "freeze_panes",
-            "manage_hyperlinks",
-            // M26：L2 元素层 / 外部数据源（有确定性期望，可自检）
-            "set_element",
-            "import_csv"
-    };
+            "manage_hyperlinks"
+        };
 
         /// <summary>
         /// 工具是否豁免于自动自检：精确豁免清单命中，或 <c>ct_</c> 前缀的用户自定义沉淀工具
@@ -196,15 +193,7 @@ namespace ExcelAiAssistant.Core.Agent
                 ["ct_proc_FormatAnswerSheet"] = "同 ct_format_answer_sheet。",
                 ["ct_vba_tool"] = "用户沉淀的 VBA 工具，产出由脚本意图核对。",
                 ["ct_vba_tool_2"] = "同 ct_vba_tool。",
-                ["ct_vba_tool_3"] = "同 ct_vba_tool。",
-            // M26 审查修复：L2 元素层 / 草稿模式 / 智能体桥接（无可测确定性期望，逐条带理由）
-            ["add_element"] = "新增文本框属装饰性元素，无业务数据期望可核；版面判断优于机械断言形状存在。",
-            ["remove_element"] = "删除形状/图表为结构操作，删除后无期望可回读；事后用 query_elements 确认即可。",
-            ["move_element"] = "仅改 Top/Left 版面坐标，无数据期望可测。",
-            ["start_draft"] = "草稿表是临时隔离副本，断言其存在无业务意义；真正落盘期望由 apply_draft 承担。",
-            ["apply_draft"] = "回写内容已由 diff_draft 事先展示并经人工采纳，工具层无独立期望值；AffectedRanges 精确回显支撑人工核对。",
-            ["discard_draft"] = "清理动作（删除草稿表），无业务数据期望可核。",
-            ["buddy_append_memory"] = "文件层追加（workbuddy 记忆），非 Excel 数据面写入；可用 buddy_read_memory 自验。",
+                ["ct_vba_tool_3"] = "同 ct_vba_tool。"
             };
 
         /// <summary>
@@ -783,26 +772,6 @@ namespace ExcelAiAssistant.Core.Agent
                             ("expected_cell", GetString(map, "cell")))
                     };
                     return true;
-                // M26：L2 元素层 / 外部数据源（有确定性期望）
-                case "set_element":
-                    plan = new AutoVerifyPlan
-                    {
-                        VerifyTool = "verify_write_result",
-                        Reason = "写入后自动回读单元格值与期望一致",
-                        Args = Build(map,
-                            ("expected_address", GetString(map, "address")),
-                            ("sheet", GetString(map, "sheet")))
-                    };
-                    return true;
-                case "import_csv":
-                    plan = new AutoVerifyPlan
-                    {
-                        VerifyTool = "verify_structure",
-                        Reason = "导入后自动核对新工作表已创建",
-                        Args = Build(map, ("expected_sheet", GetString(map, "sheet_name")))
-                    };
-                    return true;
-
                 case "manage_hyperlinks":
                     var hyperlinkAction = GetString(map, "action") ?? "list";
                     var hyperlinkAddress = GetString(map, "address");

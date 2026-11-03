@@ -21,9 +21,6 @@ namespace ExcelAiAssistant.Excel
         private static Dictionary<string, object> PropStr(string name, string type, string desc) =>
             new Dictionary<string, object> { ["name"] = name, ["type"] = type, ["description"] = desc };
 
-        public static Dictionary<string, object> QueryElements() =>
-            Obj(new[] { "element_type" }, Prop("element_type", "string", "元素类型：sheets / shapes / charts / usedrange_rows。"), Prop("sheet", "string", "目标工作表（shapes/charts/usedrange_rows 需要），默认活动工作表。"));
-
         public static Dictionary<string, object> GetElement() =>
             Obj(new[] { "address" }, Prop("address", "string", "区域地址，如 A1:C10。"), Prop("sheet", "string", "目标工作表，默认活动工作表。"));
 

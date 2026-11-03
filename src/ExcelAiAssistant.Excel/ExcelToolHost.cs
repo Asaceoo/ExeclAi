@@ -197,13 +197,6 @@ namespace ExcelAiAssistant.Excel
             var draftService = new ExcelDraftService((object)application);
             ExcelToolHostRegistration.RegisterElementOps(registry, elementOps, draftService);
             ExcelToolHostRegistration.RegisterExternalData(registry, elementOps);
-            // FIX（审查 E1）：set_element 改挂宿主 WriteCell 链——获得 undo 快照/操作审计/COM 忙重试，
-            // 与 write_excel_cell 同语义（参数集 sheet/address/value 完全一致）。
-            if (registry.TryGet("set_element", out var setElementTool))
-            {
-                registry.Replace(new ToolDescriptor("set_element", setElementTool.Description, RiskLevel.NormalWrite,
-                    args => Execute(() => WriteCell(args)), setElementTool.Parameters));
-            }
 
                         ExcelDataToolsRegistration.RegisterDataTools(
                 registry,

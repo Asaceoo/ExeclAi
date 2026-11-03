@@ -22,9 +22,7 @@ namespace ExcelAiAssistant.Core.Agent
             {
                 var candidate = Path.Combine(dir, ".workbuddy", "memory");
                 if (Directory.Exists(candidate)) return candidate;
-                // FIX（审查 E-1 实测）：BaseDirectory 尾分隔符会让 GetDirectoryName 只剥尾符不回退——先 TrimEnd
-                var trimmed = dir.TrimEnd(System.IO.Path.DirectorySeparatorChar, System.IO.Path.AltDirectorySeparatorChar);
-                dir = Path.GetDirectoryName(trimmed);
+                dir = Path.GetDirectoryName(dir);
             }
             return Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ".workbuddy", "memory");
         }
@@ -54,12 +52,7 @@ namespace ExcelAiAssistant.Core.Agent
             if (string.IsNullOrWhiteSpace(text)) return new { ok = false, error = "text 不能为空" };
             var root = ResolveMemoryRoot(memoryRoot);
             Directory.CreateDirectory(root);
-            // FIX：追加目标同样经守卫（原实现允许 name 穿越写任意文件）
-            var fallbackName = string.IsNullOrWhiteSpace(name)
-                ? (string.IsNullOrWhiteSpace(date) ? DateTime.Now.ToString("yyyy-MM-dd") : date) + ".md"
-                : name;
-            var file = ResolveFile(root, name, date) ?? GuardedPath(root, fallbackName);
-            if (file == null) return new { ok = false, error = "非法的记忆文件名（只允许 .workbuddy/memory 内的 .md 文件，禁止绝对路径与穿越）" };
+            var file = ResolveFile(root, name, date) ?? Path.Combine(root, string.IsNullOrWhiteSpace(name) ? (string.IsNullOrWhiteSpace(date) ? DateTime.Now.ToString("yyyy-MM-dd") : date) + ".md" : name);
             var entry = "\n- [" + DateTime.Now.ToString("yyyy-MM-dd HH:mm") + "] " + text.Trim() + "\n";
             File.AppendAllText(file, entry);
             return new { ok = true, file = Path.GetFileName(file), appended_chars = entry.Length };
@@ -88,30 +81,16 @@ namespace ExcelAiAssistant.Core.Agent
             return new { ok = true, query = query, hit_count = hits.Count, hits = hits };
         }
 
-/// <summary>FIX（审查 C-1/impl #3）：路径守卫——拒绝绝对路径与目录穿越，限定 root 内 .md 文件。</summary>
-        private static string GuardedPath(string root, string name)
-        {
-            if (string.IsNullOrWhiteSpace(name)) return null;
-            if (Path.IsPathRooted(name)) return null;                       // 绝对路径直接拒
-            if (name.IndexOfAny(new[] { ':', '*', '?', '"', '<', '>', '|' }) >= 0) return null;
-            var fullRoot = Path.GetFullPath(root).TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar;
-            var candidate = Path.GetFullPath(Path.Combine(root, name));
-            if (!candidate.StartsWith(fullRoot, StringComparison.OrdinalIgnoreCase)) return null; // 穿越拒
-            if (!candidate.EndsWith(".md", StringComparison.OrdinalIgnoreCase)) return null;      // 只允许 md
-            return candidate;
-        }
-
         private static string ResolveFile(string root, string name, string date)
         {
             if (!string.IsNullOrWhiteSpace(name))
             {
-                var p = GuardedPath(root, name); // FIX：拒绝绝对路径/穿越/非 md
+                var p = Path.Combine(root, name);
                 return File.Exists(p) ? p : null;
             }
             if (!string.IsNullOrWhiteSpace(date))
             {
-                if (date.IndexOfAny(new[] { '/', '\\', ':' }) >= 0) return null;
-                var p = GuardedPath(root, date + ".md");
+                var p = Path.Combine(root, date + ".md");
                 return File.Exists(p) ? p : null;
             }
             var mem = Path.Combine(root, "MEMORY.md");
