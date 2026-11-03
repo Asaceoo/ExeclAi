@@ -45,7 +45,7 @@ AI 从 **156 个工具**里自动选型执行——每个写动作都带前置�
 
 ## 快速开始
 
-1. **安装**：从 [Releases v3.8.3.3](https://github.com/Asaceoo/ExeclAi/releases/tag/v3.8.3.3) 下载 `JYYJ-3.8.5.0-Setup-wps.exe`（安装版）或 `JYYJ-3.8.5.0-wps-x64.zip`（便携版），自动匹配 Excel/WPS 位数。
+1. **安装**：从 [Releases v3.8.5.0](https://github.com/Asaceoo/ExeclAi/releases/tag/v3.8.5.0) 下载 `JYYJ-3.8.5.0-Setup-wps.exe`（安装版）或 `JYYJ-3.8.5.0-wps-x64.zip`（便携版），自动匹配 Excel/WPS 位数。
 2. **配置模型**：打开侧边栏 → 设置 → 填 OpenAI 兼容的 Base URL / API Key / 模型名（本机 DPAPI 加密存储）。
 3. **开聊**：选中数据区域，直接说需求。
 
