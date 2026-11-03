@@ -785,21 +785,17 @@ namespace ExcelAiAssistant.Core.Agent
                     return true;
                 // M26：L2 元素层 / 外部数据源（有确定性期望）
                 case "set_element":
-                    plan = new AutoVerifyPlan
-                    {
-                        VerifyTool = "verify_write_result",
-                        Reason = "写入后自动回读单元格值与期望一致",
-                        Args = Build(map,
-                            ("expected_address", GetString(map, "address")),
-                            ("sheet", GetString(map, "sheet")))
-                    };
-                    return true;
+                    // FIX（M27 审查 A6）：参数名必须对齐 verify_write_result 真实契约（address/expected_values）——
+                    // 原传 expected_address 会让自检 Required 抛错 → fail-closed 拦掉每一次写入。
+                    // set_element 参数集与 write_excel_cell 完全一致，直接复用同一 plan 构造。
+                    return TryPlanCellWrite(map, out plan);
                 case "import_csv":
+                    // FIX（M27 审查 A6）：verify_structure 真实参数是 expected_sheet_exists（原传 expected_sheet 自检必失败）
                     plan = new AutoVerifyPlan
                     {
                         VerifyTool = "verify_structure",
                         Reason = "导入后自动核对新工作表已创建",
-                        Args = Build(map, ("expected_sheet", GetString(map, "sheet_name")))
+                        Args = Build(map, ("expected_sheet_exists", GetString(map, "sheet_name")))
                     };
                     return true;
 

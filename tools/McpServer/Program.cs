@@ -768,6 +768,17 @@ namespace ExcelAiAssistant.McpServer
 
             var dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "ExcelAiAssistant", "pending-confirmations");
             Directory.CreateDirectory(dir);
+            // F5（M27 审查）：清理 24h 前的历史确认文件（含 M26 的 <tool>-<CODE>.txt 旧命名）——
+            // 否则码文件与旧格式孤儿无限堆积，且旧码可能被误读。
+            try
+            {
+                var staleCutoff = DateTime.UtcNow.AddHours(-24);
+                foreach (var stale in Directory.GetFiles(dir, "*.txt"))
+                {
+                    try { if (File.GetLastWriteTimeUtc(stale) < staleCutoff) { File.Delete(stale); } } catch { }
+                }
+            }
+            catch { }
             // D1 收口（M27）：文件名不得内嵌确认码——响应里给的是文件路径，
             // 原名 <tool>-<CODE>.txt 会把码随路径泄露给 AI（可自答）。码只在文件内容。
             var file = Path.Combine(dir, name + "-pending.txt");
@@ -798,6 +809,7 @@ namespace ExcelAiAssistant.McpServer
                 char c = s[chars];
                 int cb;
                 if (char.IsHighSurrogate(c) && chars + 1 < s.Length && char.IsLowSurrogate(s[chars + 1])) cb = 4;
+                else if (char.IsSurrogate(c)) cb = 1; // 孤立代理：.NET UTF8 编码器输出 '?'（1 字节），不可按 3 计
                 else if (c <= 0x7F) cb = 1;
                 else if (c <= 0x7FF) cb = 2;
                 else cb = 3; // 含孤立代理/BMP 字符

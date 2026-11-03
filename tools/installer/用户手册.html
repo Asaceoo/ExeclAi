@@ -52,7 +52,7 @@ th{background:var(--bg);font-weight:600}
 <body>
 <header><div class="wrap">
   <div class="logo">JY</div>
-  <div><h1>JYYJ助手 用户手册</h1><div class="sub">Excel 里的 AI 助手 · 版本 3.9.1.0（2026-11-03 第四期：计划模式（复杂任务先出编号计划待认可）、MCP 传输层中文字节口径修复、CSV 导入引号感知与公式注入防护、npx jyyj-mcp 一键接入 Claude Desktop/DSH、README 真实界面截图与竞品对比）（2026-11-03 更新：通用元素操作层、草稿模式（AI 改稿→预览 diff→采纳/放弃）、外部数据源导入、AI 智能体桥接（DSK/workbuddy 可经 MCP 直连本工具链））</div></div>
+  <div><h1>JYYJ助手 用户手册</h1><div class="sub">Excel 里的 AI 助手 · 版本 3.9.1.1（2026-11-04 审查修复轮：自检参数契约对齐（set_element/import_csv 不再被自身校验误拦）、npx 分发新增 MCP server 独立包、确认码文件 24h 自动清理、UTF-8 截断孤立代理边界修正）（2026-11-03 第四期：计划模式（复杂任务先出编号计划待认可）、MCP 传输层中文字节口径修复、CSV 导入引号感知与公式注入防护、npx jyyj-mcp 一键接入 Claude Desktop/DSH、README 真实界面截图与竞品对比）（2026-11-03 更新：通用元素操作层、草稿模式（AI 改稿→预览 diff→采纳/放弃）、外部数据源导入、AI 智能体桥接（DSK/workbuddy 可经 MCP 直连本工具链））</div></div>
 </div></header>
 <nav><div class="wrap"><a href="#sec0">一、产品简介</a><a href="#sec1">一之二、系统要求与支持范围</a><a href="#sec2">二、快速上手</a><a href="#sec3">三、聊天对话视图</a><a href="#sec4">四、面板视图总览</a><a href="#sec5">五、公式助手</a><a href="#sec6">六、VBA 代码助手</a><a href="#sec7">七、流程编排</a><a href="#sec8">八、设置中心</a><a href="#sec9">九、AI 技能包</a><a href="#sec10">九之二、免责声明</a><a href="#sec11">十、安全机制</a><a href="#sec12">十一、功能全景：全部工具速查</a><a href="#sec13">十二、常见问题</a></div></nav>
 <div class="wrap">
@@ -82,7 +82,7 @@ th{background:var(--bg);font-weight:600}
 <tr><td>模型服务</td><td>OpenAI 兼容接口（在线 API 或本地推理），在「设置 → 模型方案」配置</td></tr>
 </tbody></table>
 <blockquote><p><strong>Excel 版本与内置函数</strong>：受 Excel 版本影响的是<strong>内置函数的可用范围</strong>——「函数库」面板内置 319 个函数，每个函数都标注了首版可用版本徽章（2007~365），旧版里 XLOOKUP、动态数组、LAMBDA、<strong>GROUPBY / PIVOTBY</strong> 等新函数不可用，请按徽章选择与你版本匹配的函数；加载项本身在上述版本均可正常运行。</p></blockquote>
-<blockquote><p><strong>两种安装包</strong>：<strong>轻量版</strong>（约 5MB）：适合能联网的电脑，缺组件时自动提示下载；<strong>离线完整版</strong>（约 316MB）：内置 .NET Framework 4.8 与 WebView2 运行时，无网或组件缺失的电脑用它一步到位。安装包文件名带版本号（如 <code>JYYJ助手-3.9.1.0-Setup-wps.exe</code>）。安装前先关闭所有 Excel；装完在开始菜单有「一键诊断」，遇到问题先跑它并把桌面上的诊断报告发给我们。</p><p><strong>安装时的两个弹窗</strong>：① 提示「Excel / WPS 正在运行」时，可点【是】让安装器<strong>自动关闭宿主进程</strong>（未保存的表格内容会丢失）——安装器会多轮强制结束，必要时弹出 UAC 提权窗口，<strong>请点「是」</strong>（安装器需要提权限才能关掉以管理员运行的 Excel）；② 自动关闭多次失败时会给出原因指引，详见「常见问题 8」。</p></blockquote>
+<blockquote><p><strong>两种安装包</strong>：<strong>轻量版</strong>（约 5MB）：适合能联网的电脑，缺组件时自动提示下载；<strong>离线完整版</strong>（约 316MB）：内置 .NET Framework 4.8 与 WebView2 运行时，无网或组件缺失的电脑用它一步到位。安装包文件名带版本号（如 <code>JYYJ助手-3.9.1.1-Setup-wps.exe</code>）。安装前先关闭所有 Excel；装完在开始菜单有「一键诊断」，遇到问题先跑它并把桌面上的诊断报告发给我们。</p><p><strong>安装时的两个弹窗</strong>：① 提示「Excel / WPS 正在运行」时，可点【是】让安装器<strong>自动关闭宿主进程</strong>（未保存的表格内容会丢失）——安装器会多轮强制结束，必要时弹出 UAC 提权窗口，<strong>请点「是」</strong>（安装器需要提权限才能关掉以管理员运行的 Excel）；② 自动关闭多次失败时会给出原因指引，详见「常见问题 8」。</p></blockquote>
 </section>
 <section id="sec2"><h2>二、快速上手</h2>
 <h3>第一步：打开助手</h3>
@@ -732,6 +732,6 @@ th{background:var(--bg);font-weight:600}
 <p>如果升级后仍偶发不见：①点一下功能区「打开面板」先关再开（两次）；②若仍不行，把 Excel 全部关闭重开；③还没解决就到设置页「运行日志 · 自检」看一眼，或把 <code>%TEMP%\ExcelAiAssistant.log</code> 里最后几行发给维护者。另外，面板是可以拖动的——如果被拖得很窄或拖到屏幕外，点一次「打开面板」关了再开，宽度会自动恢复。</p>
 </section>
 </div>
-<footer><div class="wrap">JYYJ助手 · Excel 里的 AI 助手 · 版本 3.9.1.0（2026-11-03 第四期：计划模式（复杂任务先出编号计划待认可）、MCP 传输层中文字节口径修复、CSV 导入引号感知与公式注入防护、npx jyyj-mcp 一键接入 Claude Desktop/DSH、README 真实界面截图与竞品对比）（2026-11-03 更新：通用元素操作层、草稿模式（AI 改稿→预览 diff→采纳/放弃）、外部数据源导入、AI 智能体桥接（DSK/workbuddy 可经 MCP 直连本工具链））</div></footer>
+<footer><div class="wrap">JYYJ助手 · Excel 里的 AI 助手 · 版本 3.9.1.1（2026-11-04 审查修复轮：自检参数契约对齐（set_element/import_csv 不再被自身校验误拦）、npx 分发新增 MCP server 独立包、确认码文件 24h 自动清理、UTF-8 截断孤立代理边界修正）（2026-11-03 第四期：计划模式（复杂任务先出编号计划待认可）、MCP 传输层中文字节口径修复、CSV 导入引号感知与公式注入防护、npx jyyj-mcp 一键接入 Claude Desktop/DSH、README 真实界面截图与竞品对比）（2026-11-03 更新：通用元素操作层、草稿模式（AI 改稿→预览 diff→采纳/放弃）、外部数据源导入、AI 智能体桥接（DSK/workbuddy 可经 MCP 直连本工具链））</div></footer>
 </body>
 </html>

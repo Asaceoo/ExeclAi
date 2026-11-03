@@ -93,6 +93,7 @@ namespace ExcelAiAssistant.Core.Agent
         {
             if (string.IsNullOrWhiteSpace(name)) return null;
             if (Path.IsPathRooted(name)) return null;                       // 绝对路径直接拒
+            if (name.StartsWith("\\\\", StringComparison.Ordinal)) return null; // UNC 路径（\\server\share）一律拒
             if (name.IndexOfAny(new[] { ':', '*', '?', '"', '<', '>', '|' }) >= 0) return null;
             var fullRoot = Path.GetFullPath(root).TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar;
             var candidate = Path.GetFullPath(Path.Combine(root, name));

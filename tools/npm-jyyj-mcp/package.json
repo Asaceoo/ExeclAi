@@ -1,7 +1,7 @@
 {
   "name": "jyyj-mcp",
-  "version": "3.8.5.0",
-  "description": "JYYJ助手 Excel MCP server 分发外壳：一条命令定位/下载 ExcelAiMcpServer.exe 并生成 Claude Desktop / DSH 等 MCP 客户端配置",
+  "version": "3.9.1.1",
+  "description": "JYYJ助手 Excel MCP server 分发外壳：定位/下载 ExcelAiMcpServer.exe 并打印 MCP 客户端配置（167 工具 + 记忆桥）",
   "bin": {
     "jyyj-mcp": "bin/jyyj-mcp.js"
   },
