@@ -34,7 +34,7 @@ namespace ExcelAiAssistant.McpServer
         private static ExcelToolHost _host;
         private static OperationRepository _repo;
         // P0-3：确认码强制门——工具名→一次性确认码（人工从确认文件读码后回传）
-        private static readonly Dictionary<string, string> PendingConfirmations = new Dictionary<string, string>(); // P0-1：审计/回滚落库（M21 前为 null 的 N3 缺口已收口）
+        internal static readonly Dictionary<string, string> PendingConfirmations = new Dictionary<string, string>(); // P0-1：审计/回滚落库（M21 前为 null 的 N3 缺口已收口）
         private static dynamic _app;
         internal static bool _readOnlyMode = true;
         private static bool _allowWrite;
@@ -86,6 +86,9 @@ namespace ExcelAiAssistant.McpServer
             }
             finally
             {
+                // FIX（impl #4 竞态）：先等后台预热结束再清理——否则客户端连上即断时 _app 尚 null、
+                // SpawnedPids 为空，Cleanup 不 Quit 不 Kill，预热线程随后建出的 EXCEL 成无主孤儿（红线）。
+                try { _readyEvent.Wait(TimeSpan.FromSeconds(60)); } catch { }
                 Log("stdio 结束，清理 Excel 进程");
                 try { Cleanup(); } catch (Exception cleanupException) { Log("Cleanup 异常: " + cleanupException.Message); }
             }
@@ -100,6 +103,7 @@ namespace ExcelAiAssistant.McpServer
             if (excelType == null)
             {
                 _initError = "未找到 Excel.Application COM 组件（本机未安装 Excel？）";
+                _readyEvent.Set(); // FIX（审查 F3）：早退必须释放等待者，否则每次 tools/* 白等 90 秒
                 return;
             }
 
@@ -157,7 +161,18 @@ namespace ExcelAiAssistant.McpServer
             // 先优雅退出（DisplayAlerts=false 下无对话框风险），再对拒绝退出的实例兜底强杀。
             if (_app != null && Marshal.IsComObject(_app))
             {
-                try { _app.Quit(); } catch { }
+                // N10（P3）：Quit 是同步 COM 调用，Excel 卡模态框/崩溃时永不返回——挂后台线程 + 15s
+                // 看门狗：超时不再等 Quit，直接落到下面的按 PID 强杀路径（强杀是兜底语义）。
+                var quitApp = _app;
+                var quitDone = new System.Threading.ManualResetEventSlim(false);
+                var quitThread = new System.Threading.Thread(() =>
+                {
+                    try { quitApp.Quit(); } catch { }
+                    finally { quitDone.Set(); }
+                });
+                quitThread.IsBackground = true;
+                try { quitThread.Start(); } catch { }
+                try { quitDone.Wait(TimeSpan.FromSeconds(15)); } catch { }
             }
 
             // R2-1 修复：按 PID 直取强杀（原 GetProcessesByName("EXCEL") 在 WPS 宿主下永不命中 = 死代码）。
@@ -230,16 +245,31 @@ namespace ExcelAiAssistant.McpServer
 
                         string skip;
                         do { skip = reader.ReadLine(); } while (skip != null && skip.Length > 0);
-                        var buf = new char[len];
-                        var read = 0;
-                        while (read < len)
+                        // LSP 字节错位修复（P3）：Content-Length 语义是 UTF-8 字节数；原按「字符数」
+                        // 读体——JSON 含中文时每字 3 字节会少读正文、把下一帧的字节当本帧尾巴，
+                        // 帧边界错位。改为逐字符累计 UTF-8 字节直到 len（代理对合算 4 字节）。
+                        var sb = new System.Text.StringBuilder();
+                        int frameBytes = 0;
+                        int ch;
+                        while (frameBytes < len && (ch = reader.Read()) >= 0)
                         {
-                            var n = reader.Read(buf, read, len - read);
-                            if (n <= 0) { break; }
-                            read += n;
+                            char c = (char)ch;
+                            int cb;
+                            if (char.IsHighSurrogate(c))
+                            {
+                                int lo = reader.Read();
+                                if (lo >= 0 && char.IsLowSurrogate((char)lo)) { sb.Append(c); sb.Append((char)lo); cb = 4; }
+                                else { sb.Append(c); cb = 3; if (lo >= 0) sb.Append((char)lo); }
+                            }
+                            else if (c <= 0x7F) { sb.Append(c); cb = 1; }
+                            else if (c <= 0x7FF) { sb.Append(c); cb = 2; }
+                            else { sb.Append(c); cb = 3; }
+                            frameBytes += cb;
+                            // 超界说明对端帧长与实际编码不一致：仍收满该字符（不可劈开），交解析层报错
+                            if (frameBytes > len) { break; }
                         }
 
-                        HandleMessage(new string(buf, 0, read), stdout);
+                        HandleMessage(sb.ToString(), stdout);
                         continue;
                     }
 
@@ -451,7 +481,7 @@ namespace ExcelAiAssistant.McpServer
         }
 
         /// <summary>M26：等待 Excel 后台预热完成；失败抛人话异常。</summary>
-        private static void EnsureReady(int timeoutMs = 90000)
+        private static void EnsureReady(int timeoutMs = 50000) // 审查 D-3：低于常见宿主 60s 请求超时
         {
             if (!_readyEvent.Wait(timeoutMs))
             {
@@ -622,7 +652,7 @@ namespace ExcelAiAssistant.McpServer
 
         /// <summary>P0-3：确认码校验——比对 PendingConfirmations 中的一次性码，命中即消费（防重放）。
         /// 兼容旧 confirmed=true 语义仅限 --legacy-confirm 启动参数（默认关闭）。</summary>
-        private static bool IsConfirmedWithCode(string toolName, Dictionary<string, object> args)
+        internal static bool IsConfirmedWithCode(string toolName, Dictionary<string, object> args)
         {
             if (!args.TryGetValue("confirmed", out var v) || v == null) { return false; }
             var supplied = Convert.ToString(v);
@@ -664,8 +694,9 @@ namespace ExcelAiAssistant.McpServer
             var text = payload.ToString(Formatting.Indented);
             // R4 修复：传输层限幅不得产出非法 JSON（原 Substring 拦腰砍断 JSON 结构 + 可能劈开 UTF-16 代理对）。
             // 结构化降级：重建精简载荷，data 换前缀预览，永远合法可解析。
-            const int Limit = 512 * 1024;
-            if (text.Length > Limit)
+            // N8（P3）：限幅改 UTF-8 字节口径——中文每字最多 3 字节，原按字符数限 512K 时线上实际可达 1MB+。
+            const int LimitBytes = 512 * 1024;
+            if (System.Text.Encoding.UTF8.GetByteCount(text) > LimitBytes)
             {
                 var preview = BuildResultText(payload, tool);
                 return preview;
@@ -675,9 +706,11 @@ namespace ExcelAiAssistant.McpServer
 
         /// <summary>R4：超限时重建合法 JSON 载荷——data 降为前缀预览 + truncated 标记。hint 按工具 schema 动态生成（Y2-2：
         /// 全局 hint 对 verify_chart 等无 max_cells/address 的工具是无 效指引；图片类工具给专属建议）。</summary>
+        internal static string BuildResultText(JObject payload) => BuildResultText(payload, null);
+
         private static string BuildResultText(JObject payload, ToolDescriptor tool)
         {
-            const int PreviewLimit = 200 * 1024;
+            const int PreviewLimitBytes = 200 * 1024; // N8：UTF-8 字节口径
             var slim = new JObject
             {
                 ["ok"] = payload["ok"],
@@ -685,15 +718,13 @@ namespace ExcelAiAssistant.McpServer
                 ["hint"] = BuildTruncationHint(tool)
             };
             if (payload["error_code"] != null) { slim["error_code"] = payload["error_code"]; }
-            // Y2-1 修复：warning 与 data 同规格限幅（实测 600KB warning 原样透传仍超 512KB）
+            // Y2-1 修复：warning 与 data 同规格限幅；N8：均按 UTF-8 字节
             if (payload["warning"] != null)
             {
                 var warningText = payload["warning"].ToString(Formatting.None);
-                if (warningText.Length > PreviewLimit)
+                if (System.Text.Encoding.UTF8.GetByteCount(warningText) > PreviewLimitBytes)
                 {
-                    var wcut = warningText.Substring(0, PreviewLimit);
-                    if (char.IsHighSurrogate(wcut[wcut.Length - 1])) { wcut = wcut.Substring(0, wcut.Length - 1); }
-                    slim["warning"] = wcut + "...[已截断]";
+                    slim["warning"] = TrimToUtf8Bytes(warningText, PreviewLimitBytes) + "...[已截断]";
                 }
                 else
                 {
@@ -705,13 +736,9 @@ namespace ExcelAiAssistant.McpServer
             if (data != null)
             {
                 var dataText = data.ToString(Formatting.None);
-                if (dataText.Length > PreviewLimit)
+                if (System.Text.Encoding.UTF8.GetByteCount(dataText) > PreviewLimitBytes)
                 {
-                    // 代理对回退：截断点落在高代理上时回退一个字符
-                    var cut = dataText.Substring(0, PreviewLimit);
-                    if (char.IsHighSurrogate(cut[cut.Length - 1])) { cut = cut.Substring(0, cut.Length - 1); }
-                    slim["data_preview"] = cut;
-                    slim["data_preview_note"] = "完整结果已省略，data 为前 " + PreviewLimit + " 字符预览。";
+                    slim["data_preview"] = TrimToUtf8Bytes(dataText, PreviewLimitBytes) + "...[已截断]";
                 }
                 else
                 {
@@ -722,6 +749,7 @@ namespace ExcelAiAssistant.McpServer
             return slim.ToString(Formatting.Indented);
         }
 
+        /// <summary>按工具 schema 生成截断后的自愈指引（Y2-2）：全局 hint 对无 max_cells/address 的工具无效。</summary>
         private static void Emit(Stream stdout, JObject message)
         {
             var bytes = Encoding.UTF8.GetBytes(message.ToString(Formatting.None) + "\n");
@@ -731,7 +759,7 @@ namespace ExcelAiAssistant.McpServer
         /// <summary>Dangerous 拦截文案（Y2-6）：参数回显截断 500 字符防上下文白烧/敏感值复述；声明 MCP 模式不可撤销。</summary>
         /// <summary>P0-3 确认门强制力：生成一次性确认码文件（人工可读），返回拦截文案。
         /// AI 无法自答——码只存在于文件中，人工读码后由客户端回传 confirmed=<code>。</summary>
-        private static string BuildConfirmationText(string name, Dictionary<string, object> args)
+        internal static string BuildConfirmationText(string name, Dictionary<string, object> args)
         {
             var code = Guid.NewGuid().ToString("N").Substring(0, 8).ToUpperInvariant();
             PendingConfirmations[name] = code;
@@ -740,7 +768,9 @@ namespace ExcelAiAssistant.McpServer
 
             var dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "ExcelAiAssistant", "pending-confirmations");
             Directory.CreateDirectory(dir);
-            var file = Path.Combine(dir, name + "-" + code + ".txt");
+            // D1 收口（M27）：文件名不得内嵌确认码——响应里给的是文件路径，
+            // 原名 <tool>-<CODE>.txt 会把码随路径泄露给 AI（可自答）。码只在文件内容。
+            var file = Path.Combine(dir, name + "-pending.txt");
             File.WriteAllText(file,
                 "危险操作确认\n" +
                 "工具: " + name + "\n" +
@@ -752,13 +782,35 @@ namespace ExcelAiAssistant.McpServer
 
             return "该工具为 Dangerous 级（" + name + "），已拦截等待人工确认。" +
                    "确认文件已生成: " + file + "\n" +
-                   "请人工打开该文件核对操作影响范围，确认后在 arguments 中携带 \"confirmed\": \"" + code + "\" 重新调用。" +
+                   "请将此确认文件路径原样转告用户：用户核对后用文件中的确认码重新调用（confirmed=<用户提供的码>）。本响应不携带确认码。" +
                    "注意：确认码一次性；写操作已接入审计库，执行后可用 undo_excel_operation 回滚。" +
                    "当前参数：" + argsText;
         }
         /// <summary>按工具 schema 生成截断后的自愈指引（Y2-2）：全局 hint 对无 max_cells/address 的工具无效。</summary>
+        /// <summary>N8：按 UTF-8 字节预算截断字符串，不劈开代理对（回退到上一完整字符）。</summary>
+        internal static string TrimToUtf8Bytes(string s, int maxBytes)
+        {
+            if (s == null) return "";
+            if (System.Text.Encoding.UTF8.GetByteCount(s) <= maxBytes) return s;
+            int chars = 0, bytes = 0;
+            while (chars < s.Length)
+            {
+                char c = s[chars];
+                int cb;
+                if (char.IsHighSurrogate(c) && chars + 1 < s.Length && char.IsLowSurrogate(s[chars + 1])) cb = 4;
+                else if (c <= 0x7F) cb = 1;
+                else if (c <= 0x7FF) cb = 2;
+                else cb = 3; // 含孤立代理/BMP 字符
+                if (bytes + cb > maxBytes) break;
+                bytes += cb;
+                chars += (cb == 4 ? 2 : 1);
+            }
+            return s.Substring(0, chars);
+        }
+
         private static string BuildTruncationHint(ToolDescriptor tool)
         {
+            if (tool == null) { return "结果超限已降级为预览；请缩小查询范围或用分页参数（max_cells/offset 等）重取完整数据。"; }
             var schemaText = tool?.Parameters != null ? JsonConvert.SerializeObject(tool.Parameters) : string.Empty;
             var parts = new List<string> { "结果超512KB已被传输层截断。" };
             if (schemaText.Contains("\"max_cells\""))

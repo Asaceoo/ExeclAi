@@ -44,3 +44,9 @@
 | P1 | M-A server + 看板子集 15 工具 + stdio + 确认门映射 | 1~2 天 |
 | P2 | 白名单配置化 + 其余工具族 + 文档 | 1~2 天 |
 | P3 | M-B Add-in 端点（SSE + loopback + 认证） | 3~5 天 |
+
+## N2/AC-M1 口径声明（M27 第四期收口）
+
+- **AC-M1**：P1 交付口径已从「看板子集」正式改为**全工具面**——MCP server 暴露完整注册表（当前 188：167 代码注册 + 4 智能体桥接 + 浮动 ct_ 沉淀），读写分级由 RiskLevel 驱动，只读模式（缺省）自动剔除全部非 ReadOnly 工具。
+- **N2（确认口径）**：MCP/CLI 侧**只有 Dangerous 级走确认码门**（P0-3 一次性码，人工从文件读码）。StructuralChange 级（建表/删形状/导入等）依设计**不进门**，安全兜底为三层：①执行层 verify_* 自动自检；②OperationRepository 审计落库（operations-mcp.db / operations-cli.db）；③undo_excel_operation 可回滚。与加载项侧 SafetyPipeline 的差异是刻意的——加载项面向交互式用户（面板按钮即确认），MCP 面向自主 Agent（逐次人工确认会阻断自动化，故用「可回滚」换「免打断」）。需要更强确认的场景由调用方在客户端策略层叠加。
+- **确认码泄露防线（D1，M27 收口）**：确认码只存在于 pending 文件内容中；文件名（`<tool>-pending.txt`）与响应文案均不含码——AI 无法从任何可回显通道自答。回归锁定见 `McpSecuritySemanticsTests`。

@@ -170,7 +170,8 @@ namespace ExcelAiAssistant.Excel
             "delete_excel_worksheet",
             // M-D3：delete_dashboard 删除看板+辅助两张 sheet，属工作簿结构操作，
             // 走 ProtectStructure 判定（写能力默认受守卫，Dangerous 级另过确认门）
-            "delete_dashboard"
+            "delete_dashboard",
+            "start_draft", "discard_draft"
         };
 
         /// <summary>目标工作表参数名覆盖（缺省按 "sheet" 解析）。</summary>
@@ -180,6 +181,12 @@ namespace ExcelAiAssistant.Excel
                 // 写入目标是 target_sheet；args["sheet"] 语义为只读源表
                 ["copy_visible_rows_to_sheet"] = "target_sheet",
                 ["merge_sheets"] = "target_sheet",
+            // M26 审查修复：草稿族与 import_csv 的目标表显式映射（B2/B4）
+                ["apply_draft"] = "draft_sheet",
+                ["start_draft"] = "sheet",
+                ["discard_draft"] = "draft_sheet",
+                ["diff_draft"] = "draft_sheet",
+                ["import_csv"] = "sheet_name",
             };
 
         /// <summary>工具是否豁免于保护态守卫：豁免清单命中，或 ct_ 前缀用户沉淀工具。</summary>

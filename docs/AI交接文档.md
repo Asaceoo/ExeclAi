@@ -63,12 +63,12 @@ D:\execl1.0\
 │  ├─ package-xai.ps1               # ★ 打包脚本（内置发布门禁：单测+真机，-SkipReleaseGate 逃逸）
 │  ├─ RealMachineVerify\            # ★ 真机 harness（22 用例组 119 断言，独立 Excel 实例）
 │  └─ installer\*.iss + register-auto.ps1   # Inno Setup 与 COM 注册编排
-├─ dist\                            # 发布产物（当前版本 3.8.5.0，WPS 版）
-│  ├─ installer\JYYJ助手-3.8.5.0-Setup-wps.exe           # WPS 版轻量安装包（ISCC 编译，4.70MB）
+├─ dist\                            # 发布产物（当前版本 3.9.1.0，WPS 版）
+│  ├─ installer\JYYJ助手-3.9.1.0-Setup-wps.exe           # WPS 版轻量安装包（ISCC 编译，4.70MB）
 
-│  ├─ JYYJ助手-3.8.5.0-wps-安装说明.txt        # WPS 版安装说明（含 VBA 支持库三条安装路径+网址，随安装器/便携包分发）
-│  ├─ JYYJ助手-3.8.5.0-wps-x64.zip / -x86.zip      # 便携包（3.44/3.42MB）
-│  ├─ JYYJ助手-3.8.5.0-wps-x64\ / -x86\            # 便携解包目录（含一键安装.cmd）
+│  ├─ JYYJ助手-3.9.1.0-wps-安装说明.txt        # WPS 版安装说明（含 VBA 支持库三条安装路径+网址，随安装器/便携包分发）
+│  ├─ JYYJ助手-3.9.1.0-wps-x64.zip / -x86.zip      # 便携包（3.44/3.42MB）
+│  ├─ JYYJ助手-3.9.1.0-wps-x64\ / -x86\            # 便携解包目录（含一键安装.cmd）
 │  ├─ JYYJ助手-<旧版>-单文件便携版.cab          # 可选，makecab 单独产出（package-xai 不生成）
 │  └─ archive\ + _旧版本待删除\                 # 旧版本归档/待删
 └─ docs\                            # 用户手册(HTML)/技术手册(MD)/踩坑手册(MD)/本文件
@@ -270,6 +270,6 @@ cd tools\RealMachineVerify && dotnet build && dotnet run
 ```
 
 三条全绿 = 环境健康、质量体系完整，可以开始接需求。任何一条红 = 先修环境/回归，再谈新功能。
-- 手册全面更新批次已收口（2026-09-15，纯文档批次合规跳过 bump，版本仍 3.8.5.0）：用户手册新增功能全景章（178 工具×14 域，从注册代码直出）+32 宏总目录+19 内置技能清单+4.2 功能区一键操作（聚光灯/19 一键命令/宏收纳箱/函数库/SQL查询此前零记载），修 3.9/联网搜索结构错位与设置中心过时口径（上限 10000）；技术手册新增 5.2 工具注册全景（178 按注册分块）；双手册 HTML 重生成+校验全过；提取脚本沉淀在 _dev_tmp/extract_tools_desc.py（描述含 \" 须 ((?:[^"]|\\.)*) 正则、name 与 RiskLevel 间可有注释行）；178=Excel 宿主注册全集，WPS full 基线 152 不变
-- v3.8.1.84 已发版收口（2026-09-16，WPS 副本）：「打开面板」窗口归属自愈批次——用户报点打开面板无反应，真机日志三次 ShowTaskPane existing made visible 且 WebView2 正常实锤「代码成功、物理不可见」：CTP 挂在创建时刻的活动窗口（CreateCTP 第三参 Type.Missing），切换工作簿窗口后 Visible=true 不报错但面板物理在旧窗口。修复：ShowTaskPane 加窗口归属 Hwnd 比对（IsPaneOnActiveWindow），不一致删旧 pane 重建并显式挂 ActiveWindow；宽度自愈 Width≤10 重置右侧停靠+380；句柄拿不到保守回退不误删（泛化 catch 规避 RuntimeBinderException CS0246）。gate 全绿（单测 1200/Excel 119/WPS full 131 组/双泄漏）、双手册（技术手册第三章自愈小节+用户手册 FAQ#11）、四形态 pack（残留 83=0）、静默安装 x64/x86 落位 3.8.5.0 一次通过——上批受保护僵尸 EXCEL 已随用户手动装 83 解除
+- 手册全面更新批次已收口（2026-09-15，纯文档批次合规跳过 bump，版本仍 3.9.1.0）：用户手册新增功能全景章（178 工具×14 域，从注册代码直出）+32 宏总目录+19 内置技能清单+4.2 功能区一键操作（聚光灯/19 一键命令/宏收纳箱/函数库/SQL查询此前零记载），修 3.9/联网搜索结构错位与设置中心过时口径（上限 10000）；技术手册新增 5.2 工具注册全景（178 按注册分块）；双手册 HTML 重生成+校验全过；提取脚本沉淀在 _dev_tmp/extract_tools_desc.py（描述含 \" 须 ((?:[^"]|\\.)*) 正则、name 与 RiskLevel 间可有注释行）；178=Excel 宿主注册全集，WPS full 基线 152 不变
+- v3.8.1.84 已发版收口（2026-09-16，WPS 副本）：「打开面板」窗口归属自愈批次——用户报点打开面板无反应，真机日志三次 ShowTaskPane existing made visible 且 WebView2 正常实锤「代码成功、物理不可见」：CTP 挂在创建时刻的活动窗口（CreateCTP 第三参 Type.Missing），切换工作簿窗口后 Visible=true 不报错但面板物理在旧窗口。修复：ShowTaskPane 加窗口归属 Hwnd 比对（IsPaneOnActiveWindow），不一致删旧 pane 重建并显式挂 ActiveWindow；宽度自愈 Width≤10 重置右侧停靠+380；句柄拿不到保守回退不误删（泛化 catch 规避 RuntimeBinderException CS0246）。gate 全绿（单测 1200/Excel 119/WPS full 131 组/双泄漏）、双手册（技术手册第三章自愈小节+用户手册 FAQ#11）、四形态 pack（残留 83=0）、静默安装 x64/x86 落位 3.9.1.0 一次通过——上批受保护僵尸 EXCEL 已随用户手动装 83 解除
 - TaskPane 窗口归属自愈缺陷模式沉淀（v3.8.1.84 实证修复）：「工具日志说 visible、用户看不见」类 UI 问题先查 CTP 窗口归属——CreateCTP 第三参 Type.Missing 挂创建时刻的 ActiveWindow，切换工作簿窗口后 Visible=true 成功但物理在旧窗口；修法是 Hwnd 比对+不一致删除重建+显式挂 ActiveWindow+宽度自愈（Width≤10 视同不可见）；排查口诀：日志见 ShowTaskPane existing made visible 而用户看不见即此形态；Addin 工程无 Microsoft.CSharp 引用，dynamic 派生异常（RuntimeBinderException）不可直接 catch 类型名（CS0246），用泛化 catch+GetType().Name 记日志

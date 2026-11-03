@@ -110,6 +110,11 @@ namespace ExcelAiAssistant.Tests
                     return Args("sheet", "HF4", "image_path", "C:\\tmp\\一致性.png", "anchor", "F2", "width", 40, "height", 30);
                 case "freeze_panes":
                     return Args("sheet", "HF4", "cell", "B2");
+                case "set_element":
+                    return Args("address", "A1", "value", 1);
+                case "import_csv":
+                    return Args("file_path", "D:\\tmp\\t.csv", "sheet_name", "CSV_t");
+
                 case "manage_hyperlinks":
                     return Args("sheet", "HF4", "action", "add", "address", "A1", "link_url", "https://example.com", "display_text", "官网");
                 default:
