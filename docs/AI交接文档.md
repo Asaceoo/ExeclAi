@@ -113,7 +113,7 @@ D:\execl1.0\
 | ⑤ 失败模式库与研判 | PitfallLibrary（15+条"日志签名→手册级建议"）+ 一键自检 AI 研判 + **全功能巡检**（22 项子系统体检，临时工作簿，逐项写运行日志） | PitfallLibrary / SidebarBridge / FeatureHealthSweep |
 | ⑥ 验证与门禁 | 979 xUnit 单测（含粘合层集成测试、映射↔switch 一致性锁、JS 静态审计、M16 缺陷原型源码级审计 11 条）→ 真机 harness 119 断言 → WPS full 基线校验 → 打包门禁 | Tests / tools\RealMachineVerify / tools\release\gate.py |
 
-**覆盖审计**：所有写能力工具（NormalWrite/StructuralChange/Dangerous）必须在 `MappedPrimaryTools`（26 类）或 `DocumentedWriteToolExemptions`（77 条带理由豁免）里，`ct_` 前缀=用户自定义沉淀工具自动豁免。判定入口 `AutoVerifyPolicy.IsExemptedFromAutoVerify`，harness 用例17 与全功能巡检两处执行——**新工具不表态就发不出去**。
+**覆盖审计**：所有写能力工具（NormalWrite/StructuralChange/Dangerous）必须在 `MappedPrimaryTools 44 类）或 `DocumentedWriteToolExemptions 95 条带理由豁免）里，`ct_` 前缀=用户自定义沉淀工具自动豁免。判定入口 `AutoVerifyPolicy.IsExemptedFromAutoVerify`，harness 用例17 与全功能巡检两处执行——**新工具不表态就发不出去**。
 
 ---
 
@@ -145,7 +145,7 @@ D:\execl1.0\
 
 ### 自动自检（AutoVerify）两档口径
 
-- **26 类主写工具**：成功后服务端自动 verify 回读，verdict≠ok 时 AI 必须修正后才能报完成；
+- **44 类主写工具**：成功后服务端自动 verify 回读，verdict≠ok 时 AI 必须修正后才能报完成；
 - **其余写能力工具**：在带理由豁免清单（`AutoVerifyPolicy.DocumentedWriteToolExemptions`）——多为确定性变换或自有校验语义，**AI 应自行用对应 verify_* 工具核对**；
 - **断言型 verify**（cell_format/sort/conditional_format 等）：无期望值 = `no_expected` 失败；**探测型 verify**（protection/freeze/image/hyperlink）：无期望值 = ok（观察用途）。
 
@@ -179,7 +179,7 @@ D:\execl1.0\
 - **设置页**：模型方案（DPAPI 加密）、写入偏好（auto/formula/value）、单轮上限、受控执行白名单、长期记忆、运行日志（级别过滤/导出/清空/自动刷新）、软件介绍（能做什么/新手三步/七大面板/支持版本与环境/安全隐私）、帮助中心（FAQ+找不到报错喂数据），关于/版本展示**版本号 + Excel 版式名**（15.0→2013、16.0→"2016 或更高"，2016/2019/2021/365 仅 Version 无法区分、如实标注）、工具目录（v2.19.3.0 增强：七大面板修正+友好版式名）
 - **快捷功能区参数弹窗**：18 个快捷工具带可配置弹窗，每个配置项带说明文字与真实选项（转置支持跨表写回、文本拆分可指定结果起始列、文本清洗支持查找替换、透视可指定输出位置等）；窗口可自由缩放；选项经双向契约审计防"假选项"（v2.18.8.0 新增/修复）
 - **M13+ 新增能力**：create_excel_table+verify_table（注意 WPS ListObjects.Add 会向下扩一行，WPS 下 verify_table 不断言行数）、insert_image+verify_image、freeze_panes+verify_freeze_panes（统一 Split 路径双宿主通用）、超链接工具族+verify_hyperlink、函数库 Excel/WPS 双视图、设置页「WPS 环境·指南」卡片
-- **自检族扩展**：verify_* 自检族已扩至 **18 个**（源码注册为准），MappedPrimaryTools 26 类 / DocumentedWriteToolExemptions 77 条；发版走 `release.py bump` + `gate.py --pack`（见 §6.3，本仓库勿用 package-xai.ps1）
+- **自检族扩展**：verify_* 自检族已扩至 **18 个**（源码注册为准），MappedPrimaryTools 44 类 / DocumentedWriteToolExemptions 95 条；发版走 `release.py bump` + `gate.py --pack`（见 §6.3，本仓库勿用 package-xai.ps1）
 
 ---
 

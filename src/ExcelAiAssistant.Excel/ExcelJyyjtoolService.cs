@@ -1612,6 +1612,7 @@ namespace ExcelAiAssistant.Excel
                     return Invalid("IMAGE_COPY_FAILED",
                         $"复制区域为图片失败（WPS 隐藏实例可能不支持 CopyPicture，请让宿主可见后重试）：{ce.Message}");
                 }
+                System.Threading.Thread.Sleep(120); // FIX（M26 遗留 1）：剪贴板渲染稳定等待（WPS 隐藏实例 Paste 竞态主因之一）
 
                 dynamic anchorRange = null;
                 try
@@ -1627,14 +1628,40 @@ namespace ExcelAiAssistant.Excel
                         try { anchorRange.Activate(); } catch { }
                     }
 
-                    try
+                    // FIX（M26 遗留 1）：WPS 隐藏实例 sheet.Paste() OLE 剪贴板受限（0x800A03EC）。
+                    // 三级降级：①sheet.Paste() ②sheet.Pictures().Paste()（图片对象通道）
+                    // ③宿主瞬时可见一闪再贴（隐藏实例为 harness/MCP 自建，闪现安全）
+                    bool pasted = false;
+                    Exception lastPasteError = null;
+                    try { sheet.Paste(); pasted = true; }
+                    catch (Exception pe1) { lastPasteError = pe1; }
+                    if (!pasted)
                     {
-                        sheet.Paste();
+                        try
+                        {
+                            object picObj = sheet.Pictures().Paste();
+                            dynamic pic = (object)picObj != null ? (dynamic)picObj : null;
+                            pasted = pic != null;
+                            if (pic != null) { try { System.Runtime.InteropServices.Marshal.FinalReleaseComObject((object)pic); } catch { } }
+                        }
+                        catch (Exception pe2) { lastPasteError = pe2; }
                     }
-                    catch (System.Runtime.InteropServices.COMException ce)
+                    if (!pasted)
                     {
-                        return Invalid("IMAGE_PASTE_FAILED",
-                            $"粘贴图片失败（WPS 隐藏实例剪贴板受限，请让宿主可见后重试）：{ce.Message}");
+                        try
+                        {
+                            workbook.Application.Visible = true;
+                            System.Threading.Thread.Sleep(150);
+                            sheet.Paste();
+                            pasted = true;
+                        }
+                        catch (Exception pe3) { lastPasteError = pe3; }
+                        finally { try { workbook.Application.Visible = false; } catch { } }
+                    }
+                    if (!pasted)
+                    {
+                        var msg = lastPasteError is System.Runtime.InteropServices.COMException ? "（三级通道 CopyPicture→Pictures.Paste→瞬时可见均被 WPS 拒绝）" : "";
+                        return Invalid("IMAGE_PASTE_FAILED", $"粘贴图片失败{msg}：{lastPasteError?.Message}");
                     }
                 }
                 finally

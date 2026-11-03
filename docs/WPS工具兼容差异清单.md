@@ -85,7 +85,7 @@
 |---|---|---|
 | ReadMatrix 空表/单格 UsedRange 越界 | WPS Value2 返回 1 基数组（空表抛 BADINDEX），代码按 0 基硬编码下标访问 | `ExcelUtilityToolsService.ReadMatrix` 改 `GetLowerBound` 适配，空表返回空矩阵 |
 | NormalizeValues 对 int[] 强转失败 | 非泛型枚举行直转 `IEnumerable<object>` 抛 InvalidCastException | `ExcelToolHost` 增加 `ToRow` 兜底兼容任意 IEnumerable |
-| copy_range_as_image 隐藏实例 E_FAIL | WPS CopyPicture 对隐藏实例部分失败 | `ExcelJyyjtoolService` 分步容错，输出 IMAGE_COPY_FAILED/IMAGE_PASTE_FAILED 明确错误码 |
+| copy_range_as_image 隐藏实例 E_FAIL | WPS CopyPicture/Paste 对隐藏实例剪贴板受限（0x800A03EC） | `ExcelJyyjtoolService` 三级降级：sheet.Paste→Pictures().Paste→瞬时可见复隐 + CopyPicture 后 120ms 稳定等待（M26 遗留 1，full 巡检实测转 OK、基线校验 PASS） |
 
 ### 6.4 分档口径（v2.0 最终版）
 
