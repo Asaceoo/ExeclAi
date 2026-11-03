@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using ExcelAiAssistant.Core.Models;
+using ExcelAiAssistant.Core.Operations;
 using ExcelAiAssistant.Core.Tools;
 using ExcelAiAssistant.Excel;
 using Newtonsoft.Json;
@@ -26,6 +27,7 @@ namespace ExcelAiAssistant.Cli
     {
         private static ToolRegistry _registry;
         private static ExcelToolHost _host;
+        private static OperationRepository _repo; // P0-1：审计/回滚落库
         private static object _app; // object 而非 dynamic：Cleanup 阶段 RCW 已断连，dynamic 的 null 比较也会走 DLR 重绑定抛 0x800706BA
         private static readonly List<int> SpawnedPids = new List<int>();
         private static readonly DateTime ServerStartUtc = DateTime.UtcNow;
@@ -67,7 +69,10 @@ namespace ExcelAiAssistant.Cli
                 try { appLocal.AutomationSecurity = 1; } catch { }
                 appLocal.Workbooks.Add();
 
-                _host = new ExcelToolHost(appLocal);
+                // P0-1：审计/回滚接入——独立 operations-cli.db
+                var repoDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "ExcelAiAssistant");
+                _repo = new OperationRepository(Path.Combine(repoDir, "operations-cli.db"));
+                _host = new ExcelToolHost(appLocal, _repo, null, "cli-" + Guid.NewGuid().ToString("N").Substring(0, 8));
                 _registry = _host.CreateRegistry();
 
                 if (!allowWrite)
@@ -79,7 +84,7 @@ namespace ExcelAiAssistant.Cli
                 }
                 else
                 {
-                    Console.Error.WriteLine("[写模式] 写操作无操作审计/回滚（N3 已知缺口），重要文件请自行备份。");
+                    Console.Error.WriteLine("[写模式] 操作已审计入 operations-cli.db，可用 undo_excel_operation 回滚。");
                 }
             }
             catch (Exception ex)

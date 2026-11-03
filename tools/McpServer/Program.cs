@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using ExcelAiAssistant.Core.Models;
+using ExcelAiAssistant.Core.Operations;
 using ExcelAiAssistant.Core.Tools;
 using ExcelAiAssistant.Excel;
 using Newtonsoft.Json;
@@ -30,6 +31,9 @@ namespace ExcelAiAssistant.McpServer
         private static readonly List<int> SpawnedPids = new List<int>();
         internal static ToolRegistry _registry;
         private static ExcelToolHost _host;
+        private static OperationRepository _repo;
+        // P0-3：确认码强制门——工具名→一次性确认码（人工从确认文件读码后回传）
+        private static readonly Dictionary<string, string> PendingConfirmations = new Dictionary<string, string>(); // P0-1：审计/回滚落库（M21 前为 null 的 N3 缺口已收口）
         private static dynamic _app;
         internal static bool _readOnlyMode = true;
         private static bool _allowWrite;
@@ -88,7 +92,10 @@ namespace ExcelAiAssistant.McpServer
                 // 新建未存盘内存工作簿（真机 harness 同款）：全程不 SaveAs、不打开用户文件
                 _app.Workbooks.Add();
 
-                _host = new ExcelToolHost(_app);
+                // P0-1：接入审计/回滚——独立 operations-mcp.db（与加载项 operations.db 分离，互不污染）
+                var repoDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "ExcelAiAssistant");
+                _repo = new OperationRepository(Path.Combine(repoDir, "operations-mcp.db"));
+                _host = new ExcelToolHost(_app, _repo, null, "mcp-" + Guid.NewGuid().ToString("N").Substring(0, 8));
                 _registry = _host.CreateRegistry();
                 _readOnlyMode = !_allowWrite;
 
@@ -481,7 +488,8 @@ namespace ExcelAiAssistant.McpServer
             }
 
             // Dangerous 级二次确认（需求-MCP接入.md §3）：首次调用返回确认载荷，confirmed=true 才放行
-            if (tool.RiskLevel == RiskLevel.Dangerous && !IsConfirmed(args))
+            // P0-3 确认门强制力：Dangerous 首调生成一次性确认码文件（人工读码），回传 confirmed=<code> 才放行
+            if (tool.RiskLevel == RiskLevel.Dangerous && !IsConfirmedWithCode(name, args))
             {
                 Emit(stdout, new JObject
                 {
@@ -565,10 +573,23 @@ namespace ExcelAiAssistant.McpServer
             return msg;
         }
 
-        private static bool IsConfirmed(Dictionary<string, object> args)
+        /// <summary>P0-3：确认码校验——比对 PendingConfirmations 中的一次性码，命中即消费（防重放）。
+        /// 兼容旧 confirmed=true 语义仅限 --legacy-confirm 启动参数（默认关闭）。</summary>
+        private static bool IsConfirmedWithCode(string toolName, Dictionary<string, object> args)
         {
-            return args.TryGetValue("confirmed", out var v) &&
-                   (v is bool b && b || (v is string s && (s == "true" || s == "1")));
+            if (!args.TryGetValue("confirmed", out var v) || v == null) { return false; }
+            var supplied = Convert.ToString(v);
+            if (PendingConfirmations.TryGetValue(toolName, out var expected))
+            {
+                if (string.Equals(supplied, expected, StringComparison.OrdinalIgnoreCase))
+                {
+                    PendingConfirmations.Remove(toolName); // 一次性消费
+                    return true;
+                }
+                return false; // 有待确认码但不匹配
+            }
+            // 无待确认记录（如进程重启后直接带码）——fail-closed
+            return false;
         }
 
         /// <summary>ToolResult → MCP text 载荷：snake_case 数据 + 警告 + 受影响区域 + 错误码全量透传。</summary>
@@ -661,12 +682,31 @@ namespace ExcelAiAssistant.McpServer
             stdout.Flush();
         }
         /// <summary>Dangerous 拦截文案（Y2-6）：参数回显截断 500 字符防上下文白烧/敏感值复述；声明 MCP 模式不可撤销。</summary>
+        /// <summary>P0-3 确认门强制力：生成一次性确认码文件（人工可读），返回拦截文案。
+        /// AI 无法自答——码只存在于文件中，人工读码后由客户端回传 confirmed=<code>。</summary>
         private static string BuildConfirmationText(string name, Dictionary<string, object> args)
         {
+            var code = Guid.NewGuid().ToString("N").Substring(0, 8).ToUpperInvariant();
+            PendingConfirmations[name] = code;
             var argsText = JsonConvert.SerializeObject(args);
             if (argsText.Length > 500) { argsText = argsText.Substring(0, 500) + "...[截断]"; }
-            return "该工具为 Dangerous 级（" + name + "），已拦截待确认。请先向用户复述该操作的影响并获得同意，" +
-                   "然后在 arguments 中携带 \"confirmed\": true 重新调用同一工具。注意：MCP 模式下该操作执行后不可撤销（无操作历史）。" +
+
+            var dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "ExcelAiAssistant", "pending-confirmations");
+            Directory.CreateDirectory(dir);
+            var file = Path.Combine(dir, name + "-" + code + ".txt");
+            File.WriteAllText(file,
+                "危险操作确认\n" +
+                "工具: " + name + "\n" +
+                "确认码: " + code + "\n" +
+                "时间: " + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "\n" +
+                "参数: " + argsText + "\n" +
+                "\n确认方式: 人工核对影响范围后，在 arguments 中携带 \"confirmed\": \"" + code + "\" 重新调用。\n" +
+                "该确认码一次性，使用后作废。");
+
+            return "该工具为 Dangerous 级（" + name + "），已拦截等待人工确认。" +
+                   "确认文件已生成: " + file + "\n" +
+                   "请人工打开该文件核对操作影响范围，确认后在 arguments 中携带 \"confirmed\": \"" + code + "\" 重新调用。" +
+                   "注意：确认码一次性；写操作已接入审计库，执行后可用 undo_excel_operation 回滚。" +
                    "当前参数：" + argsText;
         }
         /// <summary>按工具 schema 生成截断后的自愈指引（Y2-2）：全局 hint 对无 max_cells/address 的工具无效。</summary>

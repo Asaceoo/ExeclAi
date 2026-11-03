@@ -1,6 +1,6 @@
 ﻿﻿﻿﻿# JYYJ助手 · AI 行为准则
 
-> 本文档告诉**接手本仓库的 AI 助手**"在这里该怎么做事"：红线、命令、文档去哪读、验证门禁、发版约定。完整项目现状/架构/功能清单见 `docs/AI交接文档.md`（它是你 10 分钟建认知的入口）；技术细节见 `docs/JYYJ助手技术手册-3.8.3.3.md`；经验教训见 `docs/踩坑记录与规避手册.md`。
+> 本文档告诉**接手本仓库的 AI 助手**"在这里该怎么做事"：红线、命令、文档去哪读、验证门禁、发版约定。完整项目现状/架构/功能清单见 `docs/AI交接文档.md`（它是你 10 分钟建认知的入口）；技术细节见 `docs/JYYJ助手技术手册-3.8.4.0.md`；经验教训见 `docs/踩坑记录与规避手册.md`。
 
 <!-- neat-freak: initialized at 2026-09-06 -->
 
@@ -65,12 +65,13 @@
 | 想知道 | 去读 |
 |--------|------|
 | 项目整体/接手 10 分钟 | `docs/AI交接文档.md` |
-| 用户怎么用 | `docs/JYYJ助手用户手册-3.8.3.3.md`、同名 `.html`（`docs/readme.md` 仅是迁移指针） |
-| 技术细节（注册/COM/侧边栏/打包） | `docs/JYYJ助手技术手册-3.8.3.3.md` |
+| 用户怎么用 | `docs/JYYJ助手用户手册-3.8.4.0.md`、同名 `.html`（`docs/readme.md` 仅是迁移指针） |
+| 技术细节（注册/COM/侧边栏/打包） | `docs/JYYJ助手技术手册-3.8.4.0.md` |
 | 踩过的坑（血泪） | `docs/踩坑记录与规避手册.md`（docs 层权威，勿再另建 project_memory.md——已废弃） |
 | Ribbon 命令/技能编写 | Excel 主副本 `D:\execl1.0\.trae\documents\ribbon-command-authoring-guide.md`（本 WPS 副本内无此文件） |
 | 新增功能设计 | `docs/设计-*.md`、`docs/功能扩展调研报告.md` |
-| MCP 接入（规划） | `docs/需求-MCP接入.md`（P1 独立 server 方案，未实施） |
+| MCP 接入（已落地 P1） | `docs/需求-MCP接入.md`（M21 落地 M-A server，tools/McpServer） |
+| 优化路线图 | `docs/需求-优化路线图.md`（M24 竞品对标产出，P0-P3 分期待拍板） |
 
 ## 9. 记忆与踩坑
 
