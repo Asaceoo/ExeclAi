@@ -135,12 +135,17 @@ namespace ExcelAiAssistant.Excel
                 workbook = GetWorkbook();
                 ws = GetSheet(workbook, sheet);
                 range = ws.Range[address];
+                // FIX（审查 B-1）：仅标量；矩阵场景给明确指引而非 COM 裸错
+                if (value is System.Collections.IEnumerable && !(value is string))
+                    return new ToolResult { Ok = false, ErrorCode = "INVALID_ARGS", Data = "set_element 只接受标量值；写二维矩阵请用 write_excel_range 工具（values 参数）。" };
+                int seRows = Convert.ToInt32(range.Rows.Count);
+                int seCols = Convert.ToInt32(range.Columns.Count);
                 var before = Convert.ToString(range.Value2);
                 range.Value2 = value;
                 return new ToolResult
                 {
                     Ok = true,
-                    Data = new { address = Convert.ToString(range.Address), before = before, after = Convert.ToString(range.Value2) },
+                    Data = new { address = Convert.ToString(range.Address), rows = seRows, columns = seCols, before = before, after = Convert.ToString(range.Value2) },
                     AffectedRanges = new List<string> { Convert.ToString(range.Address) }
                 };
             }
@@ -194,13 +199,18 @@ namespace ExcelAiAssistant.Excel
                 ws = GetSheet(workbook, sheet);
                 if (kind == "shape")
                 {
-                    dynamic sh = ws.Shapes[name] ?? throw new KeyNotFoundException("形状不存在：" + name);
+                    dynamic sh;
+                    // FIX（审查 D-1）：COM 索引器先抛异常，原 ?? throw 是死代码 → 错误被外层记成 INVALID_ARGS
+                    try { sh = ws.Shapes[name]; }
+                    catch { return new ToolResult { Ok = false, ErrorCode = "ELEMENT_NOT_FOUND", Data = "形状不存在：" + name + "。请先调 query_elements(element_type=shapes) 查看现有形状名。" }; }
                     sh.Delete();
                     return new ToolResult { Ok = true, Data = new { removed = name, kind = "shape" } };
                 }
                 if (kind == "chart")
                 {
-                    dynamic ch = ws.ChartObjects()[name] ?? throw new KeyNotFoundException("图表不存在：" + name);
+                    dynamic ch;
+                    try { ch = ws.ChartObjects()[name]; }
+                    catch { return new ToolResult { Ok = false, ErrorCode = "ELEMENT_NOT_FOUND", Data = "图表不存在：" + name + "。请先调 query_elements(element_type=charts) 查看现有图表名。" }; }
                     ch.Delete();
                     return new ToolResult { Ok = true, Data = new { removed = name, kind = "chart" } };
                 }
@@ -224,7 +234,11 @@ namespace ExcelAiAssistant.Excel
             {
                 workbook = GetWorkbook();
                 ws = GetSheet(workbook, sheet);
-                dynamic target = kind == "shape" ? (object)ws.Shapes[name] : (object)ws.ChartObjects()[name];
+                if (kind != "shape" && kind != "chart")
+                    return new ToolResult { Ok = false, ErrorCode = "INVALID_ARGS", Data = "kind 支持：shape / chart" };
+                dynamic target;
+                try { target = kind == "shape" ? (object)ws.Shapes[name] : (object)ws.ChartObjects()[name]; }
+                catch { return new ToolResult { Ok = false, ErrorCode = "ELEMENT_NOT_FOUND", Data = "元素不存在：" + name + "。请先调 query_elements 查看现有名称。" }; }
                 if (target == null) throw new KeyNotFoundException("元素不存在：" + name);
                 if (args.TryGetValue("top", out var top)) target.Top = Convert.ToDouble(top);
                 if (args.TryGetValue("left", out var left)) target.Left = Convert.ToDouble(left);

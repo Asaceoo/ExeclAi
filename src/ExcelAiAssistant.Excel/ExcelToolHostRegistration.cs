@@ -65,13 +65,13 @@ namespace ExcelAiAssistant.Excel
             ExcelElementOps elementOps,
             ExcelDraftService draftService)
         {
-            registry.Register(new ToolDescriptor("query_elements", "按类型枚举结构元素（sheets/shapes/charts/usedrange），列出名称与属性。发现未知结构时先调用。", RiskLevel.ReadOnly, args => Execute(() => elementOps.QueryElements(args))));
+            registry.Register(new ToolDescriptor("query_elements", "按类型枚举结构元素，列出名称与属性。element_type 取值：sheets（工作表）/ shapes（形状）/ charts（图表）/ usedrange_rows（已用区域）。发现未知结构时先调用。", RiskLevel.ReadOnly, args => Execute(() => elementOps.QueryElements(args)), ElementOpSchemas.QueryElements()));
             registry.Register(new ToolDescriptor("get_element", "读取任意区域/单元格的值与公式（values 二维矩阵）。", RiskLevel.ReadOnly, args => Execute(() => elementOps.GetElement(args)), ElementOpSchemas.GetElement()));
-            registry.Register(new ToolDescriptor("set_element", "设置任意区域/单元格的值（before/after 回显）。", RiskLevel.NormalWrite, args => Execute(() => elementOps.SetElement(args)), ElementOpSchemas.SetElement()));
-            registry.Register(new ToolDescriptor("add_element", "新增元素：textbox 文本框（可指定 top/left/width/height/text）。", RiskLevel.StructuralChange, args => Execute(() => elementOps.AddElement(args)), ElementOpSchemas.AddElement()));
-            registry.Register(new ToolDescriptor("remove_element", "删除元素：shape 或 chart（按名称，指定 kind）。", RiskLevel.StructuralChange, args => Execute(() => elementOps.RemoveElement(args)), ElementOpSchemas.RemoveElement()));
+            registry.Register(new ToolDescriptor("set_element", "设置单元格/区域的值（before/after 回显）。仅支持标量值；写二维矩阵请用 write_excel_range（values 参数）。", RiskLevel.NormalWrite, args => Execute(() => elementOps.SetElement(args)), ElementOpSchemas.SetElement()));
+            registry.Register(new ToolDescriptor("add_element", "新增元素：仅 textbox 文本框（可指定 top/left/width/height/text）。图表请用 create_excel_chart（基础）/ create_chart_advanced（技巧型）。", RiskLevel.StructuralChange, args => Execute(() => elementOps.AddElement(args)), ElementOpSchemas.AddElement()));
+            registry.Register(new ToolDescriptor("remove_element", "删除元素：kind=shape（形状）或 chart（图表），按 name 删除（先用 query_elements 查名）。整表删除请用 delete_excel_worksheet（危险级需确认）。", RiskLevel.StructuralChange, args => Execute(() => elementOps.RemoveElement(args)), ElementOpSchemas.RemoveElement()));
             registry.Register(new ToolDescriptor("move_element", "移动元素：shape 或 chart（按名称改 top/left）。", RiskLevel.StructuralChange, args => Execute(() => elementOps.MoveElement(args)), ElementOpSchemas.MoveElement()));
-            registry.Register(new ToolDescriptor("start_draft", "草稿模式：复制源工作表为隐藏草稿副本，AI 在副本上执行变更（P1-1）。", RiskLevel.StructuralChange, args => Execute(() => draftService.StartDraft(args)), ElementOpSchemas.DraftStart()));
+            registry.Register(new ToolDescriptor("start_draft", "草稿模式第一步：复制源表为隐藏草稿副本（返回 draft_sheet 名）。后续写操作必须把 draft_sheet 当 sheet 参数传给 write/set 等工具；改完调 diff_draft 看差异，再 apply_draft 采纳或 discard_draft 放弃。", RiskLevel.StructuralChange, args => Execute(() => draftService.StartDraft(args)), ElementOpSchemas.DraftStart()));
             registry.Register(new ToolDescriptor("diff_draft", "草稿差异预览：对比草稿与源表的单元格级变更列表，供人工审阅。", RiskLevel.ReadOnly, args => Execute(() => draftService.DiffDraft(args)), ElementOpSchemas.DraftDiff()));
             registry.Register(new ToolDescriptor("apply_draft", "采纳草稿：把草稿变更落盘到源工作表并删除草稿。", RiskLevel.NormalWrite, args => Execute(() => draftService.ApplyDraft(args)), ElementOpSchemas.DraftApply()));
             registry.Register(new ToolDescriptor("discard_draft", "放弃草稿：删除草稿不做任何修改。", RiskLevel.StructuralChange, args => Execute(() => draftService.DiscardDraft(args)), ElementOpSchemas.DraftDiscard()));

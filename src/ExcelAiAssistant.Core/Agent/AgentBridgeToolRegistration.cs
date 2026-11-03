@@ -20,7 +20,7 @@ namespace ExcelAiAssistant.Core.Agent
                 "buddy_read_memory",
                 "读取 workbuddy 长期记忆：默认 MEMORY.md；可传 name 指定文件名或 date 指定日期日志（YYYY-MM-DD）。",
                 RiskLevel.ReadOnly,
-                args => Ok(AgentMemoryBridge.Read(Get(args, "memory_root") ?? memoryRoot, Get(args, "name"), Get(args, "date"), GetInt(args, "max_chars", 20000)))));
+                args => Bubble(AgentMemoryBridge.Read(Get(args, "memory_root") ?? memoryRoot, Get(args, "name"), Get(args, "date"), GetInt(args, "max_chars", 20000)))));
 
             registry.Register(new ToolDescriptor(
                 "buddy_search_memory",
@@ -30,7 +30,7 @@ namespace ExcelAiAssistant.Core.Agent
                 {
                     var q = Get(args, "query");
                     if (string.IsNullOrWhiteSpace(q)) return Fail("INVALID_ARGS", "缺少必填参数：query");
-                    return Ok(AgentMemoryBridge.Search(Get(args, "memory_root") ?? memoryRoot, q, GetInt(args, "limit", 30)));
+                    return Bubble(AgentMemoryBridge.Search(Get(args, "memory_root") ?? memoryRoot, q, GetInt(args, "limit", 30)));
                 }));
 
             registry.Register(new ToolDescriptor(
@@ -41,7 +41,7 @@ namespace ExcelAiAssistant.Core.Agent
                 {
                     var text = Get(args, "text");
                     if (string.IsNullOrWhiteSpace(text)) return Fail("INVALID_ARGS", "缺少必填参数：text");
-                    return Ok(AgentMemoryBridge.Append(Get(args, "memory_root") ?? memoryRoot, text, Get(args, "name"), Get(args, "date")));
+                    return Bubble(AgentMemoryBridge.Append(Get(args, "memory_root") ?? memoryRoot, text, Get(args, "name"), Get(args, "date")));
                 }));
 
             registry.Register(new ToolDescriptor(
@@ -81,6 +81,17 @@ namespace ExcelAiAssistant.Core.Agent
         }
 
         private static ToolResult Ok(object data) => new ToolResult { Ok = true, Data = data };
+
+        /// <summary>FIX（审查 E-2）：内层 ok:false 必须冒泡成 ToolResult.Ok=false，否则 MCP transport
+        /// 只看到 isError=false，AI 会把「记忆文件不存在」当成功并编造内容。</summary>
+        private static ToolResult Bubble(object payload)
+        {
+            var okProp = payload == null ? null : payload.GetType().GetProperty("ok");
+            var isOk = okProp == null || !(okProp.GetValue(payload) is bool b) || b;
+            if (isOk) return new ToolResult { Ok = true, Data = payload };
+            var errProp = payload.GetType().GetProperty("error");
+            return new ToolResult { Ok = false, ErrorCode = "MEMORY_FAILED", Data = errProp == null ? payload : errProp.GetValue(payload), Warning = Convert.ToString(payload) };
+        }
         private static ToolResult Fail(string code, string message) => new ToolResult { Ok = false, ErrorCode = code, Data = message };
     }
 }

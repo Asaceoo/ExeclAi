@@ -82,8 +82,11 @@ namespace ExcelAiAssistant.Core.Agent
             "create_excel_table",
             "insert_image",
             "freeze_panes",
-            "manage_hyperlinks"
-        };
+            "manage_hyperlinks",
+            // M26：L2 元素层 / 外部数据源（有确定性期望，可自检）
+            "set_element",
+            "import_csv"
+    };
 
         /// <summary>
         /// 工具是否豁免于自动自检：精确豁免清单命中，或 <c>ct_</c> 前缀的用户自定义沉淀工具
@@ -772,6 +775,26 @@ namespace ExcelAiAssistant.Core.Agent
                             ("expected_cell", GetString(map, "cell")))
                     };
                     return true;
+                // M26：L2 元素层 / 外部数据源（有确定性期望）
+                case "set_element":
+                    plan = new AutoVerifyPlan
+                    {
+                        VerifyTool = "verify_write_result",
+                        Reason = "写入后自动回读单元格值与期望一致",
+                        Args = Build(map,
+                            ("expected_address", GetString(map, "address")),
+                            ("sheet", GetString(map, "sheet")))
+                    };
+                    return true;
+                case "import_csv":
+                    plan = new AutoVerifyPlan
+                    {
+                        VerifyTool = "verify_structure",
+                        Reason = "导入后自动核对新工作表已创建",
+                        Args = Build(map, ("expected_sheet", GetString(map, "sheet_name")))
+                    };
+                    return true;
+
                 case "manage_hyperlinks":
                     var hyperlinkAction = GetString(map, "action") ?? "list";
                     var hyperlinkAddress = GetString(map, "address");

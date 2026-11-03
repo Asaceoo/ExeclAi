@@ -86,6 +86,9 @@ namespace ExcelAiAssistant.McpServer
             }
             finally
             {
+                // FIX（impl #4 竞态）：先等后台预热结束再清理——否则客户端连上即断时 _app 尚 null、
+                // SpawnedPids 为空，Cleanup 不 Quit 不 Kill，预热线程随后建出的 EXCEL 成无主孤儿（红线）。
+                try { _readyEvent.Wait(TimeSpan.FromSeconds(60)); } catch { }
                 Log("stdio 结束，清理 Excel 进程");
                 try { Cleanup(); } catch (Exception cleanupException) { Log("Cleanup 异常: " + cleanupException.Message); }
             }
@@ -100,6 +103,7 @@ namespace ExcelAiAssistant.McpServer
             if (excelType == null)
             {
                 _initError = "未找到 Excel.Application COM 组件（本机未安装 Excel？）";
+                _readyEvent.Set(); // FIX（审查 F3）：早退必须释放等待者，否则每次 tools/* 白等 90 秒
                 return;
             }
 
@@ -752,7 +756,7 @@ namespace ExcelAiAssistant.McpServer
 
             return "该工具为 Dangerous 级（" + name + "），已拦截等待人工确认。" +
                    "确认文件已生成: " + file + "\n" +
-                   "请人工打开该文件核对操作影响范围，确认后在 arguments 中携带 \"confirmed\": \"" + code + "\" 重新调用。" +
+                   "请人工打开该文件核对操作影响范围与确认码，确认后再携带该码重新调用（码只在文件中，不随本响应回传）。" +
                    "注意：确认码一次性；写操作已接入审计库，执行后可用 undo_excel_operation 回滚。" +
                    "当前参数：" + argsText;
         }
