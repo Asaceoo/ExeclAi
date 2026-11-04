@@ -1,0 +1,46 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <OutputType>Library</OutputType>
+    <UseWindowsForms>true</UseWindowsForms>
+    <Platforms>x86;x64</Platforms>
+    <RuntimeIdentifier Condition="'$(Platform)'=='x86'">win-x86</RuntimeIdentifier>
+    <RuntimeIdentifier Condition="'$(Platform)'=='x64'">win-x64</RuntimeIdentifier>
+    <RegisterForComInterop>false</RegisterForComInterop>
+    <!-- 版本号继承自 Directory.Build.props（单一来源），此处不再定义 -->
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ExcelAiAssistant.Core\ExcelAiAssistant.Core.csproj" />
+    <ProjectReference Include="..\ExcelAiAssistant.Excel\ExcelAiAssistant.Excel.csproj" />
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2651.64" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Extensibility">
+      <HintPath>C:\Windows\assembly\GAC\Extensibility\7.0.3300.0__b03f5f7f11d50a3a\extensibility.dll</HintPath>
+      <Private>false</Private>
+      <EmbedInteropTypes>true</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="office">
+      <HintPath>C:\Windows\assembly\GAC_MSIL\office\15.0.0.0__71e9bce111e9429c\office.dll</HintPath>
+      <Private>false</Private>
+      <EmbedInteropTypes>true</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Security" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Sidebar\index.html" />
+    <EmbeddedResource Include="Ribbon.xml" />
+    <EmbeddedResource Include="Ribbon\ParameterForm.html" />
+    <EmbeddedResource Include="RibbonIcons\*.png">
+      <LogicalName>%(Filename).png</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="skills\**\SKILL.md" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>
+

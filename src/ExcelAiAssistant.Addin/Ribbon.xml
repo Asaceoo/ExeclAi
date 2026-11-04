@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<customUI xmlns="http://schemas.microsoft.com/office/2009/07/customui" onLoad="Ribbon_Load">
+  <ribbon>
+    <tabs>
+      <!-- 「JYYJ快捷」已整体并入 JYYJ助手，当前仅保留单一功能页签，避免入口分散 -->
+      <tab id="ExcelAiTab" label="JYYJ助手" insertAfterMso="TabHome">
+        <group id="ExcelAiGroup" label="JYYJ助手">
+          <toggleButton
+            id="ToggleTaskPane"
+            label="打开面板"
+            size="large"
+            getImage="GetImage"
+            getScreentip="GetPaneScreentip"
+            onAction="OnToggleTaskPane"
+            getPressed="GetTaskPanePressed" />
+        </group>
+        <group id="ExcelAiViewGroup" label="视图">
+          <toggleButton
+            id="ToggleSpotlight"
+            label="聚光灯"
+            size="large"
+            getImage="GetImage"
+            getScreentip="GetSpotlightScreentip"
+            onAction="OnToggleSpotlight"
+            getPressed="GetSpotlightPressed" />
+          <toggleButton
+            id="TogglePointer"
+            label="指针"
+            size="large"
+            getImage="GetImage"
+            getScreentip="GetPointerScreentip"
+            onAction="OnTogglePointer"
+            getPressed="GetPointerPressed" />
+        </group>
+        <!-- 数据处理组：一律用 menu 控件（大按钮自带 ▼ 提示），内置「配置标准…」入口打开对应参数框 -->
+        <group id="JYYJDataGroup" label="数据处理">
+          <menu id="JQClean" label="清洗" size="large" getImage="GetImage" supertip="点击打开清洗标准配置：去空行/修日期/填空白/去空格/去控制字符">
+            <button id="JQCleanCfg" label="配置清洗标准…" onAction="OnJQClean" supertip="打开清洗标准配置" />
+          </menu>
+          <menu id="JQDedup" label="去重" size="large" getImage="GetImage" supertip="点击打开去重标准配置：按列判重/保留首末">
+            <button id="JQDedupCfg" label="配置去重标准…" onAction="OnJQDedup" supertip="打开去重标准配置" />
+          </menu>
+          <menu id="JQSort" label="排序" size="large" getImage="GetImage" supertip="点击打开排序标准配置：关键字/升降序">
+            <button id="JQSortCfg" label="配置排序标准…" onAction="OnJQSort" supertip="打开排序标准配置" />
+          </menu>
+          <menu id="JQTranspose" label="转置" size="large" getImage="GetImage" supertip="点击打开转置标准配置：目标位置/原区覆盖">
+            <button id="JQTransposeCfg" label="配置转置标准…" onAction="OnJQTranspose" supertip="打开转置标准配置" />
+          </menu>
+          <menu id="JQFilter" label="筛选" size="large" getImage="GetImage" supertip="点击打开筛选标准配置：列/条件">
+            <button id="JQFilterCfg" label="配置筛选标准…" onAction="OnJQFilter" supertip="打开筛选标准配置" />
+          </menu>
+          <menu id="JQPivot" label="透视" size="large" getImage="GetImage" supertip="点击打开透视标准配置：行标签/数值列">
+            <button id="JQPivotCfg" label="配置透视标准…" onAction="OnJQPivot" supertip="打开透视标准配置" />
+          </menu>
+          <menu id="JQSuperBoard" label="超级看板" size="large" getImage="GetImage" supertip="一键生成三层结构成品仪表盘：数据底座+KPI 卡+四宫格+指标视图切换，支持自定义派生指标与透视字段配置">
+            <button id="JQSuperBoardCfg" label="配置超级看板…" onAction="OnJQSuperBoard" supertip="打开超级看板配置：维度/指标/透视字段/切片器" />
+          </menu>
+        </group>
+        <!-- 文本处理组：均有参数标准，改成 menu 控件 -->
+        <group id="JYYJTextGroup" label="文本处理">
+          <menu id="JQTextSplit" label="拆分" size="large" getImage="GetImage" supertip="点击打开拆分配置：源列/分隔符">
+            <button id="JQTextSplitCfg" label="配置拆分标准…" onAction="OnJQTextSplit" supertip="设置源列与分隔符" />
+          </menu>
+          <menu id="JQTextMerge" label="合并" size="large" getImage="GetImage" supertip="点击打开合并配置：合并列/分隔符">
+            <button id="JQTextMergeCfg" label="配置合并标准…" onAction="OnJQTextMerge" supertip="选择合并列与分隔符" />
+          </menu>
+          <menu id="JQTextClean" label="清理" size="large" getImage="GetImage" supertip="点击打开清理配置：清理项/大小写">
+            <button id="JQTextCleanCfg" label="配置清理标准…" onAction="OnJQTextClean" supertip="选择清理项与大小写" />
+          </menu>
+          <menu id="JQFillFormula" label="填公式" size="large" getImage="GetImage" supertip="点击打开填公式配置：模板">
+            <button id="JQFillFormulaCfg" label="配置填公式标准…" onAction="OnJQFillFormula" supertip="填写公式模板" />
+          </menu>
+        </group>
+        <!-- 常用组：均有执行标准，改成 menu 控件 -->
+        <group id="JYYJCommonGroup" label="常用">
+          <menu id="JQInsertText" label="插文本" size="large" getImage="GetImage" supertip="点击打开插文本配置：内容/位置">
+            <button id="JQInsertTextCfg" label="配置插文本标准…" onAction="OnJQInsertText" supertip="设置插入内容与位置" />
+          </menu>
+          <menu id="JQDelText" label="删文本" size="large" getImage="GetImage" supertip="点击打开删文本配置：正则">
+            <button id="JQDelTextCfg" label="配置删文本标准…" onAction="OnJQDelText" supertip="填写要删除的正则" />
+          </menu>
+          <menu id="JQRandNum" label="随机数" size="large" getImage="GetImage" supertip="点击打开随机数配置：范围/小数位">
+            <button id="JQRandNumCfg" label="配置随机数标准…" onAction="OnJQRandNum" supertip="设置范围与小数位" />
+          </menu>
+          <menu id="JQSequence" label="序列" size="large" getImage="GetImage" supertip="点击打开序列配置：公差/数量">
+            <button id="JQSequenceCfg" label="配置序列标准…" onAction="OnJQSequence" supertip="设置公差与数量" />
+          </menu>
+          <menu id="JQInsertBlank" label="插空行" size="large" getImage="GetImage" supertip="点击打开插空行配置：间隔/行数">
+            <button id="JQInsertBlankCfg" label="配置插空行标准…" onAction="OnJQInsertBlank" supertip="设置间隔与插入行数" />
+          </menu>
+          <menu id="JQDelBlank" label="删空行" size="large" getImage="GetImage" supertip="点击打开删空行配置：删除规则">
+            <button id="JQDelBlankCfg" label="配置删空行标准…" onAction="OnJQDelBlank" supertip="选择删除规则" />
+          </menu>
+          <menu id="JQFillDown" label="填下" size="large" getImage="GetImage" supertip="点击打开填下配置：填充规则">
+            <button id="JQFillDownCfg" label="配置填下标准…" onAction="OnJQFillDown" supertip="选择填充规则" />
+          </menu>
+          <menu id="JQMergeDup" label="合并相同" size="large" getImage="GetImage" supertip="点击打开合并配置：合并规则">
+            <button id="JQMergeDupCfg" label="配置合并标准…" onAction="OnJQMergeDup" supertip="选择合并规则" />
+          </menu>
+        </group>
+        <!-- 更多组：打开各自面板/工具，无「执行标准」，保持普通按钮 -->
+        <group id="JYYJMoreGroup" label="更多">
+          <button id="JQMacroBox" label="宏收纳箱" size="large" getImage="GetImage" onAction="OnJQMacroBox" />
+          <button id="JQFuncLib" label="函数库" size="large" getImage="GetImage" onAction="OnJQFuncLib" />
+          <button id="JQSqlQuery" label="SQL查询" size="large" getImage="GetImage" onAction="OnJQSqlQuery" />
+        </group>
+      </tab>
+    </tabs>
+  </ribbon>
+</customUI>

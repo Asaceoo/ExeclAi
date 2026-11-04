@@ -1,0 +1,40 @@
+﻿BOOT
+DLL-OK
+LOAD-ADDIN
+LOAD-EXCEL
+COM-CREATED
+AUTOSEC-SET-1
+BOOK-ADDED
+RAW-INJECTED
+RAW-RUN-OK 42
+
+HELPER-BUILT len=
+MOD2-NAME 模块1
+TOOLRAW-RUN-OK OK|["A",42]
+
+HOST-TYPE
+HOST-CREATED
+SCRIPT-ENABLED
+REGISTRY
+TOOL-FOUND
+CASE-START A
+CASE-EXECUTED A
+CASE A => ok=False code=VBA_RUN_ERROR
+  data=VBA 执行失败：Exception calling "Run" with "2" argument(s): "The remote procedure call failed. (Exception from HRESULT: 0x800706BE)"（已中断，未造成后续影响）。
+
+CASE-START B
+CASE-EXECUTED B
+CASE B => ok=False code=VBA_UNAVAILABLE
+  data=无法访问 VBA 工程对象模型，请确认已启用“信任对 VBA 工程对象模型的访问”。
+
+CASE-START C
+CASE-EXECUTED C
+CASE C => ok=False code=VBA_UNAVAILABLE
+  data=无法访问 VBA 工程对象模型，请确认已启用“信任对 VBA 工程对象模型的访问”。
+
+CASE-START D
+CASE-EXECUTED D
+CASE D => ok=False code=VBA_UNAVAILABLE
+  data=无法访问 VBA 工程对象模型，请确认已启用“信任对 VBA 工程对象模型的访问”。
+
+DONE
