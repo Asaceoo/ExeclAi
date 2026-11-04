@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>超级看板 · 三步向导 交互稿 v2（说明区下沉 + 零遮挡布局）</title>
+<style>
+  body{font-family:"Microsoft YaHei UI",sans-serif;background:#eef1f6;margin:0;padding:24px;color:#1f2937}
+  h1{font-size:20px;margin:0 0 4px} h2{font-size:15px;margin:28px 0 8px;color:#1e40af}
+  .meta{color:#6b7280;font-size:12px;margin-bottom:16px}
+  /* 窗口模拟 */
+  .win{background:#fff;border:1px solid #c8cfda;border-radius:10px;box-shadow:0 4px 14px rgba(0,0,0,.12);overflow:hidden;margin-bottom:8px}
+  .win .titlebar{background:#f3f5f9;padding:7px 12px;font-size:12px;color:#444;border-bottom:1px solid #dde2ea}
+  .win .body{padding:12px}
+  /* 步骤条 */
+  .steps{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid #e5e9f0}
+  .step{font-weight:700;font-size:13px;color:#9aa3b2}
+  .step.active{color:#c85a14}
+  .step.done{color:#288c3c}
+  .arrow{color:#c8cfda}
+  /* 内容面板：只放控件 */
+  .content{padding:12px 16px;min-height:150px}
+  .row{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+  .lbl{width:96px;text-align:right;color:#374151;font-size:12px;flex:none}
+  .cbo{flex:0 0 168px;height:26px;border:1px solid #c8cfda;border-radius:5px;background:#fff;font-size:12px;line-height:24px;padding:0 8px;color:#111}
+  .cbo.wide{flex:1 1 auto}
+  .btn-blue{display:inline-block;background:#4472c4;color:#fff;border-radius:6px;padding:7px 18px;font-size:12px;font-weight:700}
+  .status{color:#9aa3b2;font-size:12px;margin-left:10px}
+  .fix{background:#fff7e6;border:1px dashed #e6a23c;border-radius:6px;padding:6px 10px;font-size:12px;color:#8a5a00;margin-top:6px}
+  /* 底部说明区（新形态核心） */
+  .desc{background:#f6f9ff;border-top:1px solid #dfe7f4;border-bottom:1px solid #dfe7f4;padding:10px 16px;font-size:12px;line-height:1.75;color:#33415c;min-height:84px}
+  .desc b{color:#1e40af}
+  .desc .tag{display:inline-block;background:#e3ecff;color:#1e40af;border-radius:4px;padding:0 6px;font-size:11px;margin-right:6px;font-weight:700}
+  /* 导航行 */
+  .nav{display:flex;align-items:center;gap:10px;padding:10px 16px}
+  .nav .btn{border:1px solid #c8cfda;border-radius:6px;padding:6px 14px;font-size:12px;background:#fff;color:#374151}
+  .nav .btn.primary{margin-left:auto;background:#e67e34;border-color:#e67e34;color:#fff;font-weight:700}
+  .grid-demo{border:1px solid #dde2ea;border-radius:4px;overflow:hidden;font-size:11px;margin-bottom:12px}
+  .grid-demo .hd{display:flex;background:#f0f3f8}
+  .grid-demo .hd div{flex:1;padding:5px 8px;font-weight:700;color:#374151;border-right:1px solid #dde2ea}
+  .grid-demo .hd div:last-child{border-right:0}
+  .grid-demo .bd{display:flex;padding:9px 8px;color:#b6bdc9}
+  .grid-demo .bd div{flex:1;border-right:1px solid #eef1f6;padding:0 8px}
+  .grid-demo .bd div:last-child{border-right:0}
+  table.cmp{border-collapse:collapse;font-size:12px;width:100%}
+  table.cmp th,table.cmp td{border:1px solid #d8dee8;padding:6px 10px;text-align:left;vertical-align:top}
+  table.cmp th{background:#f0f3f8}
+</style>
+</head>
+<body>
+<h1>超级看板 · 三步向导 交互稿 v2</h1>
+<div class="meta">版本 v3.7.1.51 计划 ｜ 2026-09-13 ｜ 修复：说明区统一下沉至「上一步」上方（截断归零）+ 控件标签零截断 + 按钮零遮挡 + 可缩放布局保持</div>
+
+<h2>一、新界面形态（以第 1 步为例 · 完整布局）</h2>
+<div class="win">
+  <div class="titlebar">超级看板 · 三步向导</div>
+  <div class="steps">
+    <span class="step active">① 数据表</span><span class="arrow">──▶</span>
+    <span class="step">② 透视表</span><span class="arrow">──▶</span>
+    <span class="step">③ 超级看板</span>
+  </div>
+  <div class="content">
+    <div class="row"><span class="lbl">数据区域：</span><div class="cbo wide">Sheet1!$B$10:$S$27</div></div>
+    <div class="row"><span class="lbl">地区/人员：</span><div class="cbo">地区</div><span class="lbl" style="width:80px">品类：</span><div class="cbo">产品类别</div></div>
+    <div class="row"><span class="lbl">月份/日期：</span><div class="cbo">日期</div><span class="lbl" style="width:80px">金额：</span><div class="cbo">金额</div></div>
+    <div class="row"><span class="lbl">数量：</span><div class="cbo">数量</div><span class="lbl" style="width:96px">利润（可选）：</span><div class="cbo">利润</div></div>
+    <div class="row" style="margin-top:16px"><span class="btn-blue">生成数据表</span><span class="status">未生成</span></div>
+  </div>
+  <div class="desc">
+    <span class="tag">💡 本步说明</span><b>「数据表」= 规范的数据底座</b><br>
+    自动规整类型（文本数字转数值、日期防漂移），并生成月度/品类/地区汇总；之后的<b>透视表与看板都从这张表取数</b>。<br>
+    · 列映射已按表头名自动猜好，下拉可改；<b>利润列可选</b>（选了利润列才能用第 3 步的「利润视图」）。<br>
+    · 生成成功后会显示 ✓ 并自动引导进入第 2 步。
+  </div>
+  <div class="nav">
+    <span class="btn">◀ 上一步</span>
+    <span class="btn">下一步 ▶</span>
+    <span class="btn primary">⚡ 一键完成（推荐）</span>
+  </div>
+</div>
+<div class="fix">✔ 修复点：说明区从内容面板顶部<b>移出</b>，固定在「上一步」按钮上方（用户指定位置）——内容面板只放控件，说明多行完整显示，<b>永不截断</b>；「利润（可选）」标签宽度 96→110px，修复"利润（可"截断。</div>
+
+<h2>二、第 2 步 · 透视表（说明区同样下沉）</h2>
+<div class="win">
+  <div class="titlebar">超级看板 · 三步向导</div>
+  <div class="steps">
+    <span class="step done">① 数据表 ✓</span><span class="arrow">──▶</span>
+    <span class="step active">② 透视表</span><span class="arrow">──▶</span>
+    <span class="step">③ 超级看板</span>
+  </div>
+  <div class="content">
+    <div class="row"><span class="lbl" style="width:130px">行维度（可多选）：</span>
+      <div class="cbo" style="flex:0 0 200px">☑ 月份　☑ 产品类别　☐ 销售员</div>
+    </div>
+    <div class="row"><span class="lbl" style="width:130px">值字段（可多选）：</span>
+      <div class="cbo" style="flex:0 0 200px">☑ 金额　☐ 数量　☑ 利润</div>
+    </div>
+    <div class="row"><span class="lbl" style="width:130px"></span><span style="font-size:11px;color:#8a5a00">※ 行维度=分类依据（按月看趋势、按品类看构成）；值字段=要计算的数字（自动求和）</span></div>
+    <div class="row" style="margin-top:10px"><span class="btn-blue">生成透视表</span><span class="status">未生成</span>
+      <label style="font-size:12px;color:#374151"><input type="checkbox"> 跳过这一步（不生成透视表）</label></div>
+  </div>
+  <div class="desc">
+    <span class="tag">💡 本步说明</span><b>「透视表」= 可自由拖拽的分析表</b>（可选，可跳过）<br>
+    · <b>行维度</b>=分类的依据：按月看趋势、按产品类别看构成、按销售员看业绩（可多选叠加）；<br>
+    · <b>值字段</b>=要计算的数字：金额/数量/利润自动求和汇总；<br>
+    · 生成后可随时在 Excel 里拖动字段重新布局；这一步<b>不影响看板主链</b>，不需要可勾选「跳过」。
+  </div>
+  <div class="nav">
+    <span class="btn">◀ 上一步</span>
+    <span class="btn">下一步 ▶</span>
+    <span class="btn primary">⚡ 一键完成（推荐）</span>
+  </div>
+</div>
+<div class="fix">✔ 修复点：勾选列表文字只显示<b>真实表头名</b>（「产品类别」「销售员」），不再拼接冗余后缀——配合加宽与描边后<b>零截断</b>；「行维度」标题与列表同排对齐不再被遮挡。</div>
+
+<h2>三、第 3 步 · 超级看板（自定义指标表格行高加大）</h2>
+<div class="win">
+  <div class="titlebar">超级看板 · 三步向导</div>
+  <div class="steps">
+    <span class="step done">① 数据表 ✓</span><span class="arrow">──▶</span>
+    <span class="step done">② 透视表 ✓</span><span class="arrow">──▶</span>
+    <span class="step active">③ 超级看板</span>
+  </div>
+  <div class="content">
+    <div class="row"><span style="font-size:12px;color:#374151">自定义派生指标（可选，≤5 行）——用基础指标加减乘除算新指标：</span></div>
+    <div class="grid-demo">
+      <div class="hd"><div>指标名（如 利润占比）</div><div>公式（基础指标四则，如 利润额/销售总额）</div><div style="flex:0 0 110px">格式（如 0.0%）</div></div>
+      <div class="bd"><div>利润占比</div><div>利润额/销售总额</div><div>0.0%</div></div>
+      <div class="bd"><div>&nbsp;</div><div>&nbsp;</div><div>&nbsp;</div></div>
+    </div>
+    <div class="row"><label style="font-size:12px"><input type="checkbox" checked> 启用原生切片器（单选 / Ctrl 多选 / 多选模式按钮）</label></div>
+    <div class="row"><span class="lbl" style="width:60px">主题：</span>
+      <div class="cbo" style="flex:0 0 150px">orange（8 种主题可选）</div>
+      <label style="font-size:12px;margin-left:14px"><input type="checkbox"> 重名自动递增共存</label>
+    </div>
+    <div class="row" style="margin-top:8px"><span class="btn-blue">生成超级看板</span><span class="status">未生成</span></div>
+  </div>
+  <div class="desc">
+    <span class="tag">💡 本步说明</span><b>「超级看板」= 最终成品</b><br>
+    · 5 张 KPI 卡 + 四宫格图表 + 下拉联动筛选，自动生成；<br>
+    · <b>指标视图</b>：看板上的下拉，随时切换销售/利润/自定义视角（KPI 卡与图表整体换指标）；<br>
+    · <b>自定义派生指标</b>：用基础指标（销售总额/销售量/成交笔数/利润额…）加减乘除算新指标，如 利润占比=利润额/销售总额；<br>
+    · <b>原生切片器</b>：点按钮筛选数据，支持单选和 Ctrl 多选，比下拉更直观；<b>主题</b>：orange 橙 / blue 蓝 / graygreen 灰绿 / purple 紫 / teal 青 / crimson 绯红 / gold 金 / slate 石板灰蓝（生成后可随时切换）。
+  </div>
+  <div class="nav">
+    <span class="btn">◀ 上一步</span>
+    <span class="btn">下一步 ▶</span>
+    <span class="btn primary">⚡ 一键完成（推荐）</span>
+  </div>
+</div>
+<div class="fix">✔ 修复点：主题下拉扩展为 <b>8 种主题</b>并写入说明；表格行高 22→30、列头 32（中文不再截断）；「重名自动递增共存」与主题同行左移，右下按钮独立锚定——<b>底部行无任何遮挡</b>。</div>
+
+<h2>四、布局规格（实现约束清单）</h2>
+<table class="cmp">
+  <tr><th>区域</th><th>位置与尺寸</th><th>Anchor</th><th>约束</th></tr>
+  <tr><td>步骤指示条</td><td>顶部固定高 44px</td><td>Left|Top|Right</td><td>三步名 + 箭头，当前步橙色、完成步绿 ✓</td></tr>
+  <tr><td>内容面板（×3 页切换）</td><td>弹性区：y=48 至说明区上缘，Anchor 四向</td><td>Left|Top|Right|Bottom</td><td><b>只放控件不放说明文字</b>；控件间垂直间距 ≥14px</td></tr>
+  <tr><td>说明区（新增独立区域）</td><td>导航行上方固定高 96px（≥4 行余量）</td><td>Left|Right|Bottom</td><td>随当前步骤切换文案；文字行高 1.75；多行完整显示</td></tr>
+  <tr><td>导航行</td><td>底部固定高 44px</td><td>Left|Right|Bottom</td><td>上一步/下一步居左，一键完成锚右下；<b>与说明区之间保留 8px 间隔，任何缩放下互不遮挡</b></td></tr>
+  <tr><td>标签宽度</td><td>「利润（可选）：」等长标签 96→120px</td><td>—</td><td>修复"利润（可"截断；映射下拉不与标签重叠</td></tr>
+  <tr><td>主题扩展</td><td>orange/blue/graygreen/purple/teal/crimson/gold/slate</td><td>—</td><td>Schema 8 处枚举同步；编辑器「换主题」兼容</td></tr>
+</table>
+
+<h2>五、确认后实现范围</h2>
+<ol style="font-size:13px;line-height:1.9">
+  <li>按本稿重构 SuperBoardWizardForm：说明区下沉至导航上方、内容面板纯控件、Anchor 全量显式；</li>
+  <li>三步说明文案按本稿定稿写入（随步骤切换显示）；</li>
+  <li>标签宽度/表格行高/主题 8 种等细节按规格表落地；</li>
+  <li>SB5 探针改造：三步页 + 说明区离屏渲染 → AI 看图验收（说明完整、按钮零遮挡、可缩放）；</li>
+  <li>gate + bump 3.7.1.51 + pack + 安装 + neat-freak 同步。</li>
+</ol>
+</body>
+</html>

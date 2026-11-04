@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "mimosa-hook-status/v1",
+  "recordedAt": "2026-08-30T02:51:07.767Z",
+  "sessionId": "sess_567448b3-126a-4556-8eaf-61f6bc8d9824",
+  "event": "PostToolUse",
+  "toolName": "Edit",
+  "file": "D:\\execl1.0\\src\\ExcelAiAssistant.Addin\\FeatureHealthSweep.cs",
+  "outcome": "inconclusive",
+  "coverage": "partial",
+  "findingCount": 0,
+  "durationMs": 9,
+  "hostState": "hook_complete",
+  "reportHint": ".mimosa/reports/"
+}

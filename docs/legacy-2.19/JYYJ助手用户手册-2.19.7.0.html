@@ -1,0 +1,281 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JYYJ助手 用户手册</title>
+<style>
+:root{
+  --brand:#1677ff; --brand-weak:#e6f0ff; --ink:#1f2329; --sub:#6b7280;
+  --line:#e5e7eb; --bg:#f7f8fa; --card:#fff; --ok:#16a34a; --warn:#ea580c;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;color:var(--ink);background:var(--bg);line-height:1.75;padding-bottom:80px}
+.wrap{max-width:920px;margin:0 auto;padding:0 20px}
+header{background:linear-gradient(135deg,#1677ff,#0e5fd8);color:#fff;padding:44px 0 36px}
+header .wrap{display:flex;align-items:center;gap:18px}
+.logo{width:58px;height:58px;border-radius:14px;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:20px;flex:none}
+h1{font-size:26px;font-weight:700}
+.sub{opacity:.92;font-size:14px;margin-top:6px}
+nav{position:sticky;top:0;background:var(--card);border-bottom:1px solid var(--line);z-index:10}
+nav .wrap{display:flex;gap:4px;overflow-x:auto}
+nav a{display:block;padding:12px 14px;color:var(--sub);text-decoration:none;font-size:14px;white-space:nowrap;border-bottom:2px solid transparent}
+nav a:hover{color:var(--brand)}
+nav a.active{color:var(--brand);border-bottom-color:var(--brand);font-weight:600}
+section{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:26px 28px;margin:24px 0}
+h2{font-size:20px;border-left:4px solid var(--brand);padding-left:12px;margin-bottom:18px}
+h3{font-size:16px;margin:22px 0 10px;color:#111}
+h3::before{content:'';display:inline-block;width:8px;height:8px;background:var(--brand);border-radius:2px;margin-right:8px}
+h4{font-size:14px;margin:16px 0 6px;color:#333}
+p{margin:8px 0}
+ol,ul{margin:8px 0 8px 24px}
+li{margin:6px 0}
+code{background:#f2f3f5;border:1px solid var(--line);border-radius:5px;padding:1px 7px;font-family:Consolas,Monaco,monospace;font-size:13px;color:#c026d3}
+pre{background:#0f172a;color:#e2e8f0;border-radius:10px;padding:16px 18px;overflow-x:auto;font-size:13px;line-height:1.7;margin:12px 0;font-family:Consolas,Monaco,monospace}
+pre code{background:none;border:none;color:inherit;padding:0}
+.callout{border-radius:10px;padding:14px 18px;margin:14px 0;font-size:14px}
+.callout.info{background:var(--brand-weak);border-left:4px solid var(--brand)}
+.callout.warn{background:#fff4e5;border-left:4px solid var(--warn)}
+.callout.ok{background:#e8f7ee;border-left:4px solid var(--ok)}
+.callout .t{font-weight:700;margin-bottom:4px}
+table{width:100%;border-collapse:collapse;margin:12px 0;font-size:14px}
+th,td{border:1px solid var(--line);padding:9px 12px;text-align:left;vertical-align:top}
+th{background:var(--bg);font-weight:600}
+.note{font-size:13px;color:var(--sub)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;margin:12px 0}
+.feat{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+.feat b{color:var(--brand);font-size:14px;display:block;margin-bottom:4px}
+.feat span{font-size:13px;color:var(--sub)}
+@media(max-width:640px){header .wrap{flex-direction:column;text-align:center}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="logo">JYYJ</div>
+    <div>
+      <h1>JYYJ助手 用户手册</h1>
+      <div class="sub"> Excel 里的 AI 助手 · 版本 2.19.6.0</div>
+    </div>
+  </div>
+</header>
+
+<nav>
+  <div class="wrap">
+    <a href="#intro">产品简介</a>
+    <a href="#requirements">系统要求</a>
+    <a href="#quick">快速上手</a>
+    <a href="#chat">聊天对话</a>
+    <a href="#views">面板视图</a>
+    <a href="#formula">公式助手</a>
+    <a href="#vba">VBA 代码助手</a>
+    <a href="#workflow">流程编排</a>
+    <a href="#settings">设置中心</a>
+    <a href="#skills">技能包</a>
+    <a href="#safety">安全机制</a>
+    <a href="#trouble">常见问题</a>
+  </div>
+</nav>
+
+<div class="wrap">
+
+<section id="intro">
+  <h2>一、产品简介</h2>
+  <p>JYYJ助手 是一个内嵌在 Excel 中的 <b>AI 办公助手</b>。它通过一个侧边栏面板与你的工作表对话，能理解自然语言需求，并自动调用 Excel 工具完成数据读取、清洗、分析、填表、公式生成、图表绘制、报告撰写等一系列操作。</p>
+  <div class="grid">
+    <div class="feat"><b>自然语言操作表格</b><span>用中文描述需求，助手自动执行</span></div>
+    <div class="feat"><b>公式自动生成</b><span>选好选区，描述计算，生成即用公式</span></div>
+    <div class="feat"><b>VBA 宏编写与执行</b><span>自动生成代码、校验、执行并沉淀复用</span></div>
+    <div class="feat"><b>多步骤流程编排</b><span>把常用操作存成可复用流程模板</span></div>
+    <div class="feat"><b>数据填充与清洗</b><span>智能填补空格、去重、分列合并</span></div>
+    <div class="feat"><b>图表与透视</b><span>按需求自动生成图表、透视表</span></div>
+    <div class="feat"><b>分析与报告</b><span>生成结构化数据分析报告</span></div>
+    <div class="feat"><b>多工作簿协同</b><span>跨工作簿只读引用多个数据源</span></div>
+  </div>
+  <div class="callout info"><div class="t">适用范围</div>需配合已安装完成的 JYYJ助手 加载项使用（安装方式见《安装器 用户操作说明》），并配置一个 OpenAI 兼容的模型服务。</div>
+</section>
+
+<section id="requirements">
+  <h2>一之二、系统要求与支持范围</h2>
+  <table>
+    <tr><th>项目</th><th>要求</th></tr>
+    <tr><td>Excel 版本</td><td><b>2013 / 2016 / 2019 / 2021 / Microsoft 365</b>，32 位 / 64 位均可（安装器自动适配位数）</td></tr>
+    <tr><td>操作系统</td><td>Windows 10 / 11</td></tr>
+    <tr><td>运行库</td><td>.NET Framework 4.8、WebView2 Runtime（Win10/11 一般自带，缺失时安装器会提示）</td></tr>
+    <tr><td>模型服务</td><td>OpenAI 兼容接口（在线 API 或本地推理），在「设置 → 模型方案」配置</td></tr>
+  </table>
+  <div class="callout info"><div class="t">Excel 版本与内置函数</div>受 Excel 版本影响的是<b>内置函数的可用范围</b>——「函数库」面板内置 319 个函数，每个函数都标注了首版可用版本徽章（2007~365），旧版里 XLOOKUP、动态数组、LAMBDA、<b>GROUPBY / PIVOTBY</b> 等新函数不可用，请按徽章选择与你版本匹配的函数；加载项本身在上述版本均可正常运行。</div>
+  <div class="callout info"><div class="t">两种安装包</div><b>轻量版</b>（约 5MB）：适合能联网的电脑，缺组件时自动提示下载；<b>离线完整版</b>（约 316MB）：内置 .NET Framework 4.8 与 WebView2 运行时，无网或组件缺失的电脑用它一步到位。安装前先关闭所有 Excel；装完在开始菜单有「一键诊断」，遇到问题先跑它并把桌面上的诊断报告发给我们。</div>
+</section>
+
+<section id="quick">
+  <h2>二、快速上手</h2>
+  <h3>第一步：打开助手</h3>
+  <ol>
+    <li>打开 Excel，在功能区顶部找到 <b>「JYYJ助手」</b> 选项卡。</li>
+    <li>点击其中的「侧边栏」按钮，Excel 右侧出现助手面板。</li>
+    <li>确认面板顶部连接状态显示「就绪」。</li>
+  </ol>
+  <h3>第二步：配置模型（首次）</h3>
+  <ol>
+    <li>切到「设置」视图，找到「模型方案（OpenAI 兼容）」。
+
+
+
+    <li>填写接口地址 Base URL、API Key、模型名称，保存。</li>
+  </ol>
+  <h3>第三步：开始对话</h3>
+  <div class="callout ok"><div class="t">示例指令</div><code>把 A1:A20 求和写入 C1</code><br><code>把第 3 列的空格按邻近值填上</code><br><code>统计各部门人数并做成柱状图</code></div>
+  <p>助手会先读取选区，必要时弹确认面板让你审核改动，再执行并汇报结果。</p>
+</section>
+
+<section id="chat">
+  <h2>三、聊天对话视图</h2>
+  <p>「聊天」是默认视图，是使用助手最核心的入口。输入自然语言需求即可让助手读取、分析并修改工作表。</p>
+  <h3>3.1 思考过程面板</h3>
+  <p>每条回复下方可展开「思考过程」，按 <b>思考 → 工具调用 → 结果</b> 分步呈现，让你看清助手每一步做了什么、调用了哪个工具、是否需要你对危险操作做确认。</p>
+  <h3>3.2 工具调用上限</h3>
+  <div class="callout warn"><div class="t">重要提示</div>单轮对话内助手能够自动调用的工具次数有限，可在「设置 → 单轮工具调用上限」中调整（范围 1–1000）。复杂任务可调大，但过大会拖慢单轮响应。</div>
+  <h3>3.3 危险操作确认</h3>
+  <p>对删除行、覆盖关键数据、整行删除、执行宏等<strong>危险操作</strong>，助手不会直接执行，而是弹出<strong>确认面板</strong>展示将发生的改动，需你审阅后点击确认才会落地。</p>
+  <h3>3.4 多工作簿协同</h3>
+  <p>当前活动工作簿是<strong>写入目标</strong>；外部工作簿可经 <code>read_external_range</code> 以<strong>只读</strong>句柄引用，不修改原文件。可在「设置 → 已连接工作簿」中刷新清单并选择上下文锚点。</p>
+</section>
+
+<section id="views">
+  <h2>四、面板视图总览</h2>
+  <p>侧边栏顶部有七个视图：<b>聊天 / 公式 / 函数 / VBA / Python / 流程 / 设置</b>。</p>
+  <table>
+    <tr><th>视图</th><th>用途</th></tr>
+    <tr><td><code>聊天</code></td><td>自然语言对话，助手自动操作表格（核心入口）</td></tr>
+    <tr><td><code>公式</code></td><td>面向「公式助手」的专项面板</td></tr>
+    <tr><td><code>函数</code></td><td>内置函数库（319 个内置函数，按分类 / 搜索 / 首版可用版本筛选，点选插入公式骨架，含参数讲解与示例试运行）</td></tr>
+    <tr><td><code>VBA</code></td><td>VBA 代码校验、执行、模板库沉淀与复用</td></tr>
+    <tr><td><code>Python</code></td><td>Python 脚本面板（纯计算 / Excel 读写），独立常驻 worker 执行</td></tr>
+    <tr><td><code>流程</code></td><td>查看 / 触发 / 另存多步骤流程模板</td></tr>
+    <tr><td><code>设置</code></td><td>模型配置、偏好、记忆、受控执行、日志自检、关于</td></tr>
+  </table>
+
+  <h3>4.1 网页停靠</h3>
+  <p>在设置中可启动与助手同款的<strong>停靠式浏览器窗格</strong>，在 Excel 右侧承载站点页面（可登录、提问、缩放）。同一时刻只承载一个站点，部分拒绝 iframe 的站点（如 DeepSeek）会由独立窗格承载。</p>
+</section>
+
+<section id="formula">
+  <h2>五、公式助手</h2>
+  <p>帮助你快速得到正确、可复用的 Excel 公式。</p>
+  <ol>
+    <li>在工作表上框选<strong>「数据选区」</strong>（进行计算的区域）。</li>
+    <li>框选（或指定）<strong>「目标选区」</strong>（公式输出位置）。</li>
+    <li>用自然语言描述期望的计算。</li>
+    <li>点击生成，助手返回<strong>一条可直接复制粘贴的公式</strong>，并附通俗易懂的文字说明。</li>
+  </ol>
+  <div class="callout info"><div class="t">说明</div>公式生成过程<b>不会改动工作表</b>，属于只读操作，可放心使用。</div>
+  <p>在聊天中直接描述计算需求，同样会让助手生成并写入公式（此时遵循「写入输出偏好」设置）。</p>
+</section>
+
+<section id="vba">
+  <h2>六、VBA 代码助手</h2>
+  <p>无需手动编写宏，即可完成 VBA 的编写、校验、执行与沉淀。</p>
+  <h3>6.1 编写 / 粘贴代码</h3>
+  <p>在 VBA 面板中直接编写，或从别处粘贴 VBA 宏代码。</p>
+  <h3>6.2 校验（安全，只读）</h3>
+  <p>点击<strong>「校验」</strong>，仅做语法结构检查并返回结果，<b>不执行</b>、不改动工作表。</p>
+  <h3>6.3 执行（高危，需确认）</h3>
+  <p>点击<strong>「执行」</strong>会进入危险确认流程：
+  <ol>
+    <li>弹出<strong>代码预览</strong>面板，逐行展示待执行代码；</li>
+    <li>你审阅后点击「执行代码」才真正运行。
+
+  <div class="callout warn"><div class="t">提示</div>执行前会经过静态护栏检查，拦截如「对多行多列矩形区域直接 AutoFit」等致命写法，避免运行时错误中断宏。</div>
+  <h3>6.4 自动沉淀与复用</h3>
+  <p>执行成功的 VBA 代码会<strong>自动沉淀到代码库</strong>，可在「VBA → 模板库」中查看与复用；未自动沉淀时可点<strong>「载入VBA面板」</strong>手动处理。沉淀模板命名简洁、凝练、突出功能重点，方便再次调用。</p>
+  <p>也可以<strong>不写代码</strong>，直接在聊天里描述需求，让助手生成并执行宏。</p>
+</section>
+
+<section id="workflow">
+  <h2>七、流程编排</h2>
+  <p>把常做的一系列操作固化成<strong>可复用的流程模板</strong>，一键重复执行。</p>
+  <ul>
+    <li><b>触发已有流程</b>：在聊天框输入 <code>@workflow:流程名称</code> 直接运行。</li>
+    <li><b>另存会话为流程</b>：在聊天后，把当前会话中一步成功的工具操作另存为流程模板。</li>
+    <li><b>执行特性</b>：逐条调用工具流程，支持危险操作确认与单步失败重试。</li>
+  </ul>
+</section>
+
+<section id="settings">
+  <h2>八、设置中心</h2>
+  <p>「设置」视图集中管理以下卡片：</p>
+  <table>
+    <tr><th>设置项</th><th>说明</th></tr>
+    <tr><td>模型方案（OpenAI 兼容）</td><td>配置接口地址、API Key、模型名称</td></tr>
+    <tr><td>写入输出偏好</td><td>计算结果默认<strong>写公式</strong>还是<strong>直接写值</strong>；可选“自动（跟随模型判断）”。切换立即生效并持久化</td></tr>
+    <tr><td>单轮工具调用上限</td><td>单轮最大自动调用工具次数（1–1000）</td></tr>
+    <tr><td>AI 技能包</td><td>加载 / 管理本地技能，聊天中用 <code>/技能名</code> 强制调用</td></tr>
+    <tr><td>已连接工作簿（多工作簿协同）</td><td>刷新连接清单，选择外部只读句柄作为上下文锚点</td></tr>
+    <tr><td>受控执行</td><td>脚本 / CLI / EXE 三类高危能力默认关闭，需白名单启用</td></tr>
+    <tr><td>长期记忆</td><td>跨会话持久化的用户偏好与备注，注入每次对话的系统提示</td></tr>
+    <tr><td>网页停靠</td><td>启动停靠式浏览器窗格</td></tr>
+    <tr><td>运行日志 · 自检</td><td>查看助手写入数据 / VBA 代码 / 图表记录；一键 AI 自检；全功能巡检与自检趋势</td></tr>
+    <tr><td>关于 / 版本</td><td>核对版本、Excel 连接、WebView2、本地技能状态</td></tr>
+    <tr><td>工具说明</td><td>按风险级别分组的全部工具目录（标注“三期/四期”的演进能力）</td></tr>
+  </table>
+  <h3>8.1 运行日志与一键自检</h3>
+  <p>实时监控助手本轮的行为<strong>（写入数据 / 生成的 VBA 代码 / 创建的图表）</strong>，登录与否都会登记。下方<strong>「一键自检」</strong>会用 AI 研判最近会话，帮助核实 AI 生成的数据、代码与图表是否正确。</p>
+  <div class="callout info"><div class="t">v2.19.4.0：运行日志已覆盖全部功能</div>不仅登记写操作结果，还记录每个工具调用的<strong>执行耗时与成功 / 失败 / 异常路径</strong>（含格式化单元格、排序、透视、Python 脚本等全部工具）；Python 脚本的错误输出（stderr / traceback）也会被捕获进日志并在页内折叠展示，不再撑爆单行。某个功能出错时，按「级别 → 工具 → 耗时」过滤即可快速定位是哪个功能、哪一步失败。</div>
+  <h3>8.2 全功能巡检</h3>
+  <p>点击<strong>「全功能巡检」</strong>按钮，助手会在一个<strong>临时工作簿</strong>（不影响你当前的数据）里，对全部核心子系统逐项体检并出报告：</p>
+  <ul>
+    <li>写入、公式、排序、清洗、追加行、批量回写、透视（含明细/汇总数量守恒对账）、格式、条件格式、标记、图表、工作表结构——每项都会执行<strong>主工具 + 自动自检回读核对</strong>；</li>
+    <li>操作历史与<strong>回滚链路</strong>端到端验证（写入 → 覆写 → 回滚 → 核对恢复）；</li>
+    <li>自检覆盖审计、踩坑失败模式库、自检历史趋势库、配置存储与本地技能包加载状态。</li>
+  </ul>
+  <p>巡检逐项结果同时写入运行日志，✔ 表示通过、✗ 表示失败及原因。建议在安装完成或版本升级后运行一次。</p>
+  <h3>8.3 自动自检与「本轮自检」提示</h3>
+  <p>AI 执行写入、排序、清洗、透视、画图等操作后，系统会<strong>自动回读核对</strong>结果是否与你的要求一致（不依赖 AI 自觉）。检查不通过时 AI 必须先修正才能向你报告完成。每轮对话结束会弹出<strong>「本轮自检」</strong>摘要（检查了几项、是否全部通过）；一键自检结果页还会显示最近 20 次的<strong>通过率</strong>与<strong>高频问题</strong>趋势。</p>
+  <h3>8.4 回滚 AI 的修改</h3>
+  <p>每条 AI 回复下方提供<strong>逐个操作回滚</strong>按钮，可把某一步写入恢复到操作前的状态；若目标区域在回滚前又被改动过，系统会提示冲突并拒绝，避免覆盖你后来的手工修改。</p>
+</section>
+
+<section id="skills">
+  <h2>九、AI 技能包</h2>
+  <p>技能包是存放于本机的、可被 AI 调用的一组指令与能力。存放路径：</p>
+  <pre>%APPDATA%\ExcelAiAssistant\skills\&lt;技能名&gt;\SKILL.md</pre>
+  <ul>
+    <li><b>调用</b>：在聊天中输入 <code>/技能名</code> 即可强制加载并调用该技能。</li>
+    <li><b>来源可信性</b>：第三方技能由 AI / 脚本驱动，<strong>请确认来源可信</strong>后再启用。</li>
+  </ul>
+</section>
+
+<section id="safety">
+  <h2>十、安全机制</h2>
+  <p>助手内置多层安全设计，保护你的数据不被误改：</p>
+  <ol>
+    <li><b>危险操作确认</b>：删除行、覆盖数据、整行删除、执行宏等均需你在确认面板中审阅。</li>
+    <li><b>静态护栏</b>：VBA 执行前拦截易致运行时错误（1004）的写法。</li>
+    <li><b>受控执行</b>：脚本 / CLI / EXE 默认关闭，需显式加入白名单才能启用；命中黑名单直接拒绝。</li>
+    <li><b>只读外部引用</b>：非当前活动工作簿默认只读引用，不修改原文件。</li>
+    <li><b>选区规范</b>：非矩形选区会提示「请选择矩形区域」。</li>
+    <li><b>记忆与自检</b>：通过长期记忆贯彻偏好，通过运行日志与一键自检兜底数据正确性。</li>
+  </ol>
+</section>
+
+<section id="trouble">
+  <h2>十一、常见问题</h2>
+  <h3>1. 助手不执行或报错？</h3>
+  <p>先到「设置 → 运行日志 · 自检」查看最近行为记录并执行一键自检；确认模型配置可用、连接状态为「就绪」。</p>
+  <h3>2. 提示“请选择矩形区域”？</h3>
+  <p>助手要求选区为单块矩形。请框选连续的矩形区域后再执行。</p>
+  <h3>3. 助手要执行危险操作怎么办？</h3>
+  <p>这些都会先弹确认面板，你审阅改动即可选择执行或取消。切勿在未审阅情况下直接点确认。</p>
+  <h3>4. 空单元格太多被忽略？</h3>
+  <p>处理空格时若超过 5000 个，会提示「仅处理前 5000 空格，其余忽略」。如需全量处理请分批。</p>
+  <h3>5. 我不想助手直接改表，只想要公式？</h3>
+  <p>在「设置 → 写入输出偏好」中选择「公式优先」，或在公式助手中生成后自行复制粘贴。</p>
+  <h3>6. 生成的 VBA 代码去哪了？</h3>
+  <p>成功执行的宏会自动沉淀到「VBA → 模板库」，可随时复用或载入 VBA 面板修改。</p>
+</section>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,12 @@
+﻿BOOT
+ASM-LOADED
+COM-CREATED
+BOOK-ADDED
+REGISTRY
+TOOL-FOUND
+CASE-START A
+CASE-EXECUTED A
+CASE A => ok=False code=VBA_RUN_ERROR
+  data=VBA 执行失败：Exception calling "Run" with "2" argument(s): "The remote procedure call failed. (Exception from HRESULT: 0x800706BE)"（已中断，未造成后续影响）。
+
+DONE
