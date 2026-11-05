@@ -1,0 +1,24 @@
+一键安装 + 加载验证 — 1.12.0.0 — 2026-08-25
+===========================================
+
+结论：安装成功、加载成功、版本正确，全绿。
+
+一、一键安装（x64，本机 Excel 为 x64）
+- 源包：dist\XAI助手-1.12.0.0-x64（install-xai.ps1 -CloseExcel）
+- 安装目录：C:\Users\iamly\AppData\Local\XaiAssistant\app\x64
+- 安装 DLL 版本：ExcelAiAssistant.Addin.dll = 1.12.0.0
+- WebView2 Runtime：151.0.4129.101
+- 注册表：
+  - Excel Addin：HKCU\...\Excel\Addins\ExcelAiAssistant.AddIn（FriendlyName=XAI 助手，LoadBehavior=3）
+  - COM CLSID：8F7A6D91-...E001/E002/E003 三个 InprocServer32 均 OK
+
+二、加载验证
+- verify-install-165.ps1：启动 Excel 枚举 COMAddIns → FOUND XAI COMAddIn ProgId=ExcelAiAssistant.AddIn Connect=True
+- VerifyPhaseF 真机：5/5 全绿
+  - loaded-version：asm=1.12.0.0 info=1.12.0
+  - confirm-gating-chart-direct / chart-execute / history-tracked-turnlabel / tool-event-card 均 PASS
+  - （NOTE：workbook-close 时 RCW 已分离为 harness 清理阶段噪音，非缺陷）
+- 验证后无残留 Excel 进程
+
+三、备注
+- 版本号已同步：Addin.csproj 1.12.0.0；VerifyPhaseF 硬编码期望版本已同步为 1.12.0.0

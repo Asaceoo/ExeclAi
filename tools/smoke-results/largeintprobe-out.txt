@@ -1,0 +1,21 @@
+BOOT
+ASM-LOADED
+BOOK-ADDED
+TOOL-FOUND
+WARM ok=True code=
+WARM-INIT gXaiArgs = "{}"
+CTL ok=True code= data={ procedure = JYYJHelper.TT通道, ran = True, module = JYYJHelper, result = [
+  "A",
+  42
+], result_truncated = False }
+CTL-INIT gXaiArgs = "{""column"":""A""}"
+LI ok=True code= data={ procedure = JYYJHelper.TT大数, ran = True, module = JYYJHelper, result = [
+  3000000000,
+  42
+], result_truncated = False }
+LI-INIT gXaiArgs = "{""id"":3000000000}"
+LI2 ok=True code= data={ procedure = JYYJHelper.TT大数2, ran = True, module = JYYJHelper, result = [
+  3000000000,
+  42
+], result_truncated = False }
+DONE
