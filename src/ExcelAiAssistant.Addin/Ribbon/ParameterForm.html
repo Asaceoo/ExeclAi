@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>JYYJ快捷 · 参数</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "Microsoft YaHei UI", "PingFang SC", sans-serif; font-size: 13px; color: #262626; background: #f7f8fa; }
+  .head { background: #2b579a; color: #fff; padding: 10px 14px; font-size: 14px; font-weight: 600; }
+  .head .addr { font-size: 12px; opacity: .85; font-weight: 400; margin-top: 2px; word-break: break-all; }
+  .body { padding: 14px; }
+  .row { background: #fff; border: 1px solid #e3e6ea; border-radius: 6px; padding: 10px 12px; margin-bottom: 10px; }
+  .label { color: #595959; margin-bottom: 6px; font-weight: 600; }
+  select, input[type=text] { width: 100%; padding: 7px 9px; border: 1px solid #cfd4da; border-radius: 5px; font-size: 13px; background: #fff; }
+  input[type=text]:focus, select:focus { border-color: #2b579a; outline: none; }
+  .cb-line { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
+  .cb-line input[type=checkbox] { width: 16px; height: 16px; accent-color: #2b579a; }
+  .hint { color: #8c8c8c; font-size: 12px; margin-top: 6px; line-height: 1.5; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip { padding: 5px 9px; border: 1px solid #cfd4da; border-radius: 12px; cursor: pointer; user-select: none; background: #fff; }
+  .chip.on { background: #2b579a; color: #fff; border-color: #2b579a; }
+</style>
+</head>
+<body>
+  <div class="head"><div id="title"></div><div class="addr" id="addr"></div></div>
+  <div class="body" id="fields"></div>
+  <script>
+    var DATA = __PARAM_JSON__;
+    function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function(c) { return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); }
+    function hintHtml(f) {
+      var text = f.hint || (f.type === "multiselect" ? "点击选择/取消，可多选。" : "");
+      return text ? '<div class="hint">' + esc(text) + '</div>' : "";
+    }
+    function on() {
+      document.getElementById("title").textContent = DATA.title || "参数设置";
+      document.getElementById("addr").textContent = DATA.address || "";
+      var root = document.getElementById("fields");
+      var html = "";
+      DATA.fields.forEach(function (f) {
+        if (f.type === "multiselect") {
+          html += '<div class="row" data-name="' + esc(f.name) + '"><div class="label">' + esc(f.label) + '</div><div class="chips" data-ms="1">';
+          f.options.forEach(function (o) {
+            var on = (f.defaults || []).indexOf(String(o.value)) >= 0;
+            html += '<span class="chip' + (on ? " on" : "") + '" data-v="' + esc(o.value) + '">' + esc(o.display) + '</span>';
+          });
+          html += '</div>' + hintHtml(f) + '</div>';
+        } else if (f.type === "select") {
+          html += '<div class="row" data-name="' + esc(f.name) + '"><div class="label">' + esc(f.label) + '</div><select>';
+          f.options.forEach(function (o) {
+            var sel = String(o.value) === String(f.default || "") ? " selected" : "";
+            html += '<option value="' + esc(o.value) + '"' + sel + '>' + esc(o.display) + '</option>';
+          });
+          html += '</select>' + hintHtml(f) + '</div>';
+        } else if (f.type === "text") {
+          html += '<div class="row" data-name="' + esc(f.name) + '"><div class="label">' + esc(f.label) + '</div><input type="text" value="' + esc(f.default || "") + '">' + hintHtml(f) + '</div>';
+        } else if (f.type === "checkbox") {
+          var chk = String(f.default) === "true" ? " checked" : "";
+          html += '<div class="row" data-name="' + esc(f.name) + '"><div class="label">' + esc(f.label) + '</div><div class="cb-line"><input type="checkbox"' + chk + '></div>' + hintHtml(f) + '</div>';
+        }
+      });
+      root.innerHTML = html;
+      var chips = root.querySelectorAll(".chip");
+      for (var i = 0; i < chips.length; i++) {
+        chips[i].addEventListener("click", function () { this.classList.toggle("on"); });
+      }
+    }
+    function collect() {
+      var out = {};
+      var rows = document.querySelectorAll(".row");
+      for (var i = 0; i < rows.length; i++) {
+        var row = rows[i], name = row.getAttribute("data-name"), el;
+        if (row.querySelector("[data-ms]")) {
+          var vals = [];
+          var c = row.querySelectorAll(".chip.on");
+          for (var j = 0; j < c.length; j++) vals.push(c[j].getAttribute("data-v"));
+          out[name] = vals;
+        } else if ((el = row.querySelector("select"))) {
+          out[name] = el.value;
+        } else if ((el = row.querySelector("input[type=text]"))) {
+          out[name] = el.value;
+        } else if ((el = row.querySelector("input[type=checkbox]"))) {
+          out[name] = el.checked ? "true" : "false";
+        }
+      }
+      return { ok: true, values: out };
+    }
+    on();
+  </script>
+</body>
+</html>

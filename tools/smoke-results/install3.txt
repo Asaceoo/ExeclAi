@@ -1,0 +1,12 @@
+﻿[DBG] before reg, installedAssembly=C:\Users\iamly\AppData\Local\XaiAssistant\app\x64\ExcelAiAssistant.Addin.dll exists=True
+[DBG] asm=ExcelAiAssistant.Addin, Version=1.10.1.0, Culture=neutral, PublicKeyToken=null
+
+
+InstalledTo  : C:\Users\iamly\AppData\Local\XaiAssistant\app\x64
+Assembly     : C:\Users\iamly\AppData\Local\XaiAssistant\app\x64\ExcelAiAssistant.Addin.dll
+Architecture : x64
+WebView2     : 151.0.4129.101
+Message      : 安装完成。启动 Excel 后应出现XAI 助手标签与侧边栏。
+
+
+

@@ -1,0 +1,25 @@
+XAI 助手 v1.8.0.0 — 公式助手 / 历史移除 / 回滚按钮修复
+日期: 2026-08-24
+
+构建:
+  x64 / x86 Release 构建: 0 警告 0 错误
+单元测试: 209/209 通过
+
+冒烟:
+  VerifyPhaseI: 56 PASS (含公式助手入口 markers、bridge GenerateFormula、移除 view-history/rollbackAllButton 断言)
+  VerifyPhaseH: 37 PASS (流程工作流回归)
+
+已安装副本核验 (C:\Users\iamly\AppData\Local\XaiAssistant\app\x64\ExcelAiAssistant.Addin.dll):
+  VERSION=1.8.0.0
+  METHOD_GenerateFormula=True
+  HAS_formulaArea=True / HAS_GenerateFormula_call=True (公式助手前端+桥接在位)
+  NO_view_history=True / NO_rollbackAllButton=True (历史页已移除)
+  buildRollbackStrip 在位 (聊天内逐个回滚按钮保留)
+
+改动摘要:
+  - 修复回滚按钮: buildRollbackStrip 增加 usedRollbackOpIds 轮内去重,
+    并在 last 兜底之外, 对仍归属不到的操作按消息工具执行情况兜底, 确保新操作下方必有回滚按钮。
+  - 移除「历史」独立页(view-history + 全部回滚), 回滚改由 AI 回复下方的迷你按钮承载,
+    renderHistory 改为仅维护内存态 currentHistory。
+  - 新增「公式」页(公式助手): 输入目标区域+需求 -> GenerateFormula 桥接调用模型
+    纯文本生成公式 -> 展示可复制(剪贴板)navigator.clipboard/execCommand 双兜底)。

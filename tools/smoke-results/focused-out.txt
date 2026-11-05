@@ -1,0 +1,10 @@
+﻿BOOT
+HELPER-LEN 9515
+MODNAME JYYJHelper
+SU-OFF Q-CN RUN-OK => OK|["A",42]
+
+Q-CN RUN-OK => OK|["A",42]
+
+U-CN RUN-OK => OK|["A",42]
+
+DONE

@@ -1,0 +1,7 @@
+﻿
+ASM-LOADED
+COM-CREATED 54s
+BOOK-ADDED
+  injected mod=Module1 probeFQ=Module1.XaiProbe9F2E mode=QUALIFIED
+QUALIFIED OK => OK|["A",42] (0s)
+DONE
