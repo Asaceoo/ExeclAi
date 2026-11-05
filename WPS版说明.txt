@@ -1,0 +1,5 @@
+JYYJ助手 WPS 兼容版专用工作副本
+基线: v2.19.5.0（源码快照 2026-09-08）
+纯净备份位置: D:xecl1.0-backup\JYYJ助手-source-v2.19.5.0-backup-20260908
+需求文档: 本目录 docs\设计-WPS兼容版需求文档.md（同步自主工作区）
+用途: 双宿主改造（HostKind/WPS 注册层/harness），Excel 主线在 D:xecl1.0 保持不动

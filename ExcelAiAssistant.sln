@@ -1,0 +1,65 @@
+﻿Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExcelAiAssistant.Core", "src\ExcelAiAssistant.Core\ExcelAiAssistant.Core.csproj", "{D5F0C1E2-0001-4000-8000-000000000001}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExcelAiAssistant.Excel", "src\ExcelAiAssistant.Excel\ExcelAiAssistant.Excel.csproj", "{D5F0C1E2-0002-4000-8000-000000000002}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{D5F0C1E2-0003-4000-8000-000000000003}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExcelAiAssistant.Tests", "src\ExcelAiAssistant.Tests\ExcelAiAssistant.Tests.csproj", "{D5F0C1E2-0004-4000-8000-000000000004}"
+	ProjectSection(SolutionItems) = preProject
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExcelAiAssistant.Addin", "src\ExcelAiAssistant.Addin\ExcelAiAssistant.Addin.csproj", "{D5F0C1E2-0005-4000-8000-000000000005}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tools", "tools", "{1190457B-2A93-4F35-A0E9-BBD707211D68}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExcelAiCli", "tools\CliServer\ExcelAiCli.csproj", "{150E19EC-30C4-4A8C-8657-F2B5779EBE6D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExcelAiMcpServer", "tools\McpServer\ExcelAiMcpServer.csproj", "{5E93E076-7C62-40D7-8FCA-A30A56B72FE7}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D5F0C1E2-0001-4000-8000-000000000001}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D5F0C1E2-0001-4000-8000-000000000001}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D5F0C1E2-0001-4000-8000-000000000001}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D5F0C1E2-0001-4000-8000-000000000001}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D5F0C1E2-0002-4000-8000-000000000002}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{D5F0C1E2-0002-4000-8000-000000000002}.Debug|Any CPU.Build.0 = Debug|x64
+		{D5F0C1E2-0002-4000-8000-000000000002}.Release|Any CPU.ActiveCfg = Release|x64
+		{D5F0C1E2-0002-4000-8000-000000000002}.Release|Any CPU.Build.0 = Release|x64
+		{D5F0C1E2-0005-4000-8000-000000000005}.Debug|x86.ActiveCfg = Debug|x86
+		{D5F0C1E2-0005-4000-8000-000000000005}.Debug|x86.Build.0 = Debug|x86
+		{D5F0C1E2-0005-4000-8000-000000000005}.Debug|x64.ActiveCfg = Debug|x64
+		{D5F0C1E2-0005-4000-8000-000000000005}.Debug|x64.Build.0 = Debug|x64
+		{D5F0C1E2-0005-4000-8000-000000000005}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{D5F0C1E2-0005-4000-8000-000000000005}.Release|x86.ActiveCfg = Release|x86
+		{D5F0C1E2-0005-4000-8000-000000000005}.Release|x86.Build.0 = Release|x86
+		{D5F0C1E2-0005-4000-8000-000000000005}.Release|x64.ActiveCfg = Release|x64
+		{D5F0C1E2-0005-4000-8000-000000000005}.Release|x64.Build.0 = Release|x64
+		{D5F0C1E2-0005-4000-8000-000000000005}.Release|Any CPU.ActiveCfg = Release|x64
+		{D5F0C1E2-0004-4000-8000-000000000004}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D5F0C1E2-0004-4000-8000-000000000004}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D5F0C1E2-0004-4000-8000-000000000004}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D5F0C1E2-0004-4000-8000-000000000004}.Release|Any CPU.Build.0 = Release|Any CPU
+		{150E19EC-30C4-4A8C-8657-F2B5779EBE6D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{150E19EC-30C4-4A8C-8657-F2B5779EBE6D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{150E19EC-30C4-4A8C-8657-F2B5779EBE6D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{150E19EC-30C4-4A8C-8657-F2B5779EBE6D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5E93E076-7C62-40D7-8FCA-A30A56B72FE7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5E93E076-7C62-40D7-8FCA-A30A56B72FE7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5E93E076-7C62-40D7-8FCA-A30A56B72FE7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5E93E076-7C62-40D7-8FCA-A30A56B72FE7}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{D5F0C1E2-0004-4000-8000-000000000004} = {D5F0C1E2-0003-4000-8000-000000000003}
+		{150E19EC-30C4-4A8C-8657-F2B5779EBE6D} = {1190457B-2A93-4F35-A0E9-BBD707211D68}
+		{5E93E076-7C62-40D7-8FCA-A30A56B72FE7} = {1190457B-2A93-4F35-A0E9-BBD707211D68}
+	EndGlobalSection
+EndGlobal
