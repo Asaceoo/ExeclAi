@@ -1,0 +1,34 @@
+﻿BOOT
+ASM-LOADED
+TYPE-OK 
+SRC-LEN 8948
+SRC-HEAD >>' ===== XAI 结构化回传 / 入参辅助 =====
+Private gXaiResult As String
+Private gXaiResultTruncated As Boolean
+Private gXaiArgs As S<<
+SRC-TAIL >>bTab Or c = vbCr Or c = vbLf Then
+            p = p + 1
+        Else
+            Exit Do
+        End If
+    Loop
+End Sub<<
+BUILT-LEN 9515
+BUILT-HEAD >>' ===== XAI 结构化回传 / 入参辅助 =====
+Private gXaiResult As String
+Private gXaiResultTruncated As Boolean
+Private gXaiArgs As String
+Private Const XAI_RESULT_LIMIT As Long = 1048576
+
+Public Sub XaiReturn(v A<<
+BUILT-TAIL >>iProbe9F2E = "OK|" & gXaiResult
+        End If
+    Else
+        XaiProbe9F2E = "OK"
+    End If
+    Exit Function
+fail:
+    XaiProbe9F2E = "ERR|" & CStr(Err.Number) & "|" & Err.Description
+End Function<<
+HELPER-WRITTEN
+DONE

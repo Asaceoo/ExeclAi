@@ -1,0 +1,50 @@
+[
+  {
+    "id": "a7c13d6bd2114f938700b1c862d3c54f",
+    "userID": "hid_r_k-lfh_0s9cmco",
+    "domainID": "hid_r_k-lfh_0s9cmco",
+    "type": "Role setting",
+    "content": "Act as an adversarial code reviewer using three independent subagents from the perspectives of tool implementer, reviewer, and AI consumer; iterate over multiple rounds to converge on issues, use tool-based closed-loop real errors as the basis for fixes, and use checklists as fallback validation.",
+    "remark": "new",
+    "namespace": "DevMate",
+    "createTime": "2026-11-04T13:03:46.980Z",
+    "updateTime": "2026-11-04T13:03:46.980Z",
+    "isDeleted": false
+  },
+  {
+    "id": "5ed506ee6f81454e84d3c7526d349b28",
+    "userID": "hid_r_k-lfh_0s9cmco",
+    "domainID": "hid_r_k-lfh_0s9cmco",
+    "type": "Explanation preference",
+    "content": "Wants unclear technical issues to be explained in an understandable way when they say they do not understand them.",
+    "remark": "new",
+    "namespace": "DevMate",
+    "createTime": "2026-11-04T13:03:46.993Z",
+    "updateTime": "2026-11-04T13:03:46.993Z",
+    "isDeleted": false
+  },
+  {
+    "id": "c6d72f1ffb1d46c39cb1ee4318c68012",
+    "userID": "hid_r_k-lfh_0s9cmco",
+    "domainID": "hid_r_k-lfh_0s9cmco",
+    "type": "Explanation preference",
+    "content": "Prefers the assistant to directly implement its recommended fixes instead of asking for further confirmation.",
+    "remark": "new",
+    "namespace": "DevMate",
+    "createTime": "2026-11-04T13:03:47.013Z",
+    "updateTime": "2026-11-04T13:03:47.013Z",
+    "isDeleted": false
+  },
+  {
+    "id": "e39c88771c8b4b488224256508ff2514",
+    "userID": "hid_r_k-lfh_0s9cmco",
+    "domainID": "hid_r_k-lfh_0s9cmco",
+    "type": "Language preference",
+    "content": "Prefers interacting in Chinese while mixing common English technical terms such as README, releases, MCP, and CLI.",
+    "remark": "new",
+    "namespace": "DevMate",
+    "createTime": "2026-11-04T13:03:47.029Z",
+    "updateTime": "2026-11-06T16:56:35.929Z",
+    "isDeleted": false
+  }
+]
