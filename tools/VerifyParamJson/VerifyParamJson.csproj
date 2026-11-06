@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net48</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <Platforms>x64</Platforms>
+    <PlatformTarget>x64</PlatformTarget>
+    <LangVersion>latest</LangVersion>
+    <Nullable>disable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2651.64" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\..\src\ExcelAiAssistant.Addin\bin\x64\Release\net48\win-x64\Newtonsoft.Json.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="ExcelAiAssistant.Excel">
+      <HintPath>..\..\src\ExcelAiAssistant.Excel\bin\x64\Release\net48\win-x64\ExcelAiAssistant.Excel.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="ExcelAiAssistant.Core">
+      <HintPath>..\..\src\ExcelAiAssistant.Core\bin\Release\net48\ExcelAiAssistant.Core.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+  </ItemGroup>
+</Project>

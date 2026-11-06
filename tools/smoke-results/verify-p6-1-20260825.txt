@@ -1,0 +1,26 @@
+﻿== P6-A/P6-B 真机COM冒烟 （verify-p6, 2026-08-25）==
+== 结论: PASS 17/17  exit=0 ==
+PASS explain-ok — explain_excel_formula 执行成功
+PASS explain-sum-name — 函数名识别 SUM，实际=SUM
+PASS explain-cellref-kinds — 两个参数识别为单元格引用
+PASS explain-cellref-values — 引用实际值读取自真机(10/20)
+PASS explain-ifname — IF 函数名识别
+PASS explain-ifargs — IF 拆分出 3 个参数
+PASS explain-argkinds — IF 参数分类 expression/constant/expression
+PASS explain-namedrange — 命名区域参数识别为 namedrange
+PASS explain-degrade — 无法真机取值标记降级，degraded数=1
+PASS explain-readonly — explain 只读，不修改源值
+PASS flag-ok — flag_cells 执行成功
+PASS flag-counts — 异常/格式/空值各识别 1 处，实际={
+  "empty": 1,
+  "outlier": 1,
+  "format": 1
+}
+PASS flag-readonly — flag 只标记，不修改源数据（9999 仍在 dt!B3）
+PASS flag-highlight — 离群格已上色且区别于正常格，B3色=2097341 B2色=16777215
+PASS flag-diag — 诊断 sheet 已创建，名称=异常标记诊断 行=4
+PASS flag-diag-content — 诊断表含 类型=outlier 与 值=9999，内容=工作表|行|列|类型|值|原因/建议|dt|2|4|empty|空值/空字符串；核对或补充数据|dt|3|2|outlier|9999|数值偏离邻域分布(IQR)；核对该值是否笔误|dt|3|3|format|not-a-date|无法解析为日期；修正为统一日期格式
+PASS flag-diag-delete — 诊断 sheet 可整体删除
+
+== PASSED=17 FAILED=0 ==
+
