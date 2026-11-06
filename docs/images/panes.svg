@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="880" height="380" viewBox="0 0 880 380">
+  <rect width="880" height="380" fill="#fbfdff"/>
+  <text x="440" y="40" text-anchor="middle" font-size="22" font-weight="bold" fill="#0c4a6e">七大板块 · 从对话到交付</text>
+
+  <g font-size="12">
+    <rect x="40"  y="80" width="250" height="64" rx="10" fill="#e0f2fe"/><text x="60" y="105" fill="#075985" font-weight="bold">💬 聊天</text><text x="60" y="126" fill="#0c4a6e">对话改表 · 数据分析报告 · 深度分析</text>
+    <rect x="320" y="80" width="250" height="64" rx="10" fill="#ede9fe"/><text x="340" y="105" fill="#5b21b6" font-weight="bold">∑ 公式</text><text x="340" y="126" fill="#4c1d95">解释 · 构造 · 验证 · 批量改写</text>
+    <rect x="600" y="80" width="250" height="64" rx="10" fill="#fef3c7"/><text x="620" y="105" fill="#92400e" font-weight="bold">⌨ VBA</text><text x="620" y="126" fill="#78350f">生成 · 校验 · 执行（确认门）· 沉淀</text>
+
+    <rect x="40"  y="160" width="250" height="64" rx="10" fill="#dcfce7"/><text x="60" y="185" fill="#166534" font-weight="bold">🐍 Python</text><text x="60" y="206" fill="#14532d">受控执行 · pandas · 自动回滚</text>
+    <rect x="320" y="160" width="250" height="64" rx="10" fill="#ffe4e6"/><text x="340" y="185" fill="#9f1239" font-weight="bold">🧮 函数库</text><text x="340" y="206" fill="#881337">内置 UDF · 面板即点即用</text>
+    <rect x="600" y="160" width="250" height="64" rx="10" fill="#e0e7ff"/><text x="620" y="185" fill="#3730a3" font-weight="bold">⚙ 流程</text><text x="620" y="206" fill="#312e81">39 内置模板 · 自定义编排</text>
+
+    <rect x="40"  y="240" width="250" height="64" rx="10" fill="#f1f5f9"/><text x="60" y="265" fill="#334155" font-weight="bold">🛡 设置</text><text x="60" y="286" fill="#1e293b">模型配置 · 自检 · 日志 · 回滚</text>
+    <rect x="320" y="240" width="530" height="64" rx="10" fill="#ecfdf5"/><text x="340" y="265" fill="#065f46" font-weight="bold">📊 交付形态</text><text x="340" y="286" fill="#064e3b">清洗汇总 · 图表看板 · 透视 · 报告 · 技能包 19 个内置 · 156 工具</text>
+  </g>
+  <text x="440" y="345" text-anchor="middle" font-size="12" fill="#64748b">所有写操作：前置守卫 → 执行快照 → verify_* 自检 → 可回滚</text>
+</svg>
