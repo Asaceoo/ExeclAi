@@ -1,0 +1,3 @@
+﻿
+ASM-LOADED
+VARIANT V4 => HANG (killed after 45s)

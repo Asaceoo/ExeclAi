@@ -1,0 +1,364 @@
+' ===== XAI 结构化回传 / 入参辅助 =====
+Private gXaiResult As String
+Private gXaiResultTruncated As Boolean
+Private gXaiArgs As String
+Private Const XAI_RESULT_LIMIT As Long = 1048576
+
+Public Sub XaiReturn(v As Variant)
+    Dim s As String
+    s = XaiJson(v, 0)
+    If Len(s) > XAI_RESULT_LIMIT Then
+        gXaiResult = Left$(s, XAI_RESULT_LIMIT) & ChrW(&H2026)
+        gXaiResultTruncated = True
+    Else
+        gXaiResult = s
+        gXaiResultTruncated = False
+    End If
+End Sub
+
+Public Function XaiArg(key As String) As Variant
+    Dim obj As Variant
+    obj = XaiParse(gXaiArgs)
+    If IsArray(obj) Then
+        Dim i As Long
+        For i = LBound(obj, 1) To UBound(obj, 1) Step 2
+            If CStr(obj(i)) = key Then
+                XaiArg = obj(i + 1)
+                Exit Function
+            End If
+        Next i
+    End If
+    XaiArg = Null
+End Function
+
+Private Function XaiJson(v As Variant, depth As Long) As String
+    If depth > 32 Then
+        XaiJson = """<max_depth>"""
+        Exit Function
+    End If
+    If (VarType(v) And vbArray) <> 0 Then
+        XaiJson = XaiArr(v, depth)
+        Exit Function
+    End If
+    Select Case VarType(v)
+        Case vbEmpty, vbNull, vbError
+            XaiJson = "null"
+        Case vbBoolean
+            If v Then XaiJson = "true" Else XaiJson = "false"
+        Case vbByte, vbInteger, vbLong, vbSingle, vbDouble, vbCurrency, vbDecimal
+            XaiJson = XaiNum(v)
+        Case vbString
+            XaiJson = """" & XaiEsc(CStr(v)) & """"
+        Case vbDate
+            XaiJson = """" & Format(v, "yyyy-mm-ddThh:nn:ss") & """"
+        Case vbObject
+            XaiJson = XaiObj(v, depth)
+        Case Else
+            XaiJson = "null"
+    End Select
+End Function
+
+Private Function XaiNum(v As Variant) As String
+    ' Str() 的小数点随系统区域设置（如 de-DE 用逗号），统一替换为 '.' 保证输出合法 JSON。
+    XaiNum = Replace(Trim(Str(v)), ",", ".")
+End Function
+
+Private Function XaiEsc(s As String) As String
+    Dim sb As String
+    Dim i As Long
+    Dim c As String
+    sb = ""
+    For i = 1 To Len(s)
+        c = Mid$(s, i, 1)
+        Select Case c
+            Case """": sb = sb & "\"""
+            Case "\": sb = sb & "\\"
+            Case vbCr: sb = sb & "\r"
+            Case vbLf: sb = sb & "\n"
+            Case vbTab: sb = sb & "\t"
+            Case Else:
+                If AscW(c) < 32 Then
+                    sb = sb & "\u" & Right$("000" & Hex$(AscW(c)), 4)
+                Else
+                    sb = sb & c
+                End If
+        End Select
+    Next i
+    XaiEsc = sb
+End Function
+
+Private Function XaiArr(v As Variant, depth As Long) As String
+    Dim nd As Long
+    nd = XaiDims(v)
+    Dim sb As String
+    Dim i As Long
+    Dim j As Long
+    sb = "["
+    If nd = 1 Then
+        For i = LBound(v, 1) To UBound(v, 1)
+            If Len(sb) > 1 Then sb = sb & ","
+            sb = sb & XaiJson(v(i), depth + 1)
+        Next i
+    ElseIf nd >= 2 Then
+        For i = LBound(v, 1) To UBound(v, 1)
+            If Len(sb) > 1 Then sb = sb & ","
+            sb = sb & "["
+            For j = LBound(v, 2) To UBound(v, 2)
+                If j > LBound(v, 2) Then sb = sb & ","
+                sb = sb & XaiJson(v(i, j), depth + 1)
+            Next j
+            sb = sb & "]"
+        Next i
+    End If
+    XaiArr = sb & "]"
+End Function
+
+Private Function XaiDims(v As Variant) As Long
+    Dim n As Long
+    n = 0
+    On Error Resume Next
+    Err.Clear
+    Do
+        n = n + 1
+        Dim x As Long
+        x = UBound(v, n)
+    Loop While Err.Number = 0
+    On Error GoTo 0
+    XaiDims = n - 1
+End Function
+
+Private Function XaiObj(v As Variant, depth As Long) As String
+    Dim tn As String
+    tn = TypeName(v)
+    If tn = "Dictionary" Then
+        XaiObj = XaiDict(v, depth)
+    ElseIf tn = "Collection" Then
+        XaiObj = XaiColl(v, depth)
+    Else
+        XaiObj = "null"
+    End If
+End Function
+
+Private Function XaiDict(v As Variant, depth As Long) As String
+    Dim sb As String
+    Dim k As Variant
+    sb = "{"
+    For Each k In v.Keys
+        If Len(sb) > 1 Then sb = sb & ","
+        sb = sb & """" & XaiEsc(CStr(k)) & """":"" & XaiJson(v(k), depth + 1)
+    Next k
+    XaiDict = sb & "}"
+End Function
+
+Private Function XaiColl(v As Variant, depth As Long) As String
+    Dim sb As String
+    Dim it As Variant
+    sb = "["
+    For Each it In v
+        If Len(sb) > 1 Then sb = sb & ","
+        sb = sb & XaiJson(it, depth + 1)
+    Next it
+    XaiColl = sb & "]"
+End Function
+
+Private Function XaiParse(s As String) As Variant
+    Dim p As Long
+    p = 1
+    XaiParse = XaiParseVal(s, p)
+End Function
+
+Private Function XaiParseVal(s As String, p As Long) As Variant
+    Call XaiSkipWs(s, p)
+    Dim c As String
+    c = Mid$(s, p, 1)
+    If c = "{" Then
+        XaiParseVal = XaiParseObj(s, p)
+    ElseIf c = "[" Then
+        XaiParseVal = XaiParseArr(s, p)
+    ElseIf c = """" Then
+        XaiParseVal = XaiParseStr(s, p)
+    ElseIf c = "t" Then
+        p = p + 4
+        XaiParseVal = True
+    ElseIf c = "f" Then
+        p = p + 5
+        XaiParseVal = False
+    ElseIf c = "n" Then
+        p = p + 4
+        XaiParseVal = Null
+    Else
+        XaiParseVal = XaiParseNum(s, p)
+    End If
+End Function
+
+Private Function XaiParseObj(s As String, p As Long) As Variant
+    Dim arr() As Variant
+    Dim n As Long
+    n = 0
+    p = p + 1
+    Call XaiSkipWs(s, p)
+    If Mid$(s, p, 1) = "}" Then
+        p = p + 1
+        XaiParseObj = Array()
+        Exit Function
+    End If
+    Do
+        Call XaiSkipWs(s, p)
+        Dim k As String
+        k = XaiParseStr(s, p)
+        Call XaiSkipWs(s, p)
+        If Mid$(s, p, 1) = ":" Then p = p + 1
+        Call XaiSkipWs(s, p)
+        Dim v As Variant
+        v = XaiParseVal(s, p)
+        n = n + 1
+        ReDim Preserve arr(1 To n * 2)
+        arr(n * 2 - 1) = k
+        arr(n * 2) = v
+        Call XaiSkipWs(s, p)
+        Dim sep As String
+        sep = Mid$(s, p, 1)
+        If sep = "," Then
+            p = p + 1
+        ElseIf sep = "}" Then
+            p = p + 1
+            Exit Do
+        Else
+            Exit Do
+        End If
+    Loop
+    XaiParseObj = arr
+End Function
+
+Private Function XaiParseArr(s As String, p As Long) As Variant
+    Dim arr() As Variant
+    Dim n As Long
+    n = 0
+    p = p + 1
+    Call XaiSkipWs(s, p)
+    If Mid$(s, p, 1) = "]" Then
+        p = p + 1
+        XaiParseArr = Array()
+        Exit Function
+    End If
+    Do
+        Call XaiSkipWs(s, p)
+        Dim v As Variant
+        v = XaiParseVal(s, p)
+        n = n + 1
+        ReDim Preserve arr(1 To n)
+        arr(n) = v
+        Call XaiSkipWs(s, p)
+        Dim sep As String
+        sep = Mid$(s, p, 1)
+        If sep = "," Then
+            p = p + 1
+        ElseIf sep = "]" Then
+            p = p + 1
+            Exit Do
+        Else
+            Exit Do
+        End If
+    Loop
+    XaiParseArr = arr
+End Function
+
+Private Function XaiParseStr(s As String, p As Long) As String
+    Dim sb As String
+    sb = ""
+    p = p + 1
+    Do While p <= Len(s)
+        Dim c As String
+        c = Mid$(s, p, 1)
+        If c = """" Then
+            p = p + 1
+            Exit Do
+        ElseIf c = "\" Then
+            p = p + 1
+            Dim e As String
+            e = Mid$(s, p, 1)
+            Select Case e
+                Case "n": sb = sb & vbLf
+                Case "r": sb = sb & vbCr
+                Case "t": sb = sb & vbTab
+                Case "b": sb = sb & Chr(8)
+                Case "f": sb = sb & Chr(12)
+                Case "/": sb = sb & "/"
+                Case "\": sb = sb & "\\"
+                Case """": sb = sb & "\"""
+                Case "u":
+                    sb = sb & ChrW(Val("&H" & Mid$(s, p + 1, 4)))
+                    p = p + 4
+                Case Else: sb = sb & e
+            End Select
+            p = p + 1
+        Else
+            sb = sb & c
+            p = p + 1
+        End If
+    Loop
+    XaiParseStr = sb
+End Function
+
+Private Function XaiParseNum(s As String, p As Long) As Variant
+    Dim start As Long
+    start = p
+    Do While p <= Len(s)
+        Dim c As String
+        c = Mid$(s, p, 1)
+        If c = "-" Or c = "+" Or c = "." Or c = "e" Or c = "E" Or (c >= "0" And c <= "9") Then
+            p = p + 1
+        Else
+            Exit Do
+        End If
+    Loop
+    Dim txt As String
+    txt = Mid$(s, start, p - start)
+    If InStr(txt, ".") > 0 Or InStr(txt, "e") > 0 Or InStr(txt, "E") > 0 Then
+        XaiParseNum = Val(txt)
+    Else
+        ' CLng 超出 Long 范围（±21.47 亿）会溢出（VBA 错误 6），大整数回退 Double 而非让整段探针失败。
+        Dim d As Double
+        d = Val(txt)
+        If d > 2147483647# Or d < -2147483648# Then
+            XaiParseNum = d
+        Else
+            XaiParseNum = CLng(d)
+        End If
+    End If
+End Function
+
+Private Sub XaiSkipWs(s As String, p As Long)
+    Do While p <= Len(s)
+        Dim c As String
+        c = Mid$(s, p, 1)
+        If c = " " Or c = vbTab Or c = vbCr Or c = vbLf Then
+            p = p + 1
+        Else
+            Exit Do
+        End If
+    Loop
+End Sub
+Public Sub XaiInitArgs()
+    gXaiArgs = "{""column"":""A""}"
+    gXaiResult = ""
+    gXaiResultTruncated = False
+End Sub
+
+Public Function XaiProbe9F2E(p As String) As String
+    On Error GoTo fail
+    XaiInitArgs
+    Application.Run p
+    If Len(gXaiResult) > 0 Then
+        If gXaiResultTruncated Then
+            XaiProbe9F2E = "OKT|" & gXaiResult
+        Else
+            XaiProbe9F2E = "OK|" & gXaiResult
+        End If
+    Else
+        XaiProbe9F2E = "OK"
+    End If
+    Exit Function
+fail:
+    XaiProbe9F2E = "ERR|" & CStr(Err.Number) & "|" & Err.Description
+End Function

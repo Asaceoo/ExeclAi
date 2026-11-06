@@ -1,0 +1,10 @@
+﻿powershell : D:\execl1.0\tools\run-smoke.ps1 : A parameter cannot be found that matches parameter name 'arg1'.
+At line:15 char:1428
++ ... pgrep\bin'; powershell -ExecutionPolicy Bypass -File d:\execl1.0\tool ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (D:\execl1.0\too...er name 'arg1'.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+    + CategoryInfo          : InvalidArgument: (:) [run-smoke.ps1], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : NamedParameterNotFound,run-smoke.ps1
+ 

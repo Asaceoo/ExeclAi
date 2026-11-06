@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JYYJ助手 用户手册</title>
+<style>
+:root{
+  --brand:#1677ff; --brand-weak:#e6f0ff; --ink:#1f2329; --sub:#6b7280;
+  --line:#e5e7eb; --bg:#f7f8fa; --card:#fff; --ok:#16a34a; --warn:#ea580c;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;color:var(--ink);background:var(--bg);line-height:1.75;padding-bottom:80px}
+.wrap{max-width:920px;margin:0 auto;padding:0 20px}
+header{background:linear-gradient(135deg,#1677ff,#0e5fd8);color:#fff;padding:44px 0 36px}
+header .wrap{display:flex;align-items:center;gap:18px}
+.logo{width:58px;height:58px;border-radius:14px;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:20px;flex:none}
+h1{font-size:26px;font-weight:700}
+.sub{opacity:.92;font-size:14px;margin-top:6px}
+nav{position:sticky;top:0;background:var(--card);border-bottom:1px solid var(--line);z-index:10}
+nav .wrap{display:flex;gap:4px;overflow-x:auto}
+nav a{display:block;padding:12px 14px;color:var(--sub);text-decoration:none;font-size:14px;white-space:nowrap;border-bottom:2px solid transparent}
+nav a:hover{color:var(--brand)}
+nav a.active{color:var(--brand);border-bottom-color:var(--brand);font-weight:600}
+section{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:26px 28px;margin:24px 0}
+h2{font-size:20px;border-left:4px solid var(--brand);padding-left:12px;margin-bottom:18px}
+h3{font-size:16px;margin:22px 0 10px;color:#111}
+h3::before{content:'';display:inline-block;width:8px;height:8px;background:var(--brand);border-radius:2px;margin-right:8px}
+h4{font-size:14px;margin:16px 0 6px;color:#333}
+p{margin:8px 0}
+ol,ul{margin:8px 0 8px 24px}
+li{margin:6px 0}
+code{background:#f2f3f5;border:1px solid var(--line);border-radius:5px;padding:1px 7px;font-family:Consolas,Monaco,monospace;font-size:13px;color:#c026d3}
+pre{background:#0f172a;color:#e2e8f0;border-radius:10px;padding:16px 18px;overflow-x:auto;font-size:13px;line-height:1.7;margin:12px 0;font-family:Consolas,Monaco,monospace}
+pre code{background:none;border:none;color:inherit;padding:0}
+.callout{border-radius:10px;padding:14px 18px;margin:14px 0;font-size:14px}
+.callout.info{background:var(--brand-weak);border-left:4px solid var(--brand)}
+.callout.warn{background:#fff4e5;border-left:4px solid var(--warn)}
+.callout.ok{background:#e8f7ee;border-left:4px solid var(--ok)}
+.callout .t{font-weight:700;margin-bottom:4px}
+table{width:100%;border-collapse:collapse;margin:12px 0;font-size:14px}
+th,td{border:1px solid var(--line);padding:9px 12px;text-align:left;vertical-align:top}
+th{background:var(--bg);font-weight:600}
+.note{font-size:13px;color:var(--sub)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;margin:12px 0}
+.feat{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+.feat b{color:var(--brand);font-size:14px;display:block;margin-bottom:4px}
+.feat span{font-size:13px;color:var(--sub)}
+@media(max-width:640px){header .wrap{flex-direction:column;text-align:center}}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <div class="logo">JY</div>
+  <div><h1>JYYJ助手 用户手册</h1><div class="sub">**请在使用前完整阅读本节。**</div></div>
+</div></header>
+<nav><div class="wrap"><a href="#sec0">免责声明</a><a href="#sec1">目录</a><a href="#sec2">1. 安装与卸载</a><a href="#sec3">2. 界面导览</a><a href="#sec4">3. 5 分钟上手</a><a href="#sec5">4. 模型配置</a><a href="#sec6">5. 聊天页</a><a href="#sec7">6. 公式页</a><a href="#sec8">7. VBA 页</a><a href="#sec9">8. Python 页</a><a href="#sec10">9. 函数页</a><a href="#sec11">10. 流程页</a><a href="#sec12">11. 连接页（MCP / CLI）</a><a href="#sec13">12. 设置页</a><a href="#sec14">13. 20 个使用实例</a><a href="#sec15">14. 安全与回滚</a><a href="#sec16">15. 故障排查</a><a href="#sec17">16. 常见问题</a><a href="#sec18">17. 附录：文件位置与退出码</a></div></nav>
+<div class="wrap">
+<section id="sec0"><h2>免责声明</h2>
+<blockquote><p><strong>请在使用前完整阅读本节。</strong></p></blockquote>
+<ol>
+<li><strong>按"现状"提供</strong>：本软件及本文档按现状提供，不附带任何明示或默示担保，包括但不限于适销性、特定用途适用性与不侵权担保。</li>
+<li><strong>AI 输出不保证正确</strong>：AI 生成的公式、代码、图表与结论可能存在错误。<strong>使用者必须自行核对结果</strong>，尤其在财务、税务、审计、医疗、法律等高风险场景。因使用或依赖本软件输出导致的任何直接或间接损失，作者与贡献者不承担责任。</li>
+<li><strong>数据与合规责任在用户</strong>：处理敏感/个人信息前，请确认符合你所在组织与地区的合规要求。软件默认不向第三方发送遥测；但你配置的 AI 端点会接收提示与必要的表格片段，请自行评估其可信度。</li>
+<li><strong>代码执行风险</strong>：VBA / Python / 命令行 / EXE 类工具具备本机执行能力，默认保留人工确认门。请勿在不可信环境放开确认门或运行来源不明的脚本。</li>
+<li><strong>备份建议</strong>：重要文件请先自行备份。软件提供快照与回滚，但<strong>不构成数据安全保证</strong>。</li>
+<li><strong>第三方组件</strong>：WebView2、SQLite、Newtonsoft.Json 等遵循各自许可。</li>
+<li><strong>无官方支持承诺</strong>：本项目为开源软件，不承诺响应时效或问题必解。</li>
+</ol>
+</section>
+<section id="sec1"><h2>目录</h2>
+<ol>
+<li><a href="#1-安装与卸载" target="_blank">安装与卸载</a></li>
+<li><a href="#2-界面导览" target="_blank">界面导览</a></li>
+<li><a href="#3-5-分钟上手" target="_blank">5 分钟上手</a></li>
+<li><a href="#4-模型配置" target="_blank">模型配置</a></li>
+<li><a href="#5-聊天页" target="_blank">聊天页</a></li>
+<li><a href="#6-公式页" target="_blank">公式页</a></li>
+<li><a href="#7-vba-页" target="_blank">VBA 页</a></li>
+<li><a href="#8-python-页" target="_blank">Python 页</a></li>
+<li><a href="#9-函数页" target="_blank">函数页</a></li>
+<li><a href="#10-流程页" target="_blank">流程页</a></li>
+<li><a href="#11-连接页mcp--cli" target="_blank">连接页（MCP / CLI）</a></li>
+<li><a href="#12-设置页" target="_blank">设置页</a></li>
+<li><a href="#13-20-个使用实例" target="_blank">20 个使用实例</a></li>
+<li><a href="#14-安全与回滚" target="_blank">安全与回滚</a></li>
+<li><a href="#15-故障排查" target="_blank">故障排查</a></li>
+<li><a href="#16-常见问题" target="_blank">常见问题</a></li>
+<li><a href="#17-附录文件位置与退出码" target="_blank">附录：文件位置与退出码</a></li>
+</ol>
+</section>
+<section id="sec2"><h2>1. 安装与卸载</h2>
+<h3>1.1 安装版（推荐）</h3>
+<ol>
+<li>下载 <code>JYYJ-3.9.9.7-Setup-wps.exe</code>。</li>
+<li>双击安装。安装器会：</li>
+</ol>
+<ul>
+<li>检测本机 Excel 与 WPS 的位数；</li>
+<li>按位数注册 32/64 位 COM 类（<code>RegistryView</code> 显式写入，不依赖安装器进程位数）；</li>
+<li>写入 Excel <code>Addins</code> 键与 WPS <code>Addins</code>/<code>AddinsWL</code> 白名单；</li>
+<li>设置 <code>LoadBehavior=3</code>（随 Excel 自动加载）。</li>
+</ul>
+<ol>
+<li><strong>完全退出 Excel 与 WPS</strong>（包括后台残留进程），再重新打开。</li>
+<li>顶部出现 <strong>JYYJ助手</strong> 选项卡即安装成功。</li>
+</ol>
+<h3>1.2 便携 zip</h3>
+<p>下载 <code>JYYJ-3.9.9.7-wps-x64.zip</code>（或 x86），解压后同目录运行 <code>register-x64.ps1</code>（或 <code>register-x86.ps1</code>）。无需管理员权限。</p>
+<h3>1.3 程序目录包（高级）</h3>
+<p>下载 <code>JYYJ-3.9.9.7-wps-portable-single-x64.zip</code>，解压后是<strong>纯程序目录</strong>（加载项 DLL + 依赖 + WebView2 运行时，多个文件）。</p>
+<blockquote><p>这不是"单个 exe 双击即用"：本产品是 COM 加载项，可执行入口由 WPS/Excel 宿主提供，且依赖 WebView2 原生运行时。此包供外壳程序与需要自定义安装位置的高级用户使用，普通用户请走 1.1 安装版。</p></blockquote>
+<h3>1.4 接入你本机的 AI 客户端（WorkBuddy / DSH / Codex / Claude）</h3>
+<p>不用手改配置文件，一条命令搞定：</p>
+<pre><code>ExcelAiCli clients                        # 探测：装了哪些 AI 客户端、是否已接入
+ExcelAiCli clients --connect workbuddy    # 预览写入内容（不落盘）
+ExcelAiCli clients --connect all --apply  # 写入全部已安装客户端
+ExcelAiCli clients --test                 # 逐个实测握手，看谁能连上</code></pre>
+<p>说明：</p>
+<ul>
+<li>写入前自动把原配置备份为 <code>*.jyyj-bak</code>；只新增/更新名为 <code>jyyj-excel</code> 的条目，不删你的其他 MCP 配置。</li>
+<li>默认是<strong>只读</strong>接入；加 <code>--allow-write</code> 后接进来的 AI 才能写表格。</li>
+<li>改完需要<strong>重启对应的 AI 客户端</strong>才会重新读取配置。</li>
+<li>支持的客户端：WorkBuddy、DSH、Codex CLI、Claude Code、Claude Desktop、Cursor、Windsurf、Trae CN。</li>
+</ul>
+<h3>1.5 卸载</h3>
+<ul>
+<li>安装版：设置 → 应用 → JYYJ助手 → 卸载；或用安装目录 <code>unregister-all.ps1</code>。</li>
+<li>便携版：运行同目录 <code>unregister-all.ps1</code>。</li>
+<li>卸载会清理 32/64 两个注册表视图的 COM 类、Excel/WPS 加载项键；<strong>不会删除你的 Excel 文件</strong>。</li>
+<li>用户数据（记忆、日志、技能）位于 <code>%APPDATA%\ExcelAiAssistant</code> 与 <code>%LOCALAPPDATA%\XaiAssistant</code>，如需彻底清除请手动删除。</li>
+</ul>
+<h3>1.6 面板/选项卡不显示</h3>
+<p>按顺序尝试：</p>
+<pre><code># ① 仅诊断（只读，不改注册表）
+powershell -NoProfile -ExecutionPolicy Bypass -File tools\installer\diagnose.ps1
+
+# ② 自动修复（改 HKCU 的 LoadBehavior/CLSID，无需管理员）
+powershell -NoProfile -ExecutionPolicy Bypass -File tools\installer\repair-addin.ps1</code></pre>
+<p>修复后<strong>完全退出 Excel</strong> 再打开。若仍不见，检查 Excel → 文件 → 选项 → 加载项 → 管理「COM 加载项」→ 转到，确认「JYYJ助手」已勾选。</p>
+</section>
+<section id="sec3"><h2>2. 界面导览</h2>
+<h3>2.1 功能区（Ribbon）</h3>
+<p><code>JYYJ助手</code> 选项卡分组：</p>
+<table><thead><tr><th>分组</th><th>按钮</th><th>作用</th></tr></thead>
+<tbody>
+<tr><td>JYYJ助手</td><td>打开面板</td><td>显示/隐藏侧边栏</td></tr>
+<tr><td>视图</td><td>聚光灯 / 指针</td><td>高亮当前行列 / 演示指针</td></tr>
+<tr><td>数据处理</td><td>清洗 / 去重 / 排序 / 转置 / 筛选 / 透视 / 超级看板</td><td>每项点开可配参数后执行</td></tr>
+<tr><td>文本处理</td><td>拆分 / 合并 / 清洗</td><td>文本批处理</td></tr>
+<tr><td>更多</td><td>宏收纳箱 / 函数库 / SQL 查询</td><td>快捷入口</td></tr>
+<tr><td><strong>连接</strong></td><td><strong>MCP / CLI 面板</strong></td><td>打开侧边栏「连接」页</td></tr>
+</tbody></table>
+<h3>2.2 侧边栏（8 个页签）</h3>
+<table><thead><tr><th>页签</th><th>图标</th><th>用途</th></tr></thead>
+<tbody>
+<tr><td>聊天</td><td>💬</td><td>自然语言驱动，最常用</td></tr>
+<tr><td>公式</td><td>∑</td><td>生成 / 解释 / 诊断 / 批量改写公式</td></tr>
+<tr><td>VBA</td><td>📝</td><td>模板库、生成、校验、执行</td></tr>
+<tr><td>Python</td><td>🐍</td><td>沙箱执行、写回表格、包管理</td></tr>
+<tr><td>函数</td><td>f(x)</td><td>内置函数速查</td></tr>
+<tr><td>流程</td><td>⚙</td><td>内置流程 + 自定义编排</td></tr>
+<tr><td>连接</td><td>🔌</td><td>MCP/CLI 开关与连通性自检</td></tr>
+<tr><td>设置</td><td>👤</td><td>模型、记忆、受控执行、技能、日志、版本</td></tr>
+</tbody></table>
+<h3>2.3 状态栏元素</h3>
+<ul>
+<li><strong>连接状态</strong>：模型是否可用。</li>
+<li><strong>会话徽标</strong>：当前会话与历史会话切换。</li>
+<li><strong>上下文条</strong>：当前工作簿 / 工作表 / 选区。</li>
+<li><strong>健康监控条</strong>：最近一次全功能巡检 / 自检链路状态。</li>
+</ul>
+</section>
+<section id="sec4"><h2>3. 5 分钟上手</h2>
+<ol>
+<li><strong>配模型</strong>：设置 → 模型方案 → 填 Base URL / API Key / 模型名 → 点「测试」。</li>
+<li><strong>选数据</strong>：在表里选中区域（不选则按已用区域推断）。</li>
+<li><strong>说需求</strong>：「按月份汇总销售额，画柱状图放在右侧」。</li>
+<li><strong>看结果</strong>：回复列出工具、受影响区域、自检结论；每条写入可单独回滚。</li>
+</ol>
+<blockquote><p>提示：需求里写清<strong>目标位置、格式、口径</strong>，成功率更高；模糊时助手会先追问。</p></blockquote>
+</section>
+<section id="sec5"><h2>4. 模型配置</h2>
+<table><thead><tr><th>字段</th><th>说明</th></tr></thead>
+<tbody>
+<tr><td>方案名</td><td>自定义名称，可保存多套</td></tr>
+<tr><td>Base URL</td><td>OpenAI 兼容地址，如 <code>https://api.deepseek.com/v1</code>、<code>http://localhost:11434/v1</code></td></tr>
+<tr><td>API Key</td><td>本机用 DPAPI 加密存储，不写入日志</td></tr>
+<tr><td>模型名</td><td>如 <code>deepseek-chat</code>、<code>qwen2.5:7b</code></td></tr>
+<tr><td>温度</td><td>建议 0.1–0.3（表格任务需要稳定）</td></tr>
+<tr><td>协议模式</td><td>OpenAI 兼容 / 其他</td></tr>
+<tr><td>认证方式</td><td>Bearer / 自定义 Header</td></tr>
+</tbody></table>
+<p><strong>多方案切换</strong>：设置页可保存多套方案，顶部下拉随时切换；删除方案不影响历史会话。</p>
+</section>
+<section id="sec6"><h2>5. 聊天页</h2>
+<h3>5.1 发送需求</h3>
+<ul>
+<li>直接输入中文需求。</li>
+<li><code>@</code> 可引用单元格/区域。</li>
+<li><code>/技能名</code> 强制调用某个技能。</li>
+<li>停止按钮可中断当前回合。</li>
+</ul>
+<h3>5.2 结果解读</h3>
+<p>一条 AI 回复通常包含：</p>
+<ol>
+<li><strong>做了什么</strong>（工具名 + 参数摘要）；</li>
+<li><strong>受影响区域</strong>（如 <code>Sheet1!A1:B10</code>）；</li>
+<li><strong>自检结论</strong>（<code>verdict=ok</code> 或具体差异）；</li>
+<li><strong>回滚入口</strong>（每个写入操作有 operation_id）。</li>
+</ol>
+<h3>5.3 上下文控制</h3>
+<ul>
+<li>「压缩上下文」把长对话摘要化，节省 token。</li>
+<li>「单轮工具调用上限」可在设置页调大（复杂任务建议 20–50）。</li>
+</ul>
+<h3>5.4 写入模式</h3>
+<p>设置页「写入模式」：</p>
+<table><thead><tr><th>模式</th><th>行为</th></tr></thead>
+<tbody>
+<tr><td>auto</td><td>以 <code>=</code> 开头按公式，其余按值</td></tr>
+<tr><td>value</td><td>一律按文本/值写入（防公式注入，推荐）</td></tr>
+<tr><td>formula</td><td>一律按公式写入</td></tr>
+</tbody></table>
+</section>
+<section id="sec7"><h2>6. 公式页</h2>
+<table><thead><tr><th>功能</th><th>说明</th></tr></thead>
+<tbody>
+<tr><td>生成公式</td><td>描述需求（含目标单元格与口径），生成可插入的公式</td></tr>
+<tr><td>解释公式</td><td>解释嵌套公式含义</td></tr>
+<tr><td>诊断公式</td><td>定位 <code>#REF!</code>/<code>#DIV/0!</code>/<code>#VALUE!</code> 等原因</td></tr>
+<tr><td>批量改写</td><td>如 VLOOKUP → XLOOKUP</td></tr>
+<tr><td>公式历史</td><td>保存生成记录，可复用</td></tr>
+</tbody></table>
+<p>插入前建议先「预览」；插入后会自动回读核对。</p>
+</section>
+<section id="sec8"><h2>7. VBA 页</h2>
+<ul>
+<li><strong>模板库</strong>：内置常用宏，可保存自定义模板。</li>
+<li><strong>生成</strong>：描述需求生成 VBA，执行前展示代码。</li>
+<li><strong>校验</strong>：静态检查（不执行）。</li>
+<li><strong>执行</strong>：<code>run_vba_snippet</code> 属代码执行类，<strong>始终保留确认门</strong>。</li>
+<li>执行结果会回读关键单元格，并把代码登记到运行日志。</li>
+</ul>
+<blockquote><p>安全提示：只运行你理解的代码；不要粘贴来源不明的宏。</p></blockquote>
+</section>
+<section id="sec9"><h2>8. Python 页</h2>
+<ul>
+<li><strong>两种模式</strong>：计算模式（用 Python 算，结果写回表格）/ Excel 模式（直接操作工作簿）。</li>
+<li><strong>沙箱执行</strong>：<code>run_python_excel</code> 属代码执行类，保留确认门。</li>
+<li><strong>包管理</strong>：查看已装包、安装缺失包（<code>install_python_packages</code> 需确认）。</li>
+<li><strong>环境自检</strong>：<code>python_setup_guide</code> 检查 Python 是否与 Excel 位数一致。</li>
+</ul>
+</section>
+<section id="sec10"><h2>9. 函数页</h2>
+<p>内置 Excel 函数速查：按分类浏览（常用/财务/逻辑/文本/日期/查找/数学/统计/其他），可复制用法并插入到选区。</p>
+</section>
+<section id="sec11"><h2>10. 流程页</h2>
+<ul>
+<li><strong>内置模板</strong>：月度经营分析、清洗体检、KPI 看板、公式审计、异常排查、结构盘点等。</li>
+<li><strong>自定义流程</strong>：把多个工具串成步骤，每步可带 <code>verify</code> 自检。</li>
+<li><strong>执行</strong>：按步骤顺序执行，单步失败可重试；结果与自检独立记录。</li>
+<li><strong>MCP 客户端</strong>可用 <code>prompts/list</code> 看到这些模板。</li>
+</ul>
+</section>
+<section id="sec12"><h2>11. 连接页（MCP / CLI）</h2>
+<h3>11.1 开关</h3>
+<table><thead><tr><th>开关</th><th>关闭后的行为</th></tr></thead>
+<tbody>
+<tr><td>MCP</td><td><code>ExcelAiMcpServer.exe</code> 启动即拒绝（exit 6），不创建 Excel 实例</td></tr>
+<tr><td>CLI</td><td><code>ExcelAiCli</code> 的 Excel 类命令拒绝执行（<code>version</code>/<code>help</code>/<code>workflows</code> 仍可用）</td></tr>
+</tbody></table>
+<ul>
+<li>开关真值：<code>%LOCALAPPDATA%\XaiAssistant\connectors.json</code>（面板与命令行读同一份）。</li>
+<li><strong>只阻止新进程启动</strong>；已连接的客户端需重启对应进程才会断开。</li>
+</ul>
+<h3>11.2 测试连接</h3>
+<p>点「🔍 测试连接（真实握手）」：</p>
+<ul>
+<li><strong>CLI</strong>：运行 <code>--version</code>，校验退出码 0 与 JSON <code>ok=true</code>；</li>
+<li><strong>MCP</strong>：启动 <code>--probe</code>（不预热 Excel）走一次 <code>initialize</code>，校验 <code>protocolVersion</code>。</li>
+</ul>
+<p>结果显示四种状态：<code>✅ 成功</code> / <code>⏸ 已关闭（未测试）</code> / <code>⚠ 未安装</code> / <code>❌ 失败</code>。</p>
+<h3>11.3 客户端配置</h3>
+<p>面板下方提供 Claude Desktop 配置片段：</p>
+<pre><code>{
+  "mcpServers": {
+    "jyyj-excel": {
+      "command": "C:\\Users\\&lt;你&gt;\\AppData\\Local\\XaiAssistant\\app\\x64\\ExcelAiMcpServer.exe"
+    }
+  }
+}</code></pre>
+<ul>
+<li>默认<strong>只读</strong>；勾选「包含写权限」才会加 <code>--allow-write</code>。</li>
+<li>粘贴位置：<code>%APPDATA%\Claude\claude_desktop_config.json</code> 的 <code>mcpServers</code> 下。</li>
+<li>未安装 MCP 程序时按钮置灰，可改用 <code>npx jyyj-mcp config</code>。</li>
+</ul>
+<h3>11.4 自主模式</h3>
+<ul>
+<li>默认开启：结构/数据类危险操作直接执行（有审计、可回滚）。</li>
+<li><strong>仍保留确认门</strong>：<code>run_vba_snippet</code>、<code>run_python_*</code>、<code>run_cli_command</code>、<code>run_exe_command</code>、<code>install_python_packages</code>、<code>open_excel_external_book</code>、<code>replace_external_links</code>。</li>
+<li>关闭自主模式：启动参数 <code>--require-confirmation</code>，或环境变量 <code>JYYJ_AI_AUTONOMOUS=0</code>。</li>
+</ul>
+</section>
+<section id="sec13"><h2>12. 设置页</h2>
+<table><thead><tr><th>卡片</th><th>内容</th></tr></thead>
+<tbody>
+<tr><td>模型方案</td><td>见第 4 章</td></tr>
+<tr><td>长期记忆</td><td>跨会话偏好与备注，注入每次对话的系统提示</td></tr>
+<tr><td>受控执行</td><td>脚本/CLI/EXE 白名单、超时、输出上限</td></tr>
+<tr><td>技能包</td><td>导入技能、技能市场推荐、Markdown 技能</td></tr>
+<tr><td>运行日志 · 自检</td><td>查看本轮写入/VBA/图表记录；一键自检；全功能巡检；导出日志</td></tr>
+<tr><td>关于 / 版本</td><td>版本、宿主连接、WebView2、本地技能、宿主版本</td></tr>
+<tr><td>工具说明</td><td>按风险级别分组的工具目录</td></tr>
+<tr><td>帮助中心</td><td>快速上手、聊天技巧、MCP/CLI 说明、排障</td></tr>
+</tbody></table>
+<h3>运行日志建议排障顺序</h3>
+<ol>
+<li>看健康监控条；</li>
+<li>跑「全功能巡检」；</li>
+<li>跑「一键自检」；</li>
+<li>仍异常时「导出」日志随反馈提交。</li>
+</ol>
+</section>
+<section id="sec14"><h2>13. 20 个使用实例</h2>
+<p><strong>数据读写与清洗</strong></p>
+<ol>
+<li>「B 列是文本型数字，转成真正的数值」→ <code>clean_excel_data</code></li>
+<li>「去掉整行都为空的行，A 列统一成 2024-01-01 格式」→ <code>clean_excel_data</code></li>
+<li>「把下面 10 行写到 A2 开始的区域」→ <code>write_excel_range</code></li>
+<li>「在这批记录后追加 3 行」→ <code>append_excel_rows</code></li>
+<li>「销售额大于 1 万的行复制到 Sheet2」→ <code>filter_excel_data</code></li>
+</ol>
+<p><strong>分析汇总</strong></p>
+<ol>
+<li>「按 B 列月份汇总 F 列销售额，结果放 H 列」→ <code>create_excel_pivot_summary</code></li>
+<li>「统计每个区域有多少条记录」→ <code>count_group</code></li>
+<li>「客户名单去重，告诉我唯一客户数」→ <code>remove_duplicates</code></li>
+<li>「找出超过 3σ 的异常行并标记黄色」→ <code>analyze_column_profile</code> + <code>flag_cells</code></li>
+<li>「算销售额与广告投入的相关系数」→ <code>analyze_column_correlation</code></li>
+</ol>
+<p><strong>图表与看板</strong></p>
+<ol>
+<li>「按月份画销售额柱状图，放在数据右侧」→ <code>create_excel_chart</code></li>
+<li>「销售额柱状 + 销量折线，双轴组合图」→ <code>create_combo_chart</code></li>
+<li>「做 4 张卡片的 KPI 速览看板」→ <code>create_dashboard_kpi_brief</code></li>
+<li>「做一个销售概览看板，支持地区联动」→ <code>render_dashboard</code></li>
+<li>「超级看板：数据底座 + KPI 卡 + 四宫格 + 指标切换」→ <code>render_super_dashboard</code></li>
+</ol>
+<p><strong>公式与脚本</strong></p>
+<ol>
+<li>「解释 F2 的嵌套公式」→ <code>explain_formula</code></li>
+<li>「VLOOKUP 全部改成 XLOOKUP」→ <code>rewrite_formulas</code></li>
+<li>「写 VBA 把所有表按名称排序，执行前给我看代码」→ <code>run_vba_snippet</code>（确认门）</li>
+<li>「用 Python 跑聚类，结果写回新列」→ <code>run_python_excel</code>（确认门）</li>
+</ol>
+<p><strong>自动化</strong></p>
+<ol>
+<li>「把桌面 data.xlsx 的 Sheet1 汇总成月度报告」→ MCP / CLI 直调 175 工具面（MCP 显示 193 含桥接与 <code>ct_</code>）</li>
+</ol>
+</section>
+<section id="sec15"><h2>14. 安全与回滚</h2>
+<table><thead><tr><th>机制</th><th>用户可见行为</th></tr></thead>
+<tbody>
+<tr><td>快照</td><td>写入前自动保存目标区域原值</td></tr>
+<tr><td>回滚</td><td>回复中的「回滚」按钮，或说「撤销刚才这次写入」</td></tr>
+<tr><td>自检</td><td>回复里出现 <code>verdict=ok</code> 或不达标原因</td></tr>
+<tr><td>保护态</td><td>表被保护时提示先解除保护，不会产生裸报错</td></tr>
+<tr><td>危险确认</td><td>整表删除等需点「允许执行」</td></tr>
+<tr><td>剪贴板</td><td>截图会临时占用剪贴板（<code>CopyPicture</code> 实现）</td></tr>
+</tbody></table>
+</section>
+<section id="sec16"><h2>15. 故障排查</h2>
+<table><thead><tr><th>现象</th><th>处理</th></tr></thead>
+<tbody>
+<tr><td>看不到「JYYJ助手」选项卡</td><td>跑 <code>diagnose.ps1</code> → <code>repair-addin.ps1</code> → 完全退出 Excel 重开</td></tr>
+<tr><td>侧边栏空白/白屏</td><td>设置页看 WebView2 状态；重装 WebView2 运行时</td></tr>
+<tr><td>模型「测试」失败</td><td>核对 Base URL 是否含 <code>/v1</code>、Key 是否有效、是否需代理</td></tr>
+<tr><td>提示「宏不可用 (0x800A9C68)」</td><td>模块刚写入后的瞬态，会自动重试一次；持续出现检查宏设置</td></tr>
+<tr><td>提示「当前没有打开的工作簿」</td><td>先新建或打开一个工作簿</td></tr>
+<tr><td>Excel 提示"正在编辑的文件被占用"</td><td>关闭其他打开同一文件的 Excel 实例</td></tr>
+<tr><td>写入超时/COM 忙</td><td>稍后重试；关闭不用的 Excel 实例</td></tr>
+</tbody></table>
+</section>
+<section id="sec17"><h2>16. 常见问题</h2>
+<p><strong>Q：为什么 AI 说改了，表里没变化？</strong></p>
+<p>看回复的 <code>verdict</code> 与 <code>error_code</code>；也可以说"截图看看 A1:F20"。</p>
+<p><strong>Q：能处理多大数据量？</strong></p>
+<p>单次写入有格数上限，超限会明确报错；大表建议用透视/看板或分批。</p>
+<p><strong>Q：数据会不会上传？</strong></p>
+<p>只发送你提示中涉及的表格片段到你配置的 AI 端点；默认无遥测。</p>
+<p><strong>Q：能否离线？</strong></p>
+<p>可以，配置本地 Ollama 等 OpenAI 兼容端点即可。</p>
+<p><strong>Q：MCP 和加载项能同时用吗？</strong></p>
+<p>可以。它们各自独立；MCP 不操作你正在编辑的工作簿。</p>
+<p><strong>Q：关掉 CLI 开关后为什么 <code>list</code> 也不能用？</strong></p>
+<p><code>list</code> 需要创建工具注册表（会启动一次隐藏 Excel），因此同样受开关控制；<code>version</code>/<code>help</code>/<code>workflows</code> 不受影响。</p>
+</section>
+<section id="sec18"><h2>17. 附录：文件位置与退出码</h2>
+<table><thead><tr><th>内容</th><th>路径</th></tr></thead>
+<tbody>
+<tr><td>用户数据根</td><td><code>%APPDATA%\ExcelAiAssistant</code></td></tr>
+<tr><td>记忆</td><td><code>%APPDATA%\ExcelAiAssistant\memory.json</code></td></tr>
+<tr><td>操作审计</td><td><code>%APPDATA%\ExcelAiAssistant\operations.db</code></td></tr>
+<tr><td>自检历史</td><td><code>%APPDATA%\ExcelAiAssistant\selfcheck-history.db</code></td></tr>
+<tr><td>运行日志</td><td><code>%TEMP%\ExcelAiAssistant.log</code></td></tr>
+<tr><td>安装目录</td><td><code>%LOCALAPPDATA%\XaiAssistant\app\{x64,x86}</code></td></tr>
+<tr><td>连接开关</td><td><code>%LOCALAPPDATA%\XaiAssistant\connectors.json</code></td></tr>
+<tr><td>模型/设置</td><td><code>%LOCALAPPDATA%\XaiAssistant\agent-settings.json</code></td></tr>
+</tbody></table>
+<h3>CLI 退出码</h3>
+<table><thead><tr><th>码</th><th>含义</th></tr></thead>
+<tbody>
+<tr><td>0</td><td>成功</td></tr>
+<tr><td>1</td><td>工具执行失败</td></tr>
+<tr><td>2</td><td>用法/参数错误</td></tr>
+<tr><td>3</td><td>启动失败</td></tr>
+<tr><td>4</td><td>危险操作待确认 / 确认码无效</td></tr>
+<tr><td>5</td><td>COM 组件缺失</td></tr>
+<tr><td>6</td><td>外部接口面已在侧边栏「连接」面板关闭</td></tr>
+</tbody></table>
+<p>*本文档随版本自动递增（版本号单一来源：仓库根 <code>Directory.Build.props</code>）。*</p>
+</section>
+</div>
+<footer><div class="wrap">JYYJ助手 · **请在使用前完整阅读本节。**</div></footer>
+</body>
+</html>
