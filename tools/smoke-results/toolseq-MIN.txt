@@ -1,0 +1,11 @@
+﻿
+ASM-LOADED
+COM-CREATED 13s
+BOOK-ADDED
+  proj=ActiveWorkbook.VBProject
+  module-ready
+  snippet-added
+  helper-appended(checked)
+RUN OK => OK|["A",42] (0s)
+DONE
+MODE MIN => HANG (killed after 90s)
