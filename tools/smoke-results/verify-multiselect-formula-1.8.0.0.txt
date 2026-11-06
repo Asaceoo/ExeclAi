@@ -1,0 +1,19 @@
+XAI 助手 v1.8.0.0 — 公式助手增强：多选数据选区 / 多选目标选区 / 公式说明
+日期: 2026-08-24
+
+构建: x64/x86 Release 0 警告 0 错误
+单元测试: 209/209 通过
+冒烟: VerifyPhaseI 61 PASS (含公式助手多选区与说明入口断言)
+
+已安装副本核验:
+  VER=1.8.0.0
+  GenerateFormula_params=String,String,String  (dataAreas, targetAreas, requirement)
+  dataAreaInput / targetAreaInput / formulaExplain 在位; 旧 formulaArea 已移除
+
+改动摘要:
+  - C#: GenerateFormula(dataAreas, targetAreas, requirement) 支持多选区(换行/逗号分隔、去重)，
+    数据选区读取前几行数据预览作上下文，目标选区为空回退当前选区；
+    输出解析为 (formula, explanation) 两部分。新增 NormalizeAreas / SplitGeneratedFormula / CleanFormulaPart。
+  - 前端「公式」页: 数据选区(多选) + 目标选区(多选) 两个同构选择器(输入/添加/引用当前选区/移除)。
+    「引用当前选区」复用 GetContext 读取选区地址。结果区新增「公式说明」块展示通俗解释。
+  - 回滚按钮/历史移除等上一版功能保持不回退。
