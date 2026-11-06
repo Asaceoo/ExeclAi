@@ -1,0 +1,17 @@
+﻿BOOT
+HELPER-LEN 9515
+[MIN] RUN-OK => OK|[1,2]
+
+[CASE-A] RUN-OK => OK|["A",42]
+
+[EMPTY] RUN-OK => OK
+
+[V1-ASCII] RUN-OK => OK|["A",42]
+
+[V2-NOXAIARG] RUN-OK => OK|[null,42]
+
+[V3-XAIARG] RUN-OK => OK
+
+[V4-LIT] RUN-OK => OK|[42]
+
+DONE

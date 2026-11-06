@@ -1,0 +1,23 @@
+{
+  "name": "jyyj-mcp",
+  "version": "3.9.9.6",
+  "description": "JYYJ助手 Excel MCP server 分发外壳：定位/下载 ExcelAiMcpServer.exe 并打印 MCP 客户端配置（工具数以 list 输出为准）",
+  "bin": {
+    "jyyj-mcp": "bin/jyyj-mcp.js"
+  },
+  "keywords": [
+    "mcp",
+    "excel",
+    "wps",
+    "claude-desktop",
+    "jyyj"
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": ">=16"
+  },
+  "files": [
+    "bin",
+    "README.md"
+  ]
+}
