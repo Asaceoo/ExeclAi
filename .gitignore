@@ -1,0 +1,36 @@
+# 构建产物
+bin/
+obj/
+# 例外：npm 外壳入口在 bin/ 下（全局 bin/ 忽略会把入口脚本挡在版本库外）
+!tools/npm-jyyj-mcp/bin/
+!tools/npm-jyyj-mcp/bin/jyyj-mcp.js
+*.user
+.vs/
+
+# 发布产物（release.py pack 可重建）
+dist/
+
+# 临时/开发中间物
+_dev_tmp/
+packages/
+
+# 历史源码快照（备份性质；版本保险由 git 接管后不再需要入库）
+_backup/
+
+# Python
+__pycache__/
+*.pyc
+
+# 日志
+*.log
+
+# 历史会话任务目录（旧工作区残留，与当前源码无关）
+2026-09-1*-*/
+2026-09-13-*/
+
+# 大型离线安装器不入库（GitHub 单文件 100MB 硬限 + 推送带宽）
+tools/installer/redist/*.exe
+%SystemDrive%/
+.adv-review/
+_audit_tmp/
+tmp-m27/

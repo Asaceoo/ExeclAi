@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net48</TargetFramework>
+    <Platform Condition="'$(Platform)'==''">x64</Platform>
+    <RuntimeIdentifier Condition="'$(Platform)'=='x64'">win-x64</RuntimeIdentifier>
+    <RuntimeIdentifier Condition="'$(Platform)'=='x86'">win-x86</RuntimeIdentifier>
+    <AssemblyName>ExcelAiMcpServer</AssemblyName>
+    <RootNamespace>ExcelAiAssistant.McpServer</RootNamespace>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../src/ExcelAiAssistant.Core/ExcelAiAssistant.Core.csproj" />
+    <ProjectReference Include="../../src/ExcelAiAssistant.Excel/ExcelAiAssistant.Excel.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.IO" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JYYJ助手 技术手册</title>
+<style>
+:root{
+  --brand:#2563eb; --brand-weak:#e0ecff; --ink:#1f2329; --sub:#6b7280;
+  --line:#e5e7eb; --bg:#f7f8fa; --card:#fff; --ok:#16a34a; --warn:#ea580c; --code:#0f172a;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;color:var(--ink);background:var(--bg);line-height:1.75;padding-bottom:80px}
+.wrap{max-width:960px;margin:0 auto;padding:0 20px}
+header{background:linear-gradient(135deg,#0f172a,#1e3a8a);color:#fff;padding:42px 0 34px}
+header .wrap{display:flex;align-items:center;gap:18px}
+.logo{width:58px;height:58px;border-radius:14px;background:rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:20px;flex:none}
+h1{font-size:25px;font-weight:700}
+.sub{opacity:.9;font-size:14px;margin-top:6px;font-family:Consolas,Monaco,monospace}
+nav{position:sticky;top:0;background:var(--card);border-bottom:1px solid var(--line);z-index:10}
+nav .wrap{display:flex;gap:4px;overflow-x:auto}
+nav a{display:block;padding:12px 14px;color:var(--sub);text-decoration:none;font-size:14px;white-space:nowrap;border-bottom:2px solid transparent}
+nav a:hover{color:var(--brand)}
+nav a.active{color:var(--brand);border-bottom-color:var(--brand);font-weight:600}
+section{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:26px 28px;margin:24px 0}
+h2{font-size:20px;border-left:4px solid var(--brand);padding-left:12px;margin-bottom:18px}
+h3{font-size:16px;margin:22px 0 10px;color:#111}
+h3::before{content:'';display:inline-block;width:8px;height:8px;background:var(--brand);border-radius:2px;margin-right:8px}
+p{margin:8px 0}
+ol,ul{margin:8px 0 8px 24px}
+li{margin:6px 0}
+code{background:#f2f3f5;border:1px solid var(--line);border-radius:5px;padding:1px 7px;font-family:Consolas,Monaco,monospace;font-size:13px;color:#c026d3}
+pre{background:var(--code);color:#e2e8f0;border-radius:10px;padding:16px 18px;overflow-x:auto;font-size:12.5px;line-height:1.7;margin:12px 0;font-family:Consolas,Monaco,monospace}
+pre code{background:none;border:none;color:inherit;padding:0}
+.callout{border-radius:10px;padding:14px 18px;margin:14px 0;font-size:14px}
+.callout.info{background:var(--brand-weak);border-left:4px solid var(--brand)}
+.callout.warn{background:#fff4e5;border-left:4px solid var(--warn)}
+.callout.ok{background:#e8f7ee;border-left:4px solid var(--ok)}
+.callout .t{font-weight:700;margin-bottom:4px}
+table{width:100%;border-collapse:collapse;margin:12px 0;font-size:13.5px}
+th,td{border:1px solid var(--line);padding:8px 11px;text-align:left;vertical-align:top}
+th{background:var(--bg);font-weight:600}
+.path{font-family:Consolas,Monaco,monospace;font-size:12.5px;background:#f6f6f8;padding:1px 6px;border-radius:4px;color:#0f172a}
+.tag{display:inline-block;font-size:11px;padding:0 7px;border-radius:20px;background:var(--brand-weak);color:var(--brand);margin-right:4px}
+@media(max-width:640px){header .wrap{flex-direction:column;text-align:center}}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <div class="logo">JY</div>
+  <div><h1>JYYJ助手 技术手册</h1><div class="sub">**请在使用前完整阅读本节。**</div></div>
+</div></header>
+<nav><div class="wrap"><a href="#sec0">免责声明</a><a href="#sec1">目录</a><a href="#sec2">1. 总体架构</a><a href="#sec3">2. 解决方案结构</a><a href="#sec4">3. 加载项与 COM 注册</a><a href="#sec5">4. 工具系统</a><a href="#sec6">5. 自动自检体系</a><a href="#sec7">6. 保护态守卫与安全边界</a><a href="#sec8">7. 审计、快照与回滚</a><a href="#sec9">8. MCP Server</a><a href="#sec10">9. CLI</a><a href="#sec11">10. 构建、升版与打包</a><a href="#sec12">11. 测试体系</a><a href="#sec13">12. 性能与已知限制</a><a href="#sec14">13. 附录：错误码</a></div></nav>
+<div class="wrap">
+<section id="sec0"><h2>免责声明</h2>
+<blockquote><p><strong>请在使用前完整阅读本节。</strong></p></blockquote>
+<ol>
+<li><strong>按"现状"提供</strong>：本软件、源码及本文档按现状提供，不附带任何明示或默示担保，包括但不限于适销性、特定用途适用性与不侵权担保。</li>
+<li><strong>AI 输出不保证正确</strong>：AI 生成的公式、代码、图表与结论可能存在错误或偏差；使用者必须自行核对，作者与贡献者不对因此产生的直接或间接损失承担责任。</li>
+<li><strong>数据与合规责任在用户</strong>：处理敏感/个人信息前请确认符合你所在组织与地区的合规要求；配置的 AI 端点会接收提示与必要的表格片段。</li>
+<li><strong>代码执行风险</strong>：VBA / Python / 命令行 / EXE 工具具备本机执行能力，默认保留确认门；请勿在不可信环境放开。</li>
+<li><strong>备份建议</strong>：重要数据请先备份；自动快照与回滚<strong>不构成数据安全保证</strong>。</li>
+<li><strong>无官方支持承诺</strong>：本项目为开源软件，不承诺响应时效或问题必解。</li>
+</ol>
+</section>
+<section id="sec1"><h2>目录</h2>
+<ol>
+<li><a href="#1-总体架构" target="_blank">总体架构</a></li>
+<li><a href="#2-解决方案结构" target="_blank">解决方案结构</a></li>
+<li><a href="#3-加载项与-com-注册" target="_blank">加载项与 COM 注册</a></li>
+<li><a href="#4-工具系统" target="_blank">工具系统</a></li>
+<li><a href="#5-自动自检体系" target="_blank">自动自检体系</a></li>
+<li><a href="#6-保护态守卫与安全边界" target="_blank">保护态守卫与安全边界</a></li>
+<li><a href="#7-审计快照与回滚" target="_blank">审计、快照与回滚</a></li>
+<li><a href="#8-mcp-server" target="_blank">MCP Server</a></li>
+<li><a href="#9-cli" target="_blank">CLI</a></li>
+<li><a href="#10-构建升版与打包" target="_blank">构建、升版与打包</a></li>
+<li><a href="#11-测试体系" target="_blank">测试体系</a></li>
+<li><a href="#12-性能与已知限制" target="_blank">性能与已知限制</a></li>
+<li><a href="#13-附录错误码" target="_blank">附录：错误码</a></li>
+</ol>
+</section>
+<section id="sec2"><h2>1. 总体架构</h2>
+<p>!<a href="images/concept-architecture.png" target="_blank">总体架构</a></p>
+<table><thead><tr><th>层</th><th>进程</th><th>职责</th></tr></thead>
+<tbody>
+<tr><td>宿主</td><td>EXCEL.EXE / et.exe</td><td>工作簿、选区、公式、格式</td></tr>
+<tr><td>加载项</td><td>同宿主进程</td><td>Ribbon、任务窗格、COM 桥、工具注册</td></tr>
+<tr><td>界面</td><td>WebView2（同进程）</td><td>8 页签 UI，经 <code>hostObjects.excelAiBridge</code> 调宿主</td></tr>
+<tr><td>AI</td><td>外部 HTTP（OpenAI 兼容）</td><td>自然语言 → 工具调用</td></tr>
+<tr><td>MCP</td><td>独立进程</td><td>stdio JSON-RPC，供 AI 客户端直连</td></tr>
+<tr><td>CLI</td><td>独立进程</td><td>命令行直调工具面</td></tr>
+</tbody></table>
+<p><strong>关键设计取舍</strong></p>
+<ul>
+<li>加载项与 WebView2 <strong>同进程</strong>：侧边栏可直接读取 <code>Selection</code>，无需跨进程序列化。</li>
+<li>MCP/CLI <strong>独立进程</strong>：各自 <code>Workbooks.Add()</code> 新建内存工作簿，<strong>不碰用户文件</strong>；退出时按 PID 回收（Job Object <code>KILL_ON_JOB_CLOSE</code> 兜底）。</li>
+<li>三条通道共用同一 <code>ToolRegistry</code> 与审计，避免行为漂移。</li>
+</ul>
+</section>
+<section id="sec3"><h2>2. 解决方案结构</h2>
+<pre><code>ExcelAiAssistant.sln
+├─ src/ExcelAiAssistant.Core          # 模型、配置、安全、审计、Agent、工作流
+│   ├─ Agent/                         # AgentRunner、AutoVerifyPolicy、工具桥
+│   ├─ Configuration/                 # 设置存储（agent/connectors）
+│   ├─ Operations/                    # 操作记录与快照
+│   └─ Security/                      # PathGuard 等
+├─ src/ExcelAiAssistant.Excel         # 工具服务与注册（175 个工具面）
+├─ src/ExcelAiAssistant.Addin         # Ribbon、WebView2 宿主、SidebarBridge
+├─ src/ExcelAiAssistant.Tests         # xUnit 单测（1383）
+├─ tools/McpServer                    # MCP stdio 服务
+├─ tools/CliServer                    # CLI
+├─ tools/RealMachineVerify            # 真机 harness（34 组 172 断言）
+├─ tools/installer                    # iss + 注册/诊断/自愈脚本
+└─ tools/release                      # release.py / gate.py / 基线校验</code></pre>
+<p><strong>依赖方向</strong>：<code>Addin → Excel → Core</code>，<code>McpServer/CliServer → Excel → Core</code>；Core 不反向依赖。</p>
+</section>
+<section id="sec4"><h2>3. 加载项与 COM 注册</h2>
+<h3>3.1 注册模型</h3>
+<table><thead><tr><th>ProgID</th><th>CLSID</th><th>托管类型</th></tr></thead>
+<tbody>
+<tr><td><code>ExcelAiAssistant.AddIn</code></td><td><code>{8F7A6D91-...-E001}</code></td><td><code>ExcelAiAssistant.Addin.ExcelAiAddIn</code></td></tr>
+<tr><td><code>ExcelAiAssistant.TaskPaneHost</code></td><td><code>{...-E002}</code></td><td><code>...ExcelAiTaskPaneHost</code></td></tr>
+<tr><td><code>ExcelAiAssistant.DeepSeekPaneHost</code></td><td><code>{...-E003}</code></td><td><code>...DeepSeekTaskPaneHost</code></td></tr>
+</tbody></table>
+<p>每个 CLSID 需写入：</p>
+<pre><code>HKCU\Software\Classes\CLSID\{GUID}\
+  InprocServer32            (默认)=mscoree.dll, ThreadingModel=Both, Class, Assembly, CodeBase, RuntimeVersion
+  InprocServer32\&lt;ver&gt;      Class, Assembly, CodeBase, RuntimeVersion
+  Implemented Categories\{62C8FE65-4EBB-45E7-B440-6E39B2CDBF29}
+HKCU\Software\Classes\&lt;ProgID&gt;\CLSID (默认)={GUID}
+HKCU\Software\Microsoft\Office\Excel\Addins\ExcelAiAssistant.AddIn  LoadBehavior=3</code></pre>
+<p><strong>双架构</strong>：<code>RegistryView.Registry64 → app\x64</code>，<code>RegistryView.Registry32 → app\x86</code>，32/64 位 Excel/WPS 各读各的视图。</p>
+<h3>3.2 三个必须注意的坑</h3>
+<ol>
+<li><strong>版本子键的 <code>Class</code> 必须是本 ProgID 的真实类型</strong>。若三个 CLSID 都写成 <code>ExcelAiAddIn</code>，Ribbon 能加载但 <code>CreateCTP</code> 报 <code>0x80004005 无法创建指定的 ActiveX 控件</code>——面板打不开。</li>
+<li><strong>部署新版本要同步 <code>Assembly</code> 版本值</strong>。<code>mscoree</code> 按注册的 <code>Assembly</code>（含版本）找文件，DLL 版本与注册值不一致会加载失败。</li>
+<li><strong><code>LoadBehavior=2</code> 表示被禁用</strong>。此时 Ribbon XML 根本不会被读取，表现为"选项卡整块消失"。修复脚本会改回 3 并写 <code>DoNotDisableAddinList</code>。</li>
+</ol>
+<h3>3.3 自愈脚本</h3>
+<p><code>tools/installer/repair-addin.ps1</code>：</p>
+<ul>
+<li>默认只接受 <code>%LOCALAPPDATA%\XaiAssistant\app</code>；非标准目录需 <code>-Force</code>；</li>
+<li>拒绝 UNC；缺架构时告警；</li>
+<li>检测策略键与 <code>Resiliency\DisabledItems</code>；</li>
+<li>为 14.0/15.0/16.0 三代 Office 写防禁用名单。</li>
+</ul>
+</section>
+<section id="sec5"><h2>4. 工具系统</h2>
+<h3>4.1 描述符</h3>
+<pre><code>new ToolDescriptor(
+    name, description, RiskLevel,           // ReadOnly/NormalWrite/StructuralChange/Dangerous
+    args =&gt; ExcelToolHost.Execute(() =&gt; service.Method(args)),
+    schema);</code></pre>
+<ul>
+<li><code>ExcelToolHost.Execute</code> 统一包装：COM 忙自动补偿重试一次，异常收敛为 <code>ToolResult</code>。</li>
+<li><code>RiskLevel</code> 决定：默认只读模式是否可见、是否需要确认门、是否受保护态守卫。</li>
+</ul>
+<h3>4.2 注册入口</h3>
+<p><code>ExcelToolHost.CreateRegistry()</code> 依次注册：基础读写 → 二期（脚本/分析）→ 数据加工 → 实用工具 → 公式解释 → <code>verify_*</code> → 截图 → AI 填充 → 标记 → 工作流 → 外部工作簿 → 自定义工具库 → 联网 → 增强 → <strong>保护态守卫包装</strong> → 自主闭环（<code>run_self_check</code>/<code>apply_correction</code>）。</p>
+<blockquote><p><code>apply_correction</code> 在守卫包装<strong>之后</strong>注册：它是组合工具，顶层无统一 <code>sheet</code>，由内部各子工具自行守卫。</p></blockquote>
+<h3>4.3 工具口径</h3>
+<ul>
+<li>代码注册 <strong>175</strong>；</li>
+<li>WPS 全量巡检 = 175 + 桥接 4 + 看板浮动；</li>
+<li>MCP <code>tools/list</code> = 175 + 桥接 4 + 用户沉淀 <code>ct_</code> 17 = <strong>196</strong>。</li>
+</ul>
+</section>
+<section id="sec6"><h2>5. 自动自检体系</h2>
+<h3>5.1 映射</h3>
+<p><code>AutoVerifyPolicy.MappedPrimaryTools</code>（48 类）→ <code>verify_*</code> 计划。覆盖审计要求所有写工具要么在映射表、要么在带理由的豁免表（90 条）。</p>
+<h3>5.2 判定</h3>
+<pre><code>AutoVerifyPolicy.VerifyPassed(result)
+// Ok=true 且 verdict 为空或 "ok" → 通过</code></pre>
+<ul>
+<li><code>verdict</code> 提取必须用 <code>JToken.FromObject(data)</code>：verify 家族的 <code>Data</code> 是<strong>匿名对象</strong>，只认 <code>JObject</code> 会取不到 verdict 而误判通过。</li>
+<li>无期望值时 fail-closed（<code>no_expected</code> 不算通过）。</li>
+</ul>
+<h3>5.3 AI 闭环三件套</h3>
+<p>!<a href="images/concept-loop.png" target="_blank">AI 闭环</a></p>
+<table><thead><tr><th>工具</th><th>级别</th><th>作用</th></tr></thead>
+<tbody>
+<tr><td><code>run_self_check</code></td><td>ReadOnly</td><td>传主工具+实参 → 推导并执行 verify 计划 → 汇总 passed/failed/skipped</td></tr>
+<tr><td><code>take_screenshot</code></td><td>ReadOnly</td><td><code>CopyPicture</code>+临时 Chart 无头导出；<code>return_base64</code> 时 MCP 投递 image 块</td></tr>
+<tr><td><code>apply_correction</code></td><td>NormalWrite</td><td>修正阶梯 ≤5 轮，每轮自带 verify，首个通过即停；拒绝 Dangerous 子工具</td></tr>
+</tbody></table>
+</section>
+<section id="sec7"><h2>6. 保护态守卫与安全边界</h2>
+<h3>6.1 SheetProtectionGuard</h3>
+<ul>
+<li>所有非只读工具默认前置探测目标表 <code>ProtectContents</code> / 工作簿 <code>ProtectStructure</code>。</li>
+<li>探测异常一律放行（加法前置，不改写工具自身错误路径）。</li>
+<li>探测类 COM 代码<strong>零 FinalRelease</strong>（RCW 身份共享）。</li>
+</ul>
+<h3>6.2 自主模式白名单</h3>
+<table><thead><tr><th>类别</th><th>自主模式行为</th></tr></thead>
+<tbody>
+<tr><td>结构/数据类 Dangerous（如删表）</td><td>直接执行 + stderr 审计</td></tr>
+<tr><td>代码执行类（VBA/Python/CLI/EXE/包安装）</td><td><strong>保留确认门</strong></td></tr>
+<tr><td>路径敏类（打开外部簿/替换外部链接）</td><td><strong>保留确认门</strong></td></tr>
+</tbody></table>
+<p>关闭方式：<code>--require-confirmation</code> / <code>--no-autonomous</code> / <code>JYYJ_AI_AUTONOMOUS=0</code>（非法值启动失败）。</p>
+<h3>6.3 其他边界</h3>
+<ul>
+<li><code>PathGuard</code>：拒 <code>..</code> 段、NUL、UNC、网络盘、重解析点。</li>
+<li><code>--log</code>：只追加、拒绝相对路径与父目录 junction。</li>
+<li>截图临时文件：随机后缀，避免可预测名竞争。</li>
+</ul>
+</section>
+<section id="sec8"><h2>7. 审计、快照与回滚</h2>
+<ul>
+<li>每次写入生成 <code>operation_id</code>，记录目标表/区域/前后值。</li>
+<li>SQLite：加载项 <code>operations.db</code>，MCP <code>operations-mcp.db</code>，CLI <code>operations-cli.db</code>（互不污染）。</li>
+<li><code>undo_excel_operation</code> 按 operation_id 回滚；结构类的可回滚范围有限（删表无内容快照 → 如实返回 <code>undoable=false</code>）。</li>
+<li>运行日志：<code>%TEMP%\ExcelAiAssistant.log</code>，环形缓冲供 UI 查询。</li>
+</ul>
+</section>
+<section id="sec9"><h2>8. MCP Server</h2>
+<h3>8.1 协议实现</h3>
+<table><thead><tr><th>方法</th><th>说明</th></tr></thead>
+<tbody>
+<tr><td><code>initialize</code></td><td>版本协商（2025-06-18 / 2025-03-26 / 2024-11-05）+ <code>instructions</code> 三态（探测/预热/就绪）+ <code>capabilities</code>（tools/resources/prompts + <code>experimental.aiAutonomous</code>）</td></tr>
+<tr><td><code>ping</code></td><td>存活</td></tr>
+<tr><td><code>tools/list</code> / <code>tools/call</code></td><td>工具面；<code>tools/list</code> 带 <code>annotations</code>（readOnlyHint/destructiveHint/idempotentHint/openWorldHint）</td></tr>
+<tr><td><code>resources/list</code> / <code>resources/read</code></td><td><code>jyyj://tools/catalog</code>、<code>workflows/catalog</code>、<code>help/errors</code>、<strong>实时</strong> <code>workbook/active</code>、<code>selection/current</code></td></tr>
+<tr><td><code>prompts/list</code> / <code>prompts/get</code></td><td>6 个办公场景 + 内置流程模板</td></tr>
+</tbody></table>
+<h3>8.2 启动模式</h3>
+<table><thead><tr><th>参数</th><th>作用</th></tr></thead>
+<tbody>
+<tr><td><code>--allow-write</code></td><td>开放写工具（默认只读）</td></tr>
+<tr><td><code>--probe</code></td><td>只握手：不预热 Excel、不挂看门狗、非 initialize/ping 直接 -32601</td></tr>
+<tr><td><code>--require-confirmation</code></td><td>关闭自主模式</td></tr>
+<tr><td><code>--log &lt;绝对路径&gt;</code></td><td>追加日志（拒绝相对/UNC/重解析点）</td></tr>
+</tbody></table>
+<h3>8.3 并发模型</h3>
+<ul>
+<li>读循环只做解析与分派；<code>tools/call</code> 进入<strong>单线程工作队列</strong>（Excel COM 不适合并发），<code>ping</code>/<code>initialize</code> 在读循环即时应答。</li>
+<li>出站写入统一加锁，避免 worker 与读循环两帧字节交错。</li>
+<li>stdin 关闭（管道/一次性脚本）时先排空队列（≤60s）再 Cleanup，防"结果静默丢失"。</li>
+<li><code>EnsureReady</code> 默认只等 5s，超时返回 <code>EXCEL_WARMING</code>（<code>retry_after_seconds</code>），由模型退避重试而不是干等 45s。</li>
+</ul>
+<h3>8.4 本机 AI 客户端接入</h3>
+<table><thead><tr><th>工具</th><th>风险级</th><th>作用</th></tr></thead>
+<tbody>
+<tr><td><code>detect_ai_clients</code></td><td>ReadOnly</td><td>扫描 8 类客户端（Claude Desktop/Claude Code/Codex/WorkBuddy/DSH/Cursor/Windsurf/Trae）：装没装、配没配、指向哪个 exe</td></tr>
+<tr><td><code>connect_ai_client</code></td><td>NormalWrite（豁免自动自检）</td><td>登记 <code>jyyj-excel</code>；默认只预览，<code>apply=true</code> 落盘，写前备份 <code>*.jyyj-bak</code></td></tr>
+<tr><td><code>test_ai_client_connection</code></td><td>ReadOnly</td><td>用客户端真实 <code>command+args</code> 启动一次 MCP 握手，返回 <code>reachable</code>/<code>protocolVersion</code>/耗时</td></tr>
+</tbody></table>
+<p>共享实现：<code>src/ExcelAiAssistant.Core/Connectors/AiClientDiscovery.cs</code>（CLI <code>clients</code> 与 MCP 工具同源）。</p>
+<p>配置格式差异：WorkBuddy/Claude/Cursor/Windsurf/Trae = <code>mcpServers</code> JSON；Codex = <code>config.toml</code> 的 <code>[mcp_servers.*]</code>；DSH = <code>storages/mcp_connector.json</code> 的 <code>tables.connections</code>。</p>
+<h3>8.5 生命周期</h3>
+<ul>
+<li>后台线程预热 Excel（15–25s），stdio 立即响应握手。</li>
+<li>自有实例才允许 Visible/Add/Quit；复用用户实例则拒绝启动。</li>
+<li>Job Object <code>KILL_ON_JOB_CLOSE</code>：server 任意方式退出都回收 Excel。</li>
+<li><code>--probe</code> 不启动上述流程。</li>
+</ul>
+</section>
+<section id="sec10"><h2>9. CLI</h2>
+<pre><code>ExcelAiCli list | schema | exec | batch | workflows | screenshot | version | help</code></pre>
+<ul>
+<li>默认只读；<code>--allow-write</code> 开放写工具。</li>
+<li><code>batch --file ops.json</code>：同进程顺序执行，逐条返回 <code>ok/error_code/data</code>。</li>
+<li><code>screenshot --target sheet|range|active_window [--base64]</code>。</li>
+<li>退出码：0/1/2/3/4/5/<strong>6</strong>（接口面关闭）。</li>
+</ul>
+</section>
+<section id="sec11"><h2>10. 构建、升版与打包</h2>
+<h3>10.1 命令</h3>
+<pre><code>dotnet build ExcelAiAssistant.sln -c Release
+dotnet test  ExcelAiAssistant.sln -c Release
+tools\RealMachineVerify（独立 Excel 实例）
+python tools\release\gate.py            # 构建→单测→真机→WPS 基线
+python tools\release\gate.py --pack     # 直通发版</code></pre>
+<h3>10.2 版本单一来源</h3>
+<ul>
+<li>唯一版本定义点：根 <code>Directory.Build.props</code>。</li>
+<li>唯一修改入口：<code>python tools/release/release.py bump --ver x.y.z.w</code></li>
+<li>同步 <code>Version</code>/<code>InformationalVersion</code>、README 版本标记、<strong>四份手册文件名字与版本戳</strong>、CLAUDE/AI交接指针、安装说明模板、npm 外壳。</li>
+<li><strong><code>pack</code> 默认自动递增末位版本号</strong>（3.9.9.1 → 3.9.2.1）并同步上述全部；<code>--no-bump</code> 可关闭。</li>
+</ul>
+<h3>10.3 打包产物</h3>
+<pre><code>dist/
+  installer/JYYJ助手-&lt;ver&gt;-Setup-wps.exe
+  JYYJ助手-&lt;ver&gt;-wps-x64.zip / -x86.zip
+  JYYJ助手-&lt;ver&gt;-wps-单文件便携-x64.zip   # 仅 app/ 程序目录（多文件，非单 exe；README/user manual 已说明）
+  JYYJ助手-&lt;ver&gt;-mcp-server-x64.zip
+  SHA256SUMS-&lt;ver&gt;.txt
+  publish-assets-&lt;ver&gt;.txt                # 资产映射（本地路径→发布名），publish-github.ps1 单一来源</code></pre>
+<h3>10.4 发布</h3>
+<p><code>tools/release/publish-github.ps1</code>：</p>
+<ol>
+<li>从工作树重建 <code>release-snapshot</code> 孤儿提交 → 强制推 <code>main</code>（避开 redist 大 blob 历史）；</li>
+<li>用 <code>GITHUB_TOKEN</code> 创建 Release 并上传全部 assets。</li>
+</ol>
+<blockquote><p>没有 token 时只推送源码，资产上传会跳过并提示。</p></blockquote>
+</section>
+<section id="sec12"><h2>11. 测试体系</h2>
+<table><thead><tr><th>层</th><th>规模</th><th>说明</th></tr></thead>
+<tbody>
+<tr><td>单测</td><td>1383</td><td>xUnit，覆盖工具契约、自检判定、路径安全、设置存储、面板逻辑</td></tr>
+<tr><td>真机 harness</td><td>34 组 / 172 断言</td><td>独立 Excel 实例；退出按 PID 回收，无泄漏</td></tr>
+<tr><td>WPS 全量巡检</td><td>结果分布基线</td><td><code>check_wps_full.py</code> 对账，新 FAIL 即亮红</td></tr>
+</tbody></table>
+<h3>关键回归锁</h3>
+<ul>
+<li><code>Extract_verdict_handles_anonymous_object_data</code>：verdict 提取必须支持匿名对象。</li>
+<li><code>Save_fails_loudly_when_target_locked</code>：设置写入失败必须抛错且不破坏原文件。</li>
+<li><code>AutoVerifyPolicyCountLockTests</code>：映射 48 / 豁免 90 的文档口径锁。</li>
+</ul>
+</section>
+<section id="sec13"><h2>12. 性能与已知限制</h2>
+<table><thead><tr><th>项</th><th>说明</th></tr></thead>
+<tbody>
+<tr><td>Excel 冷启动</td><td>COM 激活 15–25s；MCP 已改为懒初始化，握手不受影响</td></tr>
+<tr><td>大区域写入</td><td>单次格数上限，超限报错而非静默截断</td></tr>
+<tr><td>截图</td><td>20 万格上限；<code>sheet/range</code> 依赖剪贴板（临时占用）</td></tr>
+<tr><td>结构删除</td><td>删表无内容快照，回滚仅能重建空表</td></tr>
+<tr><td>WPS</td><td>功能面因宿主能力裁剪（看板类浮动计入巡检口径）</td></tr>
+<tr><td>AI 闭环</td><td>最多 5 轮修正，超限如实报告</td></tr>
+</tbody></table>
+</section>
+<section id="sec14"><h2>13. 附录：错误码</h2>
+<table><thead><tr><th>码</th><th>含义</th><th>恢复</th></tr></thead>
+<tbody>
+<tr><td><code>SHEET_PROTECTED</code></td><td>目标表被保护</td><td>先解除保护</td></tr>
+<tr><td><code>INVALID_SHEET</code></td><td>表名不存在</td><td><code>get_excel_sheet_list</code> 核对</td></tr>
+<tr><td><code>INVALID_ARGS</code></td><td>参数不合法</td><td>按 inputSchema 修正</td></tr>
+<tr><td><code>CONSERVATION_VIOLATED</code></td><td>行数守恒不成立</td><td>核对 region</td></tr>
+<tr><td><code>OVERWRITE_DENIED</code> / <code>BACKUP_FAILED</code></td><td>目标存在或备份失败</td><td>显式 <code>overwrite=true</code> 或换路径</td></tr>
+<tr><td><code>EMPTY_RANGE</code></td><td>空表</td><td>核对表名或改 <code>target=range</code></td></tr>
+<tr><td><code>RANGE_TOO_LARGE</code></td><td>超 20 万格</td><td>缩小 address</td></tr>
+<tr><td><code>INVALID_TARGET</code></td><td>target 拼写错误</td><td>仅 sheet/range/active_window</td></tr>
+<tr><td><code>SCREENSHOT_FAILED</code></td><td>截图失败</td><td>看 HRESULT；无头模式改 <code>target=sheet</code></td></tr>
+<tr><td><code>NO_VERIFY_PLAN</code></td><td>无可推导的自检计划</td><td>按意图显式调 <code>verify_*</code></td></tr>
+<tr><td><code>SELF_CHECK_FAILED</code> / <code>SELF_CHECK_SKIPPED</code></td><td>自检未通过/被跳过</td><td>看 checks 的 verdict</td></tr>
+<tr><td><code>CORRECTION_FAILED</code></td><td>修正阶梯全部失败</td><td>看各 attempt 的 main_error_code</td></tr>
+<tr><td><code>CONFIRMATION_REQUIRED</code></td><td>需确认</td><td>走确认门</td></tr>
+<tr><td><code>UNKNOWN_TOOL</code></td><td>未注册</td><td>检查模式与拼写</td></tr>
+</tbody></table>
+<p>*本文档随版本自动递增（版本号单一来源：仓库根 <code>Directory.Build.props</code>）。*</p>
+</section>
+</div>
+<footer><div class="wrap">JYYJ助手 · **请在使用前完整阅读本节。**</div></footer>
+</body>
+</html>
