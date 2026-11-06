@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JYYJ助手 · 功能区命令组调研报告</title>
+<style>
+  :root {
+    --bg: #f5f6f8; --card: #ffffff; --ink: #1f2430; --muted: #6b7280;
+    --brand: #2563eb; --brand-soft: #eff4ff; --tier1: #1f8a5f; --tier2: #b45309; --tier3: #64748b;
+    --line: #e5e7eb; --ribbon-bg: #fafbfc; --ribbon-tab: #eef2f7;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: "Segoe UI", "Microsoft YaHei", system-ui, sans-serif; background: var(--bg); color: var(--ink); line-height: 1.65; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 32px 24px 64px; }
+  header.hero { background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%); color: #fff; border-radius: 16px; padding: 28px 32px; margin-bottom: 28px; }
+  header.hero h1 { margin: 0 0 8px; font-size: 26px; letter-spacing: .5px; }
+  header.hero p { margin: 0; opacity: .92; font-size: 14px; }
+  h2 { font-size: 20px; margin: 34px 0 14px; padding-left: 12px; border-left: 4px solid var(--brand); }
+  h3 { font-size: 16px; margin: 20px 0 8px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 18px 20px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,.04); }
+  .grid { display: grid; gap: 14px; }
+  .grid.cols2 { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+  .pill { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+  .pill.t1 { background: #e7f6ef; color: var(--tier1); }
+  .pill.t2 { background: #fdf1e2; color: var(--tier2); }
+  .pill.t3 { background: #eef1f5; color: var(--tier3); }
+  .pill.have { background: #e8f0fe; color: var(--brand); }
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { background: var(--ribbon-tab); font-weight: 600; }
+  .muted { color: var(--muted); font-size: 13px; }
+  .tag { font-size: 12px; color: var(--muted); }
+  code { background: #f1f3f6; padding: 1px 6px; border-radius: 5px; font-family: Consolas, monospace; font-size: 12.5px; }
+
+  /* ---- 功能区(ribbon) 布局预览 ---- */
+  .ribbon { border: 1px solid #c9d2de; border-radius: 10px; overflow: hidden; background: var(--ribbon-bg); box-shadow: 0 2px 8px rgba(0,0,0,.06); }
+  .ribbon-tabs { display: flex; background: var(--ribbon-tab); border-bottom: 1px solid #d4dbe5; }
+  .ribbon-tabs .tab { padding: 8px 22px; font-size: 13px; font-weight: 600; color: #374151; border-right: 1px solid #d4dbe5; }
+  .ribbon-tabs .tab.active { background: var(--ribbon-bg); border-bottom: 3px solid var(--brand); color: var(--brand); }
+  .ribbon-body { display: flex; flex-wrap: wrap; gap: 2px; padding: 6px 8px; }
+  .rgroup { display: flex; flex-direction: column; gap: 6px; padding: 10px 12px; min-width: 150px; }
+  .rgroup + .rgroup { border-left: 1px solid #dde3ec; }
+  .rgroup .gname { font-size: 11px; color: #6b7280; text-align: center; margin-top: 4px; }
+  .rbtns { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
+  .rbtn { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; width: 62px; height: 56px; border: 1px solid #dfe5ee; border-radius: 8px; background: #fff; font-size: 10.5px; color: #333; cursor: default; }
+  .rbtn .ic { font-size: 20px; line-height: 1; }
+  .rbtn.new { border-color: var(--brand); background: var(--brand-soft); box-shadow: 0 0 0 1px var(--brand) inset; }
+  .rbtn.have { border-color: #cfd8e4; }
+  .rbtn.small { width: 48px; height: 46px; }
+  .legend { display: flex; gap: 18px; flex-wrap: wrap; margin: 10px 0 4px; font-size: 12.5px; color: var(--muted); }
+  .legend .sw { display: inline-block; width: 14px; height: 14px; border-radius: 3px; vertical-align: -2px; margin-right: 4px; }
+  .note { font-size: 12.5px; color: var(--muted); margin-top: 8px; }
+  ul, ol { padding-left: 22px; margin: 8px 0; }
+  li { margin: 4px 0; }
+  .srcline { font-size: 12px; color: var(--muted); word-break: break-all; }
+  a { color: var(--brand); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .consensus { background: #f0f7ff; border: 1px solid #bcd7f7; border-radius: 10px; padding: 12px 16px; margin-top: 12px; font-size: 14px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <h1>JYYJ助手 · 功能区命令组调研报告</h1>
+  <p>调研微软 Copilot / WPS AI / Google Gemini / 国际 Excel AI 工具的功能区设计，结合本加载项现有 AI 工具层，给出下一批值得做的命令组与布局预览。</p>
+</header>
+
+<h2>一、现状盘点</h2>
+<div class="card">
+  <p><b>功能区现状</b>：仅 1 个 Tab「JYYJ助手」，3 个命令——打开面板 / 聚光灯 / 指针。</p>
+  <p><b>底层 AI 工具层（已具备，但只能通过侧栏对话调用）</b>：</p>
+  <div class="grid cols2">
+    <div>
+      <span class="pill have">已有工具</span>
+      <ul>
+        <li><code>clean_excel_data</code> 数据清洗（修日期/补空/删空行/分列）</li>
+        <li><code>create_excel_pivot_summary</code> 一键透视</li>
+        <li><code>create_excel_chart</code> 生成图表（含跨表）</li>
+        <li><code>filter_excel_data</code> 筛选 / 排序</li>
+        <li><code>fill_blanks</code> 智能填充「待补」</li>
+        <li><code>run_vba_snippet</code> / <code>run_python_excel</code> 执行</li>
+      </ul>
+    </div>
+    <div>
+      <span class="pill have">已有能力</span>
+      <ul>
+        <li>公式逐层中文解释（选区 &gt;20 公式时只解释活动格）</li>
+        <li>四类自检 verify（写回/清洗/透视/标注）闭环</li>
+        <li>标注 / 标记工具、工作表增删改名</li>
+        <li>多模型侧栏对话（DeepSeek/Kimi/元宝/豆包/自定义）</li>
+      </ul>
+    </div>
+  </div>
+  <p class="muted" style="margin-top:10px">结论：<b>能力在，入口缺</b>——最值得做的命令组，是把高频工具做成「选中区域 → 一键调用」的 Ribbon 按钮，并补齐业界公认的缺口（写公式、洞察、智能查找、翻译）。</p>
+</div>
+
+<h2>二、调研发现（四路交叉验证）</h2>
+<div class="card">
+  <h3>微软 Copilot in Excel</h3>
+  <p>核心能力：自然语言<b>写公式 / 解释公式</b>（2026 年更进一步推出原生 <code>=COPILOT()</code> 函数，可在单元格内直接用自然语言指示 AI 完成数据获取、整理、分析）[$TRAE_REF](https://juejin.cn/post/7547966981779341363)；<b>智能数据清洗</b>（一键去重、统一格式、修复脏数据、清理空白行）；<b>公式自动生成</b>与<b>数据分析</b>（自动生成文字结论、标注最值/环比/波动原因）[$TRAE_REF](https://m.sohu.com/a/1039597414_122744794/)。入口为 Home 选项卡按钮，无独立 Tab。</p>
+  <h3>WPS AI 与国内大厂</h3>
+  <p>WPS AI 以「AI 功能区」承载：<b>生成公式</b>（描述需求如"按区域汇总销售额"→ 自动写 SUMIF 等公式）、<b>数据分析</b>（对选中数据描述分析）、一键数据洞察自动生成分析报告 [$TRAE_REF](https://www.wps.cn/article/wps-ai-biaoge-zhushou.html)[$TRAE_REF](https://bbs.wps.cn/topic/83379)。国内插件共性：<b>公式生成/解读</b>排第一，其次是数据清洗/转换、数据分析、图表、翻译；另有金额大写、身份证提取等国内刚需。</p>
+  <h3>Google Sheets Gemini</h3>
+  <p>提供 <code>=AI()</code> 单元格函数（SpreadsheetBench 自动化操作得分 70.48%，"接近人类专家水平"），可靠完成<b>分类 / 汇总 / 提取 / 情感分析</b>；<b>Fill with Gemini</b> 拖拽式智能填充（含联网查填）[$TRAE_REF](https://www.vslzai.com/intelligence/google-sheets-ai-function-tutorial)[$TRAE_REF](https://www.ud.hk/zh-Hans/blogs/insight/article/2026-07-10-fill-with-gemini-sheets)；并可一句话建透视/图表、构建可视化表格 [$TRAE_REF](https://blog.google/products-and-platforms/products/workspace/gemini-workspace-updates-march-2026/)。</p>
+  <h3>国际 Excel AI 工具（Ajelix / Formula Bot）</h3>
+  <p>Ajelix：<b>公式生成器 + 公式解释器</b>（自然语言写公式、逆向把既有公式翻译成大白话）、<b>公式翻译器</b>（本地化版本间转换）、仪表板生成 [$TRAE_REF](https://aitoolsatlas.ai/tools/ajelix)[$TRAE_REF](https://ajelix.com/)。Formula Bot：公式生成与解释、<b>数据变换</b>（清洗/合并/重塑 + 情感分析/关键词提取/文本翻译）[$TRAE_REF](https://www.aiproverdict.com/compare/formula-bot-vs-ajelix)[$TRAE_REF](https://www.formulabot.com/excel-ai?via=free)。</p>
+  <div class="consensus">
+    <b>四路收敛结论</b>：业界一致把「写公式 / 数据清洗 / 一键洞察 / 智能填充与查找 / 文本翻译」列为最值得做的前五命令组；其中「写公式 + 解释公式」是各产品不约而同的旗舰能力。
+  </div>
+</div>
+
+<h2>三、推荐命令组与功能区布局预览</h2>
+<p class="legend">
+  <span><span class="sw" style="background:#fff;border:1px solid var(--brand);box-shadow:0 0 0 1px var(--brand) inset"></span> 新增命令</span>
+  <span><span class="sw" style="background:#fff;border:1px solid #cfd8e4"></span> 已有命令</span>
+  <span><span class="sw" style="background:#e7f6ef"></span> Tier1 立即做</span>
+  <span><span class="sw" style="background:#fdf1e2"></span> Tier2 短期做</span>
+  <span><span class="sw" style="background:#eef1f5"></span> Tier3 视反馈做</span>
+</p>
+
+<div class="ribbon">
+  <div class="ribbon-tabs">
+    <div class="tab active">JYYJ助手</div>
+    <div class="tab">开始（内置）</div>
+    <div class="tab">插入（内置）</div>
+  </div>
+  <div class="ribbon-body">
+
+    <div class="rgroup">
+      <div class="rbtns">
+        <div class="rbtn have"><span class="ic">📂</span>打开面板</div>
+      </div>
+      <div class="gname">JYYJ助手</div>
+    </div>
+
+    <div class="rgroup">
+      <div class="rbtns">
+        <div class="rbtn new t1"><span class="ic">ƒ</span>写公式</div>
+        <div class="rbtn new t1"><span class="ic">🔍</span>解释公式</div>
+        <div class="rbtn new t1"><span class="ic">✓</span>检查公式</div>
+      </div>
+      <div class="gname">AI 公式</div>
+    </div>
+
+    <div class="rgroup">
+      <div class="rbtns">
+        <div class="rbtn new t1"><span class="ic">🧹</span>智能清洗</div>
+        <div class="rbtn new t1 small"><span class="ic">♻</span>去重</div>
+        <div class="rbtn new t1 small"><span class="ic">↔</span>分列</div>
+        <div class="rbtn new t1 small"><span class="ic">📅</span>修日期</div>
+      </div>
+      <div class="gname">数据清洗</div>
+    </div>
+
+    <div class="rgroup">
+      <div class="rbtns">
+        <div class="rbtn new t1"><span class="ic">✨</span>智能填充</div>
+        <div class="rbtn new t1"><span class="ic">🔎</span>智能查找</div>
+        <div class="rbtn new t2"><span class="ic">🏷</span>智能分类</div>
+      </div>
+      <div class="gname">智能填充</div>
+    </div>
+
+    <div class="rgroup">
+      <div class="rbtns">
+        <div class="rbtn new t1"><span class="ic">📊</span>一键透视</div>
+        <div class="rbtn new t1"><span class="ic">📈</span>生成图表</div>
+        <div class="rbtn new t1"><span class="ic">💡</span>数据洞察</div>
+      </div>
+      <div class="gname">AI 分析</div>
+    </div>
+
+    <div class="rgroup">
+      <div class="rbtns">
+        <div class="rbtn new t2"><span class="ic">🌐</span>整表翻译</div>
+        <div class="rbtn new t2 small"><span class="ic">¥</span>金额大写</div>
+        <div class="rbtn new t2 small"><span class="ic">🪪</span>身份证提取</div>
+      </div>
+      <div class="gname">文本翻译</div>
+    </div>
+
+    <div class="rgroup">
+      <div class="rbtns">
+        <div class="rbtn new t2"><span class="ic">▶</span>运行VBA</div>
+        <div class="rbtn new t2"><span class="ic">🐍</span>运行Python</div>
+      </div>
+      <div class="gname">执行</div>
+    </div>
+
+    <div class="rgroup">
+      <div class="rbtns">
+        <div class="rbtn have"><span class="ic">🔆</span>聚光灯</div>
+        <div class="rbtn have"><span class="ic">📍</span>指针</div>
+      </div>
+      <div class="gname">视图</div>
+    </div>
+
+  </div>
+</div>
+<p class="note">布局延续现有「JYYJ助手」Tab，新增组按「写→洗→填→析→译→执行→视图」的编辑工作流排列，与业界按任务类型分组的范式一致。</p>
+
+<h2>四、优先级与现有能力映射</h2>
+<div class="card">
+<table>
+  <tr><th>命令组</th><th>命令</th><th>优先级</th><th>复用现有</th><th>实现要点</th></tr>
+  <tr>
+    <td rowspan="3"><b>AI 公式</b></td>
+    <td>写公式</td><td><span class="pill t1">Tier1</span></td><td>侧栏对话</td>
+    <td>对活动格预填「写公式」提示，AI 生成后写回并附解释</td>
+  </tr>
+  <tr><td>解释公式</td><td><span class="pill t1">Tier1</span></td><td>公式解释工具（已存在）</td><td>选中含公式格 → 一键调解释；&gt;20 公式仅解释活动格（沿用现有门控）</td></tr>
+  <tr><td>检查公式</td><td><span class="pill t1">Tier1</span></td><td>AI 对话</td><td>扫描选区公式错误/引用异常，列表写回</td></tr>
+  <tr>
+    <td rowspan="4"><b>数据清洗</b></td>
+    <td>智能清洗</td><td><span class="pill t1">Tier1</span></td><td>clean_excel_data（已存在）</td>
+    <td>选中区域一键清洗 + verify_data_clean 自检闭环</td>
+  </tr>
+  <tr><td>去重</td><td><span class="pill t1">Tier1</span></td><td>clean_excel_data</td><td>按列去重，保留首条，确认门控</td></tr>
+  <tr><td>分列</td><td><span class="pill t1">Tier1</span></td><td>clean_excel_data（split_column）</td><td>自动识别分隔符拆分</td></tr>
+  <tr><td>修日期</td><td><span class="pill t1">Tier1</span></td><td>clean_excel_data（fix_dates）</td><td>统一日期格式，先设 NumberFormat=@ 保文本</td></tr>
+  <tr>
+    <td rowspan="3"><b>智能填充</b></td>
+    <td>智能填充</td><td><span class="pill t1">Tier1</span></td><td>fill_blanks（已存在）</td>
+    <td>行/列上下文推理填「待补」，沿用现有多条件填充</td>
+  </tr>
+  <tr><td>智能查找</td><td><span class="pill t1">Tier1</span></td><td>新增</td><td>VLOOKUP 替代：按关键字列匹配回填，处理重复值（业界强痛点）</td></tr>
+  <tr><td>智能分类</td><td><span class="pill t2">Tier2</span></td><td>新增</td><td>对标 Gemini Classify：按类别列标注文本</td></tr>
+  <tr>
+    <td rowspan="3"><b>AI 分析</b></td>
+    <td>一键透视</td><td><span class="pill t1">Tier1</span></td><td>create_excel_pivot_summary（已存在）</td>
+    <td>选区 → 透视写回源区下方 + verify_pivot 自检</td>
+  </tr>
+  <tr><td>生成图表</td><td><span class="pill t1">Tier1</span></td><td>create_excel_chart（已存在）</td><td>选区 → 智能选图并插入 + verify_chart 自检</td></tr>
+  <tr><td>数据洞察</td><td><span class="pill t1">Tier1</span></td><td>侧栏对话</td><td>一键「总结此选区 + 趋势/异常」，返回文字+可选图表</td></tr>
+  <tr>
+    <td rowspan="3"><b>文本翻译</b></td>
+    <td>整表翻译</td><td><span class="pill t2">Tier2</span></td><td>侧栏对话（跨模型）</td>
+    <td>选区逐格翻译写回，保留公式/数字格式</td>
+  </tr>
+  <tr><td>金额大写</td><td><span class="pill t2">Tier2</span></td><td>新增</td><td>国内刚需，数字→人民币大写</td></tr>
+  <tr><td>身份证提取</td><td><span class="pill t2">Tier2</span></td><td>新增</td><td>出生日期/性别/年龄提取</td></tr>
+  <tr>
+    <td rowspan="2"><b>执行</b></td>
+    <td>运行VBA</td><td><span class="pill t2">Tier2</span></td><td>run_vba_snippet（已存在）</td>
+    <td>选中区传入 VBA 面板执行（模态需手动确认，沿用）</td>
+  </tr>
+  <tr><td>运行Python</td><td><span class="pill t2">Tier2</span></td><td>run_python_excel（已存在）</td><td>选中区传 Python 面板（xlwings）</td></tr>
+  <tr>
+    <td><b>视图（扩展）</b></td>
+    <td>显示公式 / 冻结首行</td><td><span class="pill t3">Tier3</span></td><td>原生</td>
+    <td>低价值低频，视用户反馈再做</td>
+  </tr>
+</table>
+</div>
+
+<h2>五、落地建议</h2>
+<div class="card">
+  <ol>
+    <li><b>第一批（Tier1，全部复用现有工具，改动最小）</b>：AI 公式（解释/写/检查）+ 数据清洗组 + 智能填充组 + AI 分析组。只需给每个按钮接「选中区域 → 调用既有工具 → verify 自检」通道，收益最高。</li>
+    <li><b>第二批（Tier2）</b>：智能填充组补齐「智能查找 / 智能分类」新工具；文本翻译组做「整表翻译写回」和国内刚需（金额大写/身份证）。</li>
+    <li><b>分组位置</b>：延续现有「JYYJ助手」Tab（insertAfterMso=TabHome），新增组按「写→洗→填→析→译→执行→视图」流程排列，与业界按任务类型分组的范式一致。</li>
+    <li><b>与自检体系打通</b>：一键命令天然落入「主步骤 + verify 自检」闭环，继续满足清单约束兜底（verify 工具未配置 Tool 必须 fail-closed 阻断）。</li>
+  </ol>
+</div>
+
+<h2>六、主要来源</h2>
+<div class="card muted">
+  <div class="srcline">掘金：=COPILOT() 函数横空出世 · https://juejin.cn/post/7547966981779341363</div>
+  <div class="srcline">搜狐：Excel 全自动数据分析方法大全 · https://m.sohu.com/a/1039597414_122744794/</div>
+  <div class="srcline">WPS 官网：WPS AI 表格助手 · https://www.wps.cn/article/wps-ai-biaoge-zhushou.html</div>
+  <div class="srcline">WPS 论坛：WPS表格AI 黑科技 · https://bbs.wps.cn/topic/83379</div>
+  <div class="srcline">vslzai：Google Sheets =AI() 函数教程 · https://www.vslzai.com/intelligence/google-sheets-ai-function-tutorial</div>
+  <div class="srcline">UD：Fill with Gemini 教程 · https://www.ud.hk/zh-Hans/blogs/insight/article/2026-07-10-fill-with-gemini-sheets</div>
+  <div class="srcline">Google 官方博客：Gemini in Docs/Sheets/Slides 更新 · https://blog.google/products-and-platforms/products/workspace/gemini-workspace-updates-march-2026/</div>
+  <div class="srcline">AIToolsAtlas：Ajelix 功能 · https://aitoolsatlas.ai/tools/ajelix</div>
+  <div class="srcline">Ajelix 官网 · https://ajelix.com/</div>
+  <div class="srcline">AIVerdict：Formula Bot vs Ajelix 对比 · https://www.aiproverdict.com/compare/formula-bot-vs-ajelix</div>
+  <div class="srcline">Formula Bot：Excel AI 官方页 · https://www.formulabot.com/excel-ai?via=free</div>
+</div>
+
+<p class="note" style="margin-top:20px">调研基于 2026-08-28 联网检索；优先级结合了本加载项现有工具层（已具备的能力优先复用）。布局预览为 CSS 示意，非真实 Ribbon 渲染。</p>
+
+</div>
+</body>
+</html>

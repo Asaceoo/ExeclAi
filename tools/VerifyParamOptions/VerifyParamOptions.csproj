@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net48</TargetFramework>
+    <Platform Condition="'$(Platform)'==''">x64</Platform>
+    <RuntimeIdentifier Condition="'$(Platform)'=='x64'">win-x64</RuntimeIdentifier>
+    <RuntimeIdentifier Condition="'$(Platform)'=='x86'">win-x86</RuntimeIdentifier>
+    <AssemblyName>VerifyParamOptions</AssemblyName>
+    <RootNamespace>VerifyParamOptions</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../src/ExcelAiAssistant.Core/ExcelAiAssistant.Core.csproj" />
+    <ProjectReference Include="../../src/ExcelAiAssistant.Excel/ExcelAiAssistant.Excel.csproj" />
+    <ProjectReference Include="../../src/ExcelAiAssistant.Addin/ExcelAiAssistant.Addin.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.CSharp" />
+  </ItemGroup>
+</Project>

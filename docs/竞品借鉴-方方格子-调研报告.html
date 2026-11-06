@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>竞品借鉴调研：JYYJ助手 × 方方格子（FFCell）</title>
+<style>
+  :root{
+    --bg:#f5f7fa; --card:#ffffff; --ink:#1f2733; --sub:#5a6472; --line:#e3e8ef;
+    --brand:#2563eb; --brand2:#4f46e5; --green:#059669; --amber:#d97706; --red:#dc2626;
+    --p0:#dc2626; --p1:#d97706; --p2:#64748b;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{background:var(--bg); color:var(--ink); font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif; line-height:1.7; padding:32px 16px;}
+  .wrap{max-width:1060px; margin:0 auto;}
+  /* 头部 */
+  .hero{background:linear-gradient(135deg,var(--brand),var(--brand2)); color:#fff; border-radius:18px; padding:36px 40px; margin-bottom:28px; box-shadow:0 10px 30px rgba(37,99,235,.22);}
+  .hero h1{font-size:26px; font-weight:700; letter-spacing:.5px;}
+  .hero p{opacity:.92; margin-top:10px; font-size:15px; max-width:820px;}
+  .hero .meta{margin-top:16px; font-size:12px; opacity:.8;}
+  /* 卡片通用 */
+  .card{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:26px 28px; margin-bottom:22px; box-shadow:0 2px 8px rgba(15,23,42,.04);}
+  .card h2{font-size:19px; display:flex; align-items:center; gap:10px; margin-bottom:16px;}
+  .card h2 .no{display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; border-radius:8px; background:var(--brand); color:#fff; font-size:14px; flex:none;}
+  .card h3{font-size:15px; margin:20px 0 8px; color:var(--brand);}
+  .card p, .card li{font-size:14px; color:var(--ink);}
+  .muted{color:var(--sub); font-size:13px;}
+  /* 表格 */
+  table{width:100%; border-collapse:collapse; font-size:13.5px; margin:12px 0;}
+  th,td{border:1px solid var(--line); padding:9px 12px; text-align:left; vertical-align:top;}
+  th{background:#f0f4fb; font-weight:600; color:#26313f;}
+  .tag{display:inline-block; font-size:11.5px; font-weight:600; padding:1px 8px; border-radius:20px; color:#fff;}
+  .tag.p0{background:var(--p0);} .tag.p1{background:var(--p1);} .tag.p2{background:var(--p2);} .tag.green{background:var(--green);}
+  .ok{color:var(--green); font-weight:600;} .gap{color:var(--red); font-weight:600;}
+  ul{padding-left:22px;} li{margin:4px 0;}
+  /* 优先级条 */
+  .prio{display:flex; gap:10px; margin:8px 0 2px; align-items:center;}
+  .prio .lbl{font-weight:700; font-size:13px; white-space:nowrap;}
+  /* 来源 */
+  .srcs{font-size:12.5px; color:var(--sub);}
+  .srcs a{color:var(--brand); text-decoration:none; word-break:break-all;}
+  .srcs li{margin:3px 0;}
+  .divider{border:none; border-top:1px dashed var(--line); margin:18px 0;}
+  .foot{text-align:center; color:var(--sub); font-size:12.5px; margin-top:6px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="hero">
+    <h1>竞品借鉴调研：JYYJ助手 × 方方格子（FFCell）</h1>
+    <p>从产品定位、能力重叠、交互形态三个维度拆解本方 Excel AI 加载项（JYYJ助手）与国内头部效率工具箱「方方格子」的差异，给出按优先级排序的可借鉴点与落地路线——同时明确哪些地方应当坚持 AI 原生优势、不必向工具箱"降级"。</p>
+    <div class="meta">调研日期：2026-08-28 ｜ 来源：本地源码盘点 + 方方格子官网/更新日志/第三方评测 ｜ 定位：内部决策参考</div>
+  </div>
+
+  <!-- 一、定位对比 -->
+  <div class="card">
+    <h2><span class="no">1</span>两家的定位差异：AI 原生 Agent vs 效率工具箱</h2>
+    <table>
+      <tr><th style="width:150px">维度</th><th style="width:45%">JYYJ助手（本项目）</th><th>方方格子 FFCell</th></tr>
+      <tr><td>产品形态</td><td>C#/.NET COM 加载项 + WebView2 侧边栏 + 常驻 Python worker，AI 原生</td><td>VSTO COM 加载项，纯本地效率工具箱（已逐步引入 AI）</td></tr>
+      <tr><td>核心范式</td><td>自然语言驱动：Agent 调用 200+ 工具、workflow 编排、技能（SKILL.md）</td><td>点即用：把日常高频操作封装为 Ribbon 一键按钮与自定义函数</td></tr>
+      <tr><td>能力入口</td><td>侧边栏"聊天/工具/历史/技能/设置"为中心，能力绑在 AI 对话层</td><td>功能区 Tab 分组 + 53 个 FF.* 工作表函数 + 宏收纳箱/DIY 沉淀</td></tr>
+      <tr><td>安全与治理</td><td>风险分级 L0-L3、确认门、受控执行、撤销快照回滚、DPAPI</td><td>常规 Office 操作，撤销依赖 Excel 本身</td></tr>
+      <tr><td>程序化执行</td><td><span class="ok">VBA + Python(xlwings) 双引擎</span>，支持自定义代码沉淀</td><td>仅 VBA 宏收纳箱/窗体</td></tr>
+      <tr><td>商业化</td><td>未涉及授权分层（内部/自用）</td><td>免费基础 + 会员分层（会员 1 个月 8 元/1 年 45 元/终身 268 元）</td></tr>
+    </table>
+    <p class="muted">结论：这是"AI 原生"与"效率工具"两种基因。真正可借鉴的不是"再建一批批量工具"，而是把本项目已有 AI 能力的<strong>入口与交互打磨得像方方格子一样零门槛</strong>，并补上它独有的几个高频交互。</p>
+  </div>
+
+  <!-- 二、能力重叠盘点 -->
+  <div class="card">
+    <h2><span class="no">2</span>能力重叠盘点：工具库其实已经"你有我也有"</h2>
+    <p>本项目工具注册中已覆盖方方格子绝大多数批量功能，差距主要体现在<strong>交互与形态</strong>，而非"缺工具"。重叠印证如下：</p>
+    <table>
+      <tr><th>方方格子模块</th><th>本项目对应能力</th><th>覆盖度</th></tr>
+      <tr><td>文本提取/过滤/替换/拆分/删除</td><td><code>extract_text_characters</code>、<code>text_clean/split/merge</code>、<code>delete_text_matches</code>、<code>insert_text_into_cell</code>、<code>find_replace_range</code></td><td><span class="ok">已重叠</span></td></tr>
+      <tr><td>数据清洗/排序/去重/筛选</td><td><code>clean_excel_data</code>、<code>sort_range</code>、<code>dedup_range</code>、<code>filter_excel_data</code>、<code>manage_excel_filter</code></td><td><span class="ok">已重叠</span></td></tr>
+      <tr><td>高级排序/颜色排序/合并单元格排序</td><td><code>sort_range</code>（含稳定性 tiebreaker）</td><td><span class="ok">大部分重叠</span></td></tr>
+      <tr><td>汇总拆分/汇总大师/分类汇总</td><td><code>create_excel_pivot_summary</code>、<code>split_sheet_by_field</code>、<code>create_pivot_table</code>、<code>merge_sheets</code></td><td><span class="ok">已重叠且更强</span></td></tr>
+      <tr><td>重复值工具/数据对比/两列匹配</td><td><code>fuzzy_match_columns</code>、<code>compare_two_sheets</code>、<code>cross_reference_columns</code></td><td><span class="ok">已重叠</span></td></tr>
+      <tr><td>合并转换/拆分单元格/空单元格合并</td><td><code>merge_or_split_cells</code>、<code>merge_duplicate_cells</code>、<code>merge_or_split_cells</code></td><td><span class="ok">已重叠</span></td></tr>
+      <tr><td>批量录入/序列/随机数</td><td><code>fill_number_sequence</code>、<code>fill_random_numbers</code>、<code>generate_permutation_list</code>、<code>smart_paste_delimiter</code></td><td><span class="ok">已重叠</span></td></tr>
+      <tr><td>公式向导/公式转换/引用切换</td><td><code>explain_excel_formula</code>、<code>transform_excel_formulas</code>、<code>convert_formula_references</code>、<code>trace_formula_references</code>、<code>wrap_formulas_with_iferror</code></td><td><span class="ok">已重叠且更强</span></td></tr>
+      <tr><td>宏收纳箱/自定义宏</td><td><code>save_vba_tool</code> 沉淀 + <code>CustomToolStore</code> + <code>VbaPresetCatalog</code></td><td><span class="ok">已有底层，缺可视化 UI</span></td></tr>
+      <tr><td>身份证校验/拼音笔画/人民币大写/凑数</td><td><code>convert_text_to_pinyin</code>、<code>amount_to_uppercase</code>、<code>pick_numbers_to_sum</code>、<code>bankers_round_values</code></td><td><span class="ok">已重叠</span></td></tr>
+      <tr><td>气泡式/一键取色/聚光灯/指针</td><td>—（无交互增强类）</td><td><span class="gap">完全缺失</span></td></tr>
+      <tr><td>FF.* 工作表函数/UDF 库</td><td>—（所有能力绑在 Agent 对话层，无独立函数注册）</td><td><span class="gap">形态缺失</span></td></tr>
+    </table>
+    <div class="divider"></div>
+    <p class="muted">"完全缺失 / 形态缺失"两行，即本章的重点借鉴对象。</p>
+  </div>
+
+  <!-- 三、值得借鉴点 -->
+  <div class="card">
+    <h2><span class="no">3</span>值得借鉴的重点（按优先级）</h2>
+
+    <div class="prio"><span class="tag p0">P0</span><span class="lbl">聚光灯 / 指针 / 阅读模式等"视图定位"交互增强</span></div>
+    <p class="muted">方方格子的高频杀手功能，帮用户在大量数据中快速定位目标。本项目为零。体量小、价值直观。</p>
+    <ul>
+      <li><strong>聚光灯</strong>：COM 事件驱动，高亮活动单元格所在整行+整列；支持自定义颜色、透明度、可选仅行/仅列；操作可撤销。与现有"事件监听/写入"基础设施贴合。</li>
+      <li><strong>指针工具</strong>：两个指向针标记重点关注单元格，方便演示/评审，成本极低。</li>
+      <li>建议做成 Ribbon Toggle + 右键开关，天然可复用现有安全与命名管理设施。</li>
+    </ul>
+
+    <div class="prio"><span class="tag p0">P0</span><span class="lbl">工作表 UDF 函数库：把既有能力暴露为可复用的 FF.* 式函数</span></div>
+    <p class="muted">方方格子注册 53 个 FF.* 自定义函数（<code>FF.TextMatch</code>、<code>FF.RoundBank</code>、<code>FF.SumColX</code>、<code>FF.AIAsk</code>…），用户在单元格公式里直接调用。这是与"AI 对话式"能力互补的另一种形态。</p>
+    <ul>
+      <li>面向纯 Excel 用户：不想"开侧边栏问 AI"，只想在公式里用 <code>JYYJ.TextExtract(...)</code>、<code>JYYJ.RoundBank(...)</code>。</li>
+      <li>本项目的文本提取、金额大写、银行家舍入、编号补零、相似度匹配等纯函数型工具可批量沉淀为 UDF。</li>
+      <li>已有 <code>CustomToolStore</code> 可扩展出"纯函数工具"类型，经 Ribbon/收纳箱一键生成命名空间函数。</li>
+      <li>注意：UDF 需满足确定性+无副作用约束，与受控执行/安全分级机制共存，需在技术方案中明确边界。</li>
+    </ul>
+
+    <div class="prio"><span class="tag p1">P1</span><span class="lbl">高频一键工具的"免对话直达"入口</span></div>
+    <p class="muted">方方格子是"点按钮即执行"，本项目是"问 AI 再执行"。对高频零风险操作（序号填充、删除空行、合并转换、格式清理等），免对话直达能显著降低使用门槛。</p>
+    <ul>
+      <li>Ribbon 增加按场景分组的快捷按钮（文本/数据/公式/试图），一键调用对应工具（低风险直接执行，高风险仍走确认门）。</li>
+      <li>右键菜单增强：把 "快速清洗/提取数字/去空格/横向求和" 等挂进选中区域右键菜单。</li>
+      <li>面板增加"常用工具"缩略抽屉，别让高频能力深埋在对话里。</li>
+    </ul>
+
+    <div class="prio"><span class="tag p1">P1</span><span class="lbl">宏收纳箱可视化 UI + 场景化导航 + 帮助动画</span></div>
+    <p class="muted">本项目已有 <code>CustomToolStore</code>/<code>save_vba_tool</code>/<code>VbaPresetCatalog</code> 的底层，缺的是方方格子"宏收纳箱/DIY"那层用户可见的、可管理的"个人武器库"。</p>
+    <ul>
+      <li>可视化收纳箱：按文本/数据/公式/视图场景分类浏览、收藏、增删已沉淀的宏与函数，替代目前只依赖 <code>custom-tools</code> 目录。</li>
+      <li>场景化 UI 导航而非纯函数名组织，贴合用户操作习惯（详见报告第 1 节定位差异）。</li>
+      <li>每个工具配一句中文说明 + 示例动图（GIF），降低学习成本，复用现有诊断/日志能力做"我做了什么"回显。</li>
+    </ul>
+
+    <div class="prio"><span class="tag p2">P2</span><span class="lbl">垂直与生态功能（按需取舍）</span></div>
+    <ul>
+      <li><strong>字段排序</strong>：整理 ERP 导出报表字段、保存常用字段顺序 —— 与现有 <code>add/insert/delete dimension</code> 可组合，成本低。</li>
+      <li><strong>SQL 查询</strong>：对区域/表做类 SQL 查询。本项目有常驻 Python worker，可直接用内存数据解决方案，无需重写。</li>
+      <li><strong>图片/二维码专题</strong>：批量导入导出、二维码批生成 —— 独立赛道，除非用户有需求否则<strong>优先级低</strong>。</li>
+      <li><strong>授权分层（免费/会员）</strong>：本项目目前为内部/自用，若无分发诉求暂不引入；若要对外，可借鉴其"基础免费 + 高级工具分层"降低门槛的漏斗。</li>
+    </ul>
+  </div>
+
+  <!-- 四、反观不必借鉴 -->
+  <div class="card">
+    <h2><span class="no">4</span>反观：本项目已领先，不必向工具箱"降级"</h2>
+    <table>
+      <tr><th style="width:180px">优势维度</th><th>说明</th></tr>
+      <tr><td>AI 原生理解与编排</td><td>自然语言→多工具编排、workflow 流程、SKILL.md 技能体系，方方格子仅"AI 公式/AI 工具箱"较浅，无法对标。</td></tr>
+      <tr><td>安全治理</td><td>风险分级 L0-L3、执行确认门、受控执行白名单、DPAPI 密钥加密、数据采样/额外发送提示 —— 工具箱普遍缺失。</td></tr>
+      <tr><td>撤销与审计</td><td>快照回滚、操作记录、会话 SQLite、Serilog 多文件日志 + DiagnosticsLog —— 工具箱只靠 Excel 原生撤销。</td></tr>
+      <tr><td>VBA + Python 双引擎</td><td>常驻 Python worker + xlwings，能跑复杂脚本/图表/跨表，工具箱只有宏。</td></tr>
+      <tr><td>性能与稳健性积累</td><td>项目记忆沉淀了大量 COM 僵尸进程清理、TLS、跨表图表、非 A1 原点偏移等实战约束，是独有护城河。</td></tr>
+    </table>
+    <p class="muted">设计基调：<strong>借鉴方方格子的是"入口与交互的零门槛"和"视图/UDF/收纳箱"这些形态，而不是丢掉 AI Agent、安全治理或双引擎优势去堆砌普通批量按钮。</strong>目标是"AI 能力 + 工具箱般的可达性"。</p>
+  </div>
+
+  <!-- 五、落地路线 -->
+  <div class="card">
+    <h2><span class="no">5</span>分阶段落地路线建议</h2>
+    <table>
+      <tr><th style="width:100px">阶段</th><th style="width:420px">动作</th><th>贴合现有架构点</th></tr>
+      <tr><td><span class="tag p0" style="background:var(--p0)">Phase 1</span></td>
+          <td>聚光灯 + 指针交互增强；UDF 函数库（先沉淀 8-10 个纯函数型工具为 <code>JYYJ.*</code> 函数）</td>
+          <td>Ribbon Toggle、COM 事件、CustomToolStore 扩展"纯函数工具"类型</td></tr>
+      <tr><td><span class="tag p1" style="background:var(--p1)">Phase 2</span></td>
+          <td>高频工具免对话直达：Ribbon 场景分组 + 右键菜单增强 + 面板常用抽屉</td>
+          <td>现有工具 Registry 复用 Schema 定义，直接映射到按钮</td></tr>
+      <tr><td><span class="tag p1" style="background:var(--p1)">Phase 3</span></td>
+          <td>宏收纳箱可视化 UI + 场景化导航 + 工具帮助动画</td>
+          <td>CustomToolStore 已有读写，补一层管理界面与示例库</td></tr>
+      <tr><td><span class="tag p2">Phase 4</span></td>
+          <td>字段排序、SQL 查询（走 Python worker）、可选授权分层</td>
+          <td>PythonWorkerHost 已在；商业化按分发诉求再评估</td></tr>
+    </table>
+  </div>
+
+  <!-- 来源 -->
+  <div class="card">
+    <h2><span class="no">附</span>主要信息来源</h2>
+    <ul class="srcs">
+      <li>方方格子官网-产品页：<a href="http://www.ffcell.com/home/ffcell.aspx">ffcell.com/home/ffcell.aspx</a></li>
+      <li>方方格子官网-更新日志（V6.0.0.0）：<a href="http://www.ffcell.com/home/ffcell_updateinfo.aspx">ffcell.com/home/ffcell_updateinfo.aspx</a></li>
+      <li>方方格子官网-会员/价格：<a href="http://www.ffcell.com/home/vip.aspx">ffcell.com/home/vip.aspx</a></li>
+      <li>方方格子官网- Excel 扩展函数（53 个）：<a href="http://www.ffcell.com/WenKu/article.aspx?id=770">ffcell.com/WenKu/article.aspx?id=770</a></li>
+      <li>方方格子官网- AI 公式 AI 拆分：<a href="http://www.ffcell.com/WenKu/article.aspx?id=789">ffcell.com/WenKu/article.aspx?id=789</a></li>
+      <li>方方格子官网- 聚光灯：<a href="http://login.ffcell.com/WenKu/article.aspx?id=1003">login.ffcell.com/WenKu/article.aspx?id=1003</a></li>
+      <li>本项目能力清单：<code>d:\execl1.0</code> 源码盘点（Ribbon.xml、各 *Registration.cs、CustomToolStore.cs、PythonWorkerHost.cs、ExcelAI助手产品技术方案.md 等）</li>
+    </ul>
+  </div>
+
+  <div class="foot">JYYJ助手 × 方方格子 竞品借鉴调研 ｜ 2026-08-28</div>
+</div>
+</body>
+</html>

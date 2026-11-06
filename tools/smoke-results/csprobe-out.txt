@@ -1,0 +1,14 @@
+BOOT
+ASM-LOADED
+BOOK-ADDED
+HOST-CREATED
+REGISTRY
+TOOL-FOUND
+CASE-START
+CASE-EXECUTED
+ok=True code=
+data={ procedure = JYYJHelper.TT通道, ran = True, module = JYYJHelper, result = [
+  "A",
+  42
+], result_truncated = False }
+DONE
