@@ -1,0 +1,44 @@
+{
+  "schemaVersion": "mimosa-finding-ledger-batch/v1",
+  "batchId": "stop-20260828T221150346Z-40580-159ea3c0eef4",
+  "runId": "20260828T221150346Z-40580-159ea3c0eef4",
+  "runStatus": "inconclusive",
+  "coverage": {
+    "status": "partial",
+    "reasons": [
+      {
+        "code": "baseline_partial",
+        "stage": "baseline",
+        "target": ".",
+        "detail": "baseline capture had enumeration or snapshot errors",
+        "affectsCompletion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "baseline",
+        "target": ".",
+        "detail": "baseline_partial: baseline capture had enumeration or snapshot errors",
+        "affectsCompletion": true
+      }
+    ]
+  },
+  "source": {
+    "component": "zcode-hook",
+    "operationId": "Stop"
+  },
+  "revision": null,
+  "diffHash": "7e82b622c2a2e1a612a1eb1c48e55911984637b2deab631f698db32e063c9bff",
+  "rulesVersion": "unavailable",
+  "sessionHash": "7ce9cf432a193d8ddfcff91baa85966719eea6000eaf04df7eba66395f6dd8e5",
+  "reportRef": ".mimosa/reports/task-review-sess_567448b3-126a-4556-8eaf-61f6bc8d9824-20260828T221150346Z-40580-159ea3c0eef4.json",
+  "events": [],
+  "observedFindingIds": [],
+  "verifiedFiles": [
+    {
+      "file": "Program.cs",
+      "direct": "complete",
+      "projectContext": "partial"
+    }
+  ],
+  "recordedAt": "2026-08-28T22:11:50.767Z"
+}
