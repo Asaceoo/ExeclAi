@@ -1,0 +1,320 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN" data-page-node-id="CcicDI1yS5Qx9YGPQkxneH">
+<head data-page-node-id="2nTAaQOOuWxUYexlwjV52a">
+<meta charset="UTF-8" data-page-node-id="TlL4W4rScASjfvDk9JMcgF">
+<meta name="viewport" content="width=device-width, initial-scale=1.0" data-page-node-id="nkZjL1UIls8UAPqoAHJQCR">
+<title>JYYJ助手 技术手册</title>
+<style>
+:root{
+  --brand:#2563eb; --brand-weak:#e0ecff; --ink:#1f2329; --sub:#6b7280;
+  --line:#e5e7eb; --bg:#f7f8fa; --card:#fff; --ok:#16a34a; --warn:#ea580c; --code:#0f172a;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;color:var(--ink);background:var(--bg);line-height:1.75;padding-bottom:80px}
+.wrap{max-width:960px;margin:0 auto;padding:0 20px}
+header{background:linear-gradient(135deg,#0f172a,#1e3a8a);color:#fff;padding:42px 0 34px}
+header .wrap{display:flex;align-items:center;gap:18px}
+.logo{width:58px;height:58px;border-radius:14px;background:rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:20px;flex:none}
+h1{font-size:25px;font-weight:700}
+.sub{opacity:.9;font-size:14px;margin-top:6px;font-family:Consolas,Monaco,monospace}
+nav{position:sticky;top:0;background:var(--card);border-bottom:1px solid var(--line);z-index:10}
+nav .wrap{display:flex;gap:4px;overflow-x:auto}
+nav a{display:block;padding:12px 14px;color:var(--sub);text-decoration:none;font-size:14px;white-space:nowrap;border-bottom:2px solid transparent}
+nav a:hover{color:var(--brand)}
+nav a.active{color:var(--brand);border-bottom-color:var(--brand);font-weight:600}
+section{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:26px 28px;margin:24px 0}
+h2{font-size:20px;border-left:4px solid var(--brand);padding-left:12px;margin-bottom:18px}
+h3{font-size:16px;margin:22px 0 10px;color:#111}
+h3::before{content:'';display:inline-block;width:8px;height:8px;background:var(--brand);border-radius:2px;margin-right:8px}
+p{margin:8px 0}
+ol,ul{margin:8px 0 8px 24px}
+li{margin:6px 0}
+code{background:#f2f3f5;border:1px solid var(--line);border-radius:5px;padding:1px 7px;font-family:Consolas,Monaco,monospace;font-size:13px;color:#c026d3}
+pre{background:var(--code);color:#e2e8f0;border-radius:10px;padding:16px 18px;overflow-x:auto;font-size:12.5px;line-height:1.7;margin:12px 0;font-family:Consolas,Monaco,monospace}
+pre code{background:none;border:none;color:inherit;padding:0}
+.callout{border-radius:10px;padding:14px 18px;margin:14px 0;font-size:14px}
+.callout.info{background:var(--brand-weak);border-left:4px solid var(--brand)}
+.callout.warn{background:#fff4e5;border-left:4px solid var(--warn)}
+.callout.ok{background:#e8f7ee;border-left:4px solid var(--ok)}
+.callout .t{font-weight:700;margin-bottom:4px}
+table{width:100%;border-collapse:collapse;margin:12px 0;font-size:13.5px}
+th,td{border:1px solid var(--line);padding:8px 11px;text-align:left;vertical-align:top}
+th{background:var(--bg);font-weight:600}
+.path{font-family:Consolas,Monaco,monospace;font-size:12.5px;background:#f6f6f8;padding:1px 6px;border-radius:4px;color:#0f172a}
+.tag{display:inline-block;font-size:11px;padding:0 7px;border-radius:20px;background:var(--brand-weak);color:var(--brand);margin-right:4px}
+@media(max-width:640px){header .wrap{flex-direction:column;text-align:center}}
+</style>
+</head>
+<body data-page-node-id="hhoGkhBsyYSiBBjMlr7BnK">
+
+<header data-page-node-id="HoLi17FXd9nwhmDhRFxqSs">
+  <div class="wrap" data-page-node-id="Z18Gxw45qOGIx283m2L6zv">
+    <div class="logo" data-page-node-id="7JbGJKr1463PJO0GkXo54n">JYYJ</div>
+    <div data-page-node-id="svbFP6ZFALno6lJhoAiQti">
+      <h1 data-page-node-id="u9TBUokA3rKBBRqGfxWACo">JYYJ助手 技术手册</h1>
+      <div class="sub" data-page-node-id="EWPkhcmGn7lKG3aDSk2s9r">Excel COM Add-in · .NET Framework 4.8 · WebView2 · OpenAI 兼容协议<br data-page-node-id="kg5rEmD1R3oph2nEUYSc33">版本 2.19.6.0</div>
+    </div>
+  </div>
+</header>
+
+<nav data-page-node-id="FD4k8h5ULzdFWz9Cs7nY9U">
+  <div class="wrap" data-page-node-id="vrp5PTlPOrHSyaQ3UsWhT5">
+    <a href="#arch" data-page-node-id="dFNObNIBEP7nVFiJbHcVRG">总体架构</a>
+    <a href="#repo" data-page-node-id="F73VmaldDm8CtXmBSy8fEy">目录结构</a>
+    <a href="#addin" data-page-node-id="TRRTfep1G6u7RdBZITKWFO">加载项宿主</a>
+    <a href="#agent" data-page-node-id="hINMwXFHH2mx730wEoClBk">Agent 引擎</a>
+    <a href="#tools" data-page-node-id="13FpTNg1uKIYpZbi8Uwb5h">工具层</a>
+    <a href="#safety" data-page-node-id="4wpCCvglUJ78wPsGMuDXVn">安全与撤销</a>
+    <a href="#dialects" data-page-node-id="B7Fd23FN7Vqgx8wQPnWYHn">对话与配置</a>
+    <a href="#vba" data-page-node-id="2XLEp7iK64clatu1lTICq1">VBA 沉淀</a>
+    <a href="#skills" data-page-node-id="0lYyR3b3Yz1ZsWmiI8Sxr3">技能/流程</a>
+    <a href="#build" data-page-node-id="4YyFL65TVb7qpgArwCycls">构建与打包</a>
+    <a href="#install" data-page-node-id="3f9NBolbmgEsAZiCGCsJz7">安装与注册</a>
+    <a href="#trace" data-page-node-id="0bms2k4zP7NExDVINFkWlE">质量与测试</a>
+  </div>
+</nav>
+
+<div class="wrap" data-page-node-id="WCCY8HysCT4LFtRp54fcuW">
+
+<section id="arch" data-page-node-id="uCIhwMPWGMnKdZnMIMVY6k">
+  <h2 data-page-node-id="mV8X97zlNxEkBb3Tlm6ovk">一、总体架构</h2>
+  <p data-page-node-id="fHdE52ckDaUF1SAdyou7GQ">JYYJ助手 是一款原生 <b data-page-node-id="ytSbsDGgMVKIzveMGkOl4Z">Excel COM 加载项</b>（.NET Framework VSTO 风格的托管 COM Add-in），采用「侧边栏 WebView2 前台 + 托管 COM 桥 + 工具服务层 + Agent 编排」的分层结构。</p>
+  <pre data-page-node-id="o3vLonD4l4lgvTvR1v2ZqI">┌────────────────────────────────────────────────────────────┐
+│ Excel (x64 / x86)                                          │
+│  ┌──────────────────────────────────────────────────────┐  │
+│  │ ExcelAiAssistant.Addin  (COM Add-in 宿主)             │  │
+│  │  · Ribbon 选项卡 / 侧边栏宿主 (TaskPaneHost)           │  │
+│  │  · SidebarBridge  ←→ WebView2 页面 (index.html)        │  │
+│  │  · DiagnosticsLog / SmokeRunner (运行日志与自检)        │  │
+│  └───────────────┬──────────────────────────────────────┘  │
+│                  │ 进程内托管调用                            │
+│  ┌───────────────▼──────────────────────────────────────┐  │
+│  │ ExcelAiAssistant.Core (Agent 引擎 / 配置 / 安全 / 技能) │  │
+│  │  AgentRunner · ToolCatalog · OpenAiCompatibleClient   │  │
+│  │  SafetyPolicy · UndoService · SkillCatalog · Workflow │  │
+│  └───────────────┬──────────────────────────────────────┘  │
+│                  │ 读取/写入/分析                          │
+│  ┌───────────────▼──────────────────────────────────────┐  │
+│  │ ExcelAiAssistant.Excel (80+ 工具服务层)              │  │
+│  │  读取/编辑/数据/高级/图表/透视/导入/报告/解释/标记/     │  │
+│  │  工具/验证/网页/工作簿/脚本 等 *Service + 注册表        │  │
+│  └──────────────────────────────────────────────────────┘  │
+└────────────────────────────────────────────────────────────┘
+   外部：模型服务(OpenAI 兼容 HTTP) · 本机文件 · 网页(WebFetch)</pre>
+
+  <h3 data-page-node-id="m1Xsd3VFeWslav8BOAuXU2">进程模型</h3>
+  <ul data-page-node-id="dg9OVJp64D1LOyeTqzEN3y">
+    <li data-page-node-id="fGAIqjSVx7oeHvDkWzDHym">一切工作都在 <b data-page-node-id="1ZcpUJzHgFuf6UwXwa1fiw">Excel 进程内</b> 完成，直接持有并操作 <code data-page-node-id="F6OoWRKS97yrUWCWpxn1hp">Application / Workbook / Worksheet / Range</code> COM 对象，无独立后台进程。</li>
+    <li data-page-node-id="vqSQUCVONfBN3HM5EaBkwn">前台 UI 由 <b data-page-node-id="fECcOv95o5KEpLjy2APfGz">WebView2</b> 承载，JS 与 C# 通过 <code data-page-node-id="ivkrbfvcsKBRtyn9I0rPE5">SidebarBridge</code> 桥接（postMessage / native 互操作）。</li>
+    <li data-page-node-id="7k2CFW7bhOP5OQfLyL1kr3">同一时间只加载与当前 Excel 位数匹配的程序集（由安装注册决定）。</li>
+  </ul>
+</section>
+
+<section id="repo" data-page-node-id="9VtSots10ABT6UkGV7AcZu">
+  <h2 data-page-node-id="PHRL5I6o1k1Cvv9k4LJqTE">二、目录结构与工程</h2>
+  <pre data-page-node-id="1Cx19modi7RhVcjgVeIeGd">d:\execl1.0
+├─ src\
+│  ├─ ExcelAiAssistant.Addin\      # COM 加载项宿主 + 侧边栏 UI
+│  │   ├─ ExcelAiAddIn.cs / ExcelAiTaskPaneHost.cs / DeepSeekTaskPaneHost.cs
+│  │   ├─ SidebarBridge.cs         # JS↔C# 桥
+│  │   ├─ Sidebar\index.html       # 侧边栏单页 UI
+│  │   ├─ DiagnosticsLog.cs / DiagnosticSmokeRunner.cs
+│  │   └─ NativeConfirmDialog.cs
+│  ├─ ExcelAiAssistant.Core\      # 引擎（无 UI 依赖，可单测）
+│  │   ├─ Agent\        # AgentRunner / 协议解析 / 工具目录 / 会话
+│  │   ├─ Configuration\ # AgentSettings / Configuration / Memory / WritePreference
+│  │   ├─ Operations\    # OperationRecord / UndoPlanner / UndoService
+│  │   ├─ Safety\?Security\ # SafetyPolicy / ControlledExecution / PathGuard
+│  │   ├─ Skills\        # SkillCatalog
+│  │   ├─ Tools\         # ToolRegistry / VbaPresetCatalog / VbaReusabilizer / BlankFill / Formula / Outlier / CustomToolStore
+│  │   └─ Models\ Workflow\  # ModelProfile / ToolCall / WorkflowExecutor
+│  ├─ ExcelAiAssistant.Excel\    # 全部 Excel 工具服务 + schema + 注册
+│  └─ ExcelAiAssistant.Tests\    # NUnit 单元测试
+├─ tools\
+│  ├─ installer\        # *.iss (Inno Setup) + register-*.ps1 / unregister-*.ps1
+│  ├─ package-xai.ps1   # 构建 x64/x86 产物并打包
+│  ├─ install-xai.ps1   # 开发者本机安装注册
+│  └─ Verify* / Probe*  # 真机/协议验证工具
+└─ dist\                # 构建产物与安装器</pre>
+  <p data-page-node-id="5zX2CBy1hJuErdLT2YT7T7">依赖要点（见各 <code data-page-node-id="6WbkAOPivgByGsIqU6hbZ8">.csproj</code>）：<code data-page-node-id="exNj6BZAzG6qEiET3BiWcI">Newtonsoft.Json</code>、<code data-page-node-id="Lu6hcmk3xZMmLETdyUUgP1">System.Data.SQLite</code>（含按架构的 <code data-page-node-id="3hfp8vZQXlWC17H8eEmWYc">SQLite.Interop.dll</code>）、<code data-page-node-id="0vGibKwC5RjP92LFAvbDw3">WebView2Loader.dll</code>；目标框架为 .NET Framework 4.8。</p>
+</section>
+
+<section id="addin" data-page-node-id="UYDVvPbYwoXjabvkvYtkmL">
+  <h2 data-page-node-id="jM5HEzHR5a5h1DZ8h1HuHL">三、加载项宿主（ExcelAiAssistant.Addin）</h2>
+  <table data-page-node-id="iG7igEPTTfcJ2Fol7Y9NBx">
+    <tr data-page-node-id="YDXazMzRvJFX82014QAE4h"><th data-page-node-id="podBuKmmZMsFkbk2paT8df">组件</th><th data-page-node-id="HC8U6XQAeez1ZjPd3crd1s">职责</th></tr>
+    <tr data-page-node-id="A6mS5K11rWBIn2ZKJBgACE"><td data-page-node-id="NJapf8VnTbzrbKkBX4znQ3"><code data-page-node-id="AEySxk7z5gmBWHG2yjH4iO">ExcelAiAddIn</code></td><td data-page-node-id="337fQVQtTgrzBoOfqSu7Lb">COM 加载项主入口，实现 <code data-page-node-id="L2F7YgaqUQQlcpEDlR18ec">IDTExtensibility2</code>，挂接功能区与侧边栏生命周期</td></tr>
+    <tr data-page-node-id="pIXuo5ORM19sIPUHhcozwG"><td data-page-node-id="ZxEPWmHmMjvligPMY8vS0G"><code data-page-node-id="L3xnehm6JPTtTXTUZtdaDG">ExcelAiTaskPaneHost</code></td><td data-page-node-id="lbW1nuO7lREGgnQH0jbK8N">侧边栏任务窗格宿主，承载 WebView2</td></tr>
+    <tr data-page-node-id="H8U0THftVp16KO9ecAx3mP"><td data-page-node-id="r4OxbAGvPoGVjJEObwBmk1"><code data-page-node-id="aDh2eKW5nGtHtwiEh0GMaT">DeepSeekTaskPaneHost</code></td><td data-page-node-id="OXPeF1yDp6kHNc80tn9WrS">独立停靠浏览器窗格宿主（承载拒绝 iframe 的站点）</td></tr>
+    <tr data-page-node-id="dHyU3sdsda47EiLBn2pnIS"><td data-page-node-id="MTXOXs9737xggSlDdWr2Dp"><code data-page-node-id="AKAyssJzsT8EFSQdaTzyFW">SidebarBridge</code></td><td data-page-node-id="6ScHzkx9MDAjFfGrOhNfCx">JS↔C# 双向桥：工具调用、配置读写、日志、确认信号；管理单轮工具调用上限（1–1000）</td></tr>
+    <tr data-page-node-id="vv9RByFEwGsMsOCqPLRPby"><td data-page-node-id="5oDEaJvOFzV531xsloHIKf"><code data-page-node-id="DdRhB7MT8lteDpUkIsugrz">NativeConfirmDialog</code></td><td data-page-node-id="JFlIvPcyfqrllIsiyigOKB">危险操作的原生确认对话框</td></tr>
+    <tr data-page-node-id="RSVLdNMCHbXWiB5juY3Fkm"><td data-page-node-id="jkq5Qu3RnOeUSp06wFH91v"><code data-page-node-id="Iihu8owtl9OrY8d29gJX99">DiagnosticsLog / DiagnosticSmokeRunner</code></td><td data-page-node-id="mUXURagA5RVkafDHXzKBcZ">运行日志登记与启动自检</td></tr>
+  </table>
+  <p data-page-node-id="oDkDFlX5c3HZ51d8vzz217">侧边栏顶层视图：<code data-page-node-id="jiFL8XQLhNZllKG06ZEYhZ">聊天 / 公式 / VBA / 流程 / 设置</code>，所有交互以单页 <code data-page-node-id="vdUGo8UntztQt69Y10sJ4H">index.html</code> 承载。</p>
+</section>
+
+<section id="agent" data-page-node-id="eJNLIuU9PGq9Y6xg2sBfvQ">
+  <h2 data-page-node-id="tPppEyZtMlRXeEBEdfsLfC">四、Agent 引擎（ExcelAiAssistant.Core.Agent）</h2>
+  <p data-page-node-id="ypevM2ujxRQuRPJBWtf2GG">Agent 采用 <b data-page-node-id="38SZHCiGDEC3VWucHA0EEu">OpenAI 兼容的 Tool-Calling 协议</b> 编排多轮任务，核心类：</p>
+  <table data-page-node-id="1QuApCb9R9uJXCLxCNT4bJ">
+    <tr data-page-node-id="HxqJYrKhPyhYPqgqLNdExp"><th data-page-node-id="Cy3yUJZheUVOIcDjHSXuWs">类</th><th data-page-node-id="Hpg3avU3mEjD6jDZRTnczf">职责</th></tr>
+    <tr data-page-node-id="ldOCjtJWSG7PFVpug6XnTo"><td data-page-node-id="Ba2Gu19XXetIpFxn3cSolf"><code data-page-node-id="1vr6GolPEAODNpD9LmhDIu">AgentRunner</code></td><td data-page-node-id="POtseej0htOGlUj8qUl1N6">主循环：组装系统提示 → 调用模型 → 解析工具调用 → 分发执行 → 回填结果 → 直到完成</td></tr>
+    <tr data-page-node-id="B1nP2Jf6sGuhRGd1xg113y"><td data-page-node-id="iRh3OT3H5VdV0P7bCnVcth"><code data-page-node-id="1idhlWCrbH7P1Kr6fKWO5a">OpenAiCompatibleClient</code></td><td data-page-node-id="oBG2nRuhAxQ9066nw2ibYE">HTTP 客户端，对接任意 OpenAI 兼容接口 /{chat/completions}</td></tr>
+    <tr data-page-node-id="xuGpe7PDKTj6Oe1lbYGzU6"><td data-page-node-id="VIDHknaX46tY4XPSjOFKL4"><code data-page-node-id="9j68c6nsiRAjZzBhyGP0O5">ToolCatalogBuilder / ToolSchemaBuilder</code></td><td data-page-node-id="3x2RyuDTGGV8rPIGlqrXuF">把工具注册表的 JSON Schema 汇总成模型可见的工具清单</td></tr>
+    <tr data-page-node-id="Qi64jtubsVSqKG8YjFKnKd"><td data-page-node-id="0DfoiwdF0UYStB32h4JNON"><code data-page-node-id="mIJjEh0oEYVClR4HIDhQaw">AgentProtocolParser</code></td><td data-page-node-id="E7573oW8mp117H2hwGgWA4">解析模型返回的消息与工具调用（支持流式 / 思考步骤）</td></tr>
+    <tr data-page-node-id="KL2EbwK2V7vo1x7CBJTfLY"><td data-page-node-id="xF7QQFjEdhUm6Et9nRtGlv"><code data-page-node-id="IcaRELSUKDuz3dZUVG2uxI">AgentExperience</code></td><td data-page-node-id="6jHN0rNai6x52WLrQvqlkR">对话体验层（步骤折叠、工具事件视图）</td></tr>
+    <tr data-page-node-id="GqOAVGpf4EQCdQ4Fm6SS9y"><td data-page-node-id="xGdsIlosUJSObv63DdqArQ"><code data-page-node-id="aWwQFyEdOv1YlKxnXSzUNT">AgentToolEventView</code></td><td data-page-node-id="8tYH9yhksQqGRWW8XHvtuB">工具调用事件的可视化数据（供侧边栏「思考过程」渲染）</td></tr>
+    <tr data-page-node-id="Nf8hnjkIBTnGbU6RCGOYzN"><td data-page-node-id="00MbQq3Dk6jzJIr4GO9MaW"><code data-page-node-id="M3CXG7HDMXo34Z5fk702w4">SessionStore</code></td><td data-page-node-id="maX2QVEAQSM54WYAyszGZF">会话上下文持久化</td></tr>
+    <tr data-page-node-id="PHGbNCzCOINMj3bNix72Si"><td data-page-node-id="XDZYBPgJtiiX3NLAgZaFlb"><code data-page-node-id="vWvFLlIEjQVp4gL7XjshqA">ConfirmationDiffBuilder</code></td><td data-page-node-id="FwUsnwB3890DHyEolAODDf">生成危险操作前后差异，驱动确认面板</td></tr>
+    <tr data-page-node-id="H4dKkXYYGho4vCUAdvcMRC"><td data-page-node-id="jZHsJSSXpMj3ZYBdLr62mX"><code data-page-node-id="aL6omEHG31jBUUC9nLKGwX">ModelProfile / ToolCall</code></td><td data-page-node-id="UrhzQKBSfpMVo7LDyosES7">模型配置与工具调用消息模型</td></tr>
+  </table>
+  <h3 data-page-node-id="7w8s1tvgl9nZLA9Vc1aTIc">执行循环</h3>
+  <pre data-page-node-id="VFTE0W825lta0W17M4UuGA">for (limit = 配置的单轮上限) {
+  steps = AgentRunner.RunOneTurn(ctx)        // 调用模型，得文本 + 工具调用
+  if (!steps.ToolCalls) break                 // 无工具调用 → 结束
+  foreach (call in steps.ToolCalls) {
+    if (call.Risk == High && !UserConfirmed) { 等待确认; }
+    result = ToolHost.Dispatch(call.Name, call.Args)   // 见下节
+    ctx.AppendToolResult(call.Id, result)
+  }
+}</pre>
+</section>
+
+<section id="tools" data-page-node-id="jQBFhemK2FsHS5ffwBBCki">
+  <h2 data-page-node-id="1T0CALtqFZvGjB0RLWPUTV">五、工具层（ExcelAiAssistant.Excel）</h2>
+  <p data-page-node-id="Kje0yxcumcbdf8YzlZp7IR">所有 Excel 能力封装为按风险分级、带 JSON Schema 的 <b data-page-node-id="2GxFR9S8pDKFxQLLE9Y64J">工具集</b>，由 <code data-page-node-id="B3MYEW2PEPRvc4DfF5dkNT">ExcelToolHost</code> 统一调度，<code data-page-node-id="BJqCZZDIMAECL3MHKGzaQp">ToolRegistry</code> 建目录。各 <code data-page-node-id="StA6Rds3EBg6NF9eaBwxto">XxxToolsRegistration</code> 负责把对应 <code data-page-node-id="pHpz83lMc7MREuU5qx63VT">XxxSchemas</code> 与实现注册进目录。</p>
+  <table data-page-node-id="lghRrzIMQRT92CmA7GUI5t">
+    <tr data-page-node-id="nBVZAaCqPm6kkVYDLHJxMP"><th data-page-node-id="Bq4oRZLCVmAxMHUN0gFsI6">注册入口</th><th data-page-node-id="QAH3di1whXmm0MngrRbtNf">能力域</th><th data-page-node-id="f8rLFDSBvovy68eg0mSTAg">实现服务</th></tr>
+    <tr data-page-node-id="BqzHbewthDY7BxYt914DTu"><td data-page-node-id="nzZkOg6PazErOq72DVEcjq"><code data-page-node-id="RZoadT33tPdDgfm1qfSG4F">ExcelDataToolsRegistration</code></td><td data-page-node-id="YwuzszeoFiltKaa9dGp0Nr">读取 / 写入 / 范围</td><td data-page-node-id="1dLw0HgEuoDxvCoifMJ0Qo"><code data-page-node-id="MnutXysmBnu2H64av6V6gA">ExcelReadService / ExcelEditService / WorkbookService</code></td></tr>
+    <tr data-page-node-id="LFu0LpHatXZtwHISoGjDLn"><td data-page-node-id="ZcGvuO4THDFoqfvnLJlxU3"><code data-page-node-id="IrPfA9XGAszFJrsD8IZAWu">ExcelAiFillToolsRegistration</code></td><td data-page-node-id="Anb0iJrB0QKtd8EsdElZGn">智能填充空格</td><td data-page-node-id="DQoniPkMRzDPpglHDN6AHX"><code data-page-node-id="iK9kHx2esGmqRBLUkp8c9H">ExcelAiFillService + BlankFillAnalyzer</code></td></tr>
+    <tr data-page-node-id="tNjOXLX3GYhv3Pl6UFRrcG"><td data-page-node-id="DGh0EQauINfzePlBxToXdH"><code data-page-node-id="ZxRaT2QFikTdpwCb4wB7dl">ExcelAdvancedToolRegistration</code></td><td data-page-node-id="DlS7WJF0jobaIuUBY8v52f">去重 / 排序 / 筛选 / 合并分列</td><td data-page-node-id="lOXuYrdTEvuG1SXKZx1So7"><code data-page-node-id="DmYldlZ5bedHSXjhTvNkTv">ExcelAdvancedEditService</code></td></tr>
+    <tr data-page-node-id="ERBPodtNDXCWVGqT0O2n4g"><td data-page-node-id="6eVK4C5IMaRcjrtFUAyOHa"><code data-page-node-id="zDViXoGtFRks7sS2qF3DG7">ExcelEnhanceToolsRegistration</code></td><td data-page-node-id="zL71znZj73qCRL6WYWKFuQ">格式 / 条件格式 / 表头</td><td data-page-node-id="GyorXAjHlROneTyyPAhcu0"><code data-page-node-id="8c4A6gZ5Zv76YNaPWxfvCJ">ExcelEnhanceService</code></td></tr>
+    <tr data-page-node-id="sGq7lVrScn7GyxZreKPoYC"><td data-page-node-id="VMBY8FLdFQuEW95ExcmxQY"><code data-page-node-id="VCPpLnaI5Bywd7KtGu71CD">ExcelExplainToolsRegistration</code></td><td data-page-node-id="fyEfUgGZi037uElv6WhjMQ">公式解释 / 引用解析</td><td data-page-node-id="SQzom8F7zDDVHaCFLuaW89"><code data-page-node-id="FMf6gSt8iODEyjkTQIBDHM">ExcelExplainService + FormulaAnalyzer</code></td></tr>
+    <tr data-page-node-id="xyJ4iEG0gvdtELcF9v0YCN"><td data-page-node-id="GmmAJmrAVQWuob9bfStZvy"><code data-page-node-id="O3w5LpFkEAv2iACYIfSm86">ExcelFlagToolsRegistration</code></td><td data-page-node-id="aaetFij6xTMbKclh6jWt7R">异常值标记高亮</td><td data-page-node-id="1GAEmSnAKtz3ZyGpEzHIMZ"><code data-page-node-id="IU60AWboxjRjFNnuFwvZTw">ExcelFlagCellsService + OutlierDetector</code></td></tr>
+    <tr data-page-node-id="sBeZA28bDDNmO5j5DpKLSR"><td data-page-node-id="knNgL7YADfxLL5P2DTpRKL"><code data-page-node-id="Dot1CuLiUDAUqfNWwumIZv">ExcelStructure / Pivot / Chart</code></td><td data-page-node-id="CCU6e314kCl2V1mmZnxNOG">结构整理 / 透视表 / 图表</td><td data-page-node-id="0zE5Pa8crEFM4ACLVD4gyB"><code data-page-node-id="t9Y5SGlnqkA7UYDa4mEnBv">ExcelStructureService / PivotTableService / ExcelChartService / ExcelPivotChartService</code></td></tr>
+    <tr data-page-node-id="JMT4aNzlKT3n2Q4TL9DJox"><td data-page-node-id="NC4ewyfmaLAg0aFf33NJFv"><code data-page-node-id="voXyNj4e20WHKCvGDVXbb1">ExcelUtilityToolsRegistration</code></td><td data-page-node-id="Cf4LJxNEHdpBZjSa9XUIJA">工具集（文本、统计等）</td><td data-page-node-id="8XCpGVBeSRoFDjnGdCRE9y"><code data-page-node-id="BnVuZyi8hLT3ho1Du7Imjr">ExcelUtilityToolsService + JyyjtoolAlgorithms</code></td></tr>
+    <tr data-page-node-id="zGk8qWPEzivw1yFZEcCJgt"><td data-page-node-id="URTzaKbUF6dd4uyPH9iVEn"><code data-page-node-id="KWRa3qzSsBuxQIczA46AE5">ExcelVerifyRegistration</code></td><td data-page-node-id="6k0P3ugUnhObbKl5gDLmGj">自检（格式/条件格式/排序筛选/公式/图表）</td><td data-page-node-id="SZSDCDC23BC705RRbMs97A"><code data-page-node-id="OXyZ3Ic1376TpvF3C2g8c3">ExcelVerifyService + ExcelVerifyJudgments</code></td></tr>
+    <tr data-page-node-id="aeBNTi3Nv66MzBqQ1l2v32"><td data-page-node-id="WMewIIexjUKIHlYufLPV3N"><code data-page-node-id="b7yp5FCZiJgnx1DWE6Y0wB">ExcelWebToolsRegistration</code></td><td data-page-node-id="e4s7Bh8cUB4WP94HQq0fyU">网页取数</td><td data-page-node-id="cRob8LQK1EvEPAyN0l3kvl"><code data-page-node-id="nTeZ8HUvBvGEQzyq2qpkbW">WebFetchService</code></td></tr>
+    <tr data-page-node-id="HWmG31qqpVMEVOYBXykEjE"><td data-page-node-id="9oAiMrWHooNHrHa57UxQ28"><code data-page-node-id="EDS8AxywzirrHPsAGsdqCV">ExcelExternalBookTools</code></td><td data-page-node-id="A0XdNcGedjfl8V6EK0eZ6F">多工作簿只读协同</td><td data-page-node-id="FVNNkDIHoawIZ2TtBNZhJn"><code data-page-node-id="bKYv8nHvxR6VTXl7QriPw2">ExternalBookRegistry</code></td></tr>
+    <tr data-page-node-id="lWf3BXqbZSiqVLjCoLGF72"><td data-page-node-id="hXRudvma81CIxkj5GUAtIS">数据分析 / 报告</td><td data-page-node-id="Rp0WGivSRu5CiXRKxW04Pn">统计建模 / 文本报告</td><td data-page-node-id="rZqma9imbObhpUVHaS0sih"><code data-page-node-id="vnPLOj1fT2t5u0RKbeGUx5">ExcelAnalysisService / ExcelReportService + ReportTextBuilder</code></td></tr>
+    <tr data-page-node-id="QQgaiFuyJUJzNSlCqWai8z"><td data-page-node-id="eou19J1ZnXJZei1aBU1vx4">脚本 / 高进度</td><td data-page-node-id="WDa3hByWGCqql8Ckuq6gRt">脚本、外部进程、数据转换</td><td data-page-node-id="epCbBop4wy3ifIgWACus0S"><code data-page-node-id="bqjM1HmT6mvYmAui7m1mLl">ScriptRunnerService / PythonWorkerHost / DataTransformService / ExcelScratchpadService / ExcelImportService</code></td></tr>
+  </table>
+  <div class="callout info" data-page-node-id="CSDq2p9AyM1bMWMpUlOTM9"><div class="t" data-page-node-id="Gd9TfUtCd5JmbxOZqFFz22">关键约束</div>
+  <ul data-page-node-id="RFRTd9AXYewKrkKs2Onnip">
+    <li data-page-node-id="raCZd5tauhcYgTkRKEeYa0">危险级别工具在 schema 中标注 <code data-page-node-id="E6IEFYSVPDeRpDGuQbFYkk">risk:high</code>，执行前必须经确认门。</li>
+    <li data-page-node-id="LQnoGkHIYGW4XeJlK4qPet">结果不“就地覆盖”时，必须显式把源区域地址设为写回地址；相对逻辑坐标叠加选区绝对原点（<code data-page-node-id="621aFCg2omVXZbPpyvpXeh">range.Row/range.Column</code>）。</li>
+    <li data-page-node-id="Bzwgbhi5wGYkb4zIFMF2UZ">公式引用解析需覆盖 <code data-page-node-id="GQK3BNcnzkMEFDc5ACgHjC">$A$1</code>、<code data-page-node-id="7z46Yz19g1KBdbVch0yTCa">C:C</code>、<code data-page-node-id="UDEP72mBJIPG04CnZU244H">'表'!B2</code>、<code data-page-node-id="mC2rbhCXkJasF8UXQeIVlE">[Book]Sheet!A1</code> 等变体，R1C1 样式标记为去参数哨兵。</li>
+    <li data-page-node-id="sNA13rZB7R6ajmGcuNIJAQ">工具扩展沿用“分期”演进（旧产物标记为 三期 = 导入/分析/可视化基础能力，四期 = 数据分析与报告生成）。</li>
+  </ul></div>
+</section>
+
+<section id="safety" data-page-node-id="6Eq9w1vK39UToZQ303loBT">
+  <h2 data-page-node-id="4rXNGaKbPgOA74RwPyqqjR">六、安全与撤销</h2>
+  <p data-page-node-id="pL2Av4kdeSu5AgiBKJzBUG">安全由 <code data-page-node-id="DDhJnO8Wjv8KSOHgRMh0wY">ExcelAiAssistant.Core.Safety</code> / <code data-page-node-id="4Ktf6xQReAAZW9JxeS1361">Security</code> 与 <code data-page-node-id="sC7C3mPU6GgupYMCkiXN2b">Operations</code> 三部分协同：</p>
+  <table data-page-node-id="kk4iM74vvOXOcK6EZ8xoZS">
+    <tr data-page-node-id="wRX8FKcjtPx5gqdoWUA6yH"><th data-page-node-id="pxqkRzbecXd291B8qfp8te">模块</th><th data-page-node-id="vMCLUfAQRZF1CI6aWILIMw">机制</th></tr>
+    <tr data-page-node-id="g1aQYGTMlmvwwAYP7XdxXr"><td data-page-node-id="2MhLNxbf6Q5Ix6aEro6kxC"><code data-page-node-id="7flxEGPAn0r5gmjHqkiHQe">SafetyPolicy</code></td><td data-page-node-id="k8f10HKNrB9htxR0aH0tHb">统一风险判定：危险工具强制确认门</td></tr>
+    <tr data-page-node-id="32vNfr3Mbm4h0yoF2R7CPC"><td data-page-node-id="A0fqPttvKTRmKMbk5sNj7E"><code data-page-node-id="z4mF4jTK5bhLUdORTBCPVK">PreRunVbaGate</code></td><td data-page-node-id="taCNgAG0w5V9ggm10O5AX4">VBA 执行前静态护栏，拦截“多行多列矩形直接 AutoFit”等致 1004 的写法</td></tr>
+    <tr data-page-node-id="VC5R1aiYwPSuSCyK4sCaKe"><td data-page-node-id="BkJl0FnJ5xVlnjO0zO8D0E"><code data-page-node-id="ZCsn2x9xY9YGWkjmmqHNMP">ControlledExecution (Config/Policy/Store)</code></td><td data-page-node-id="c1fHjSpyyupm18j5aEbHDV">脚本 / CLI / EXE 白名单制，默认关闭，黑名单直接拒绝</td></tr>
+    <tr data-page-node-id="Zy60AujhqeXapusprWng0k"><td data-page-node-id="qmwXkXiU5N7YdyPE2oyAY4"><code data-page-node-id="sde0UhrrrXAv9AlrBkribW">PathGuard</code></td><td data-page-node-id="zE7KSBdBOJJ12WeFefnAoL">文件路径安全校验，防越权访问</td></tr>
+    <tr data-page-node-id="RgVvhlBeB6CrbyCHgWzFeh"><td data-page-node-id="RwEwFPa4QveglReE2eB8N4"><code data-page-node-id="M9XuKcWtmwNMxqvD5PrYTL">ConfirmationDiffBuilder</code></td><td data-page-node-id="Iiy1PBDyzU3uizRweJSDj7">对整行删除等高风险操作生成变更差异供用户确认</td></tr>
+    <tr data-page-node-id="KTgaRUGFyhaMAwO00kYtok"><td data-page-node-id="vbfwa0ltbsRivELUthveGY"><code data-page-node-id="WSXAPSMb67XR6BPtstXvkA">UndoPlanner / UndoService / OperationRepository</code></td><td data-page-node-id="SJ17JVqiM4MA2Lndo3YTt0">操作记录与结构化撤销，支持可逆回滚</td></tr>
+  </table>
+  <div class="callout warn" data-page-node-id="wqrNzMMF3wp4MxaNfcs2wA"><div class="t" data-page-node-id="AOBT5sMvHzenu1hXKeBvW5">实现注意（RCW 生命周期）</div>COM 的 .NET RCW 按底层对象标识缓存；同一 Worksheet 无论从哪条路径解析均为同一 RCW。工具对解析出的 sheet 在 finally 调 <code data-page-node-id="Cn9zsu3xCcps7UT5h0r0Wp">FinalReleaseComObject</code> 会连带销毁调用方持有的同名 RCW，导致后续访问抛「COM 对象与其基础 RCW 分开」。因此生产工具必须<b data-page-node-id="H4KKu1W95v7eD2i8ibs1OW">无状态</b>：每次操作前重新解析工作表、用完即放，绝不跨调用持有 Worksheet RCW。</div>
+</section>
+
+<section id="dialects" data-page-node-id="yAZjg7J2P7RjEgyqBjTd9L">
+  <h2 data-page-node-id="mfad5pSYJUFGxWMXeQr6EZ">七、对话、偏好与配置</h2>
+  <table data-page-node-id="2D9EV3YqY89trEG6FDFC9Q">
+    <tr data-page-node-id="NpDox3qGCpacGlVnuJUql6"><th data-page-node-id="QCgEEBRhbBgbMdieYFk7bT">类</th><th data-page-node-id="G1DywBQptpDnZzjWYbyiPa">职责</th></tr>
+    <tr data-page-node-id="NtFmSjBNXnRZHR7uLYcwDe"><td data-page-node-id="DJS1VMa8oViN9o2oYru0H6"><code data-page-node-id="H4YnVIMx7BLHkmxJNXxafn">ConfigurationStore</code></td><td data-page-node-id="Kn7AW7AgNadZjVviehoh6l">本地配置读写（模型、偏好等）</td></tr>
+    <tr data-page-node-id="Yo0iDVE9mxJt3IJayIieD8"><td data-page-node-id="o3nM65KgbE1tYUAdKENLEH"><code data-page-node-id="B8XHtQmwXWhU9iwzvvU3w5">AgentSettingsStore</code></td><td data-page-node-id="w1HumAMNnTRxgij5v8b4Pk">Agent 级设置（模型方案、API Key、Base URL）</td></tr>
+    <tr data-page-node-id="zObjc9fpzAZ4CqztPGUQLE"><td data-page-node-id="gUaSD6vhxmIA9aTZdsDTAo"><code data-page-node-id="kknA6SE61qwX6ZVuRJYHjb">MemoryStore</code></td><td data-page-node-id="Ym0AsGRJsKlpF43v2C2gXv">长期记忆：跨会话偏好与备注，注入每次系统提示</td></tr>
+    <tr data-page-node-id="hZYnVuTny6YufaJfrKwiWw"><td data-page-node-id="aZWHVmBgdkUehjYFUFuTeu"><code data-page-node-id="IbNtpnSrEf9Q7HIdMY5pqC">WritePreferenceStore</code></td><td data-page-node-id="Sekya02MyQcJb08FnnLWIi">写入偏好持久化：auto / formula / value</td></tr>
+  </table>
+  <p data-page-node-id="d8QJQQ7TLer7DaW2n0DecT">配置与数据目录：</p>
+  <pre data-page-node-id="sGCtAuIIGoP19BCH5zHCuu">%APPDATA%\ExcelAiAssistant\      # 配置、记忆、会话、自定义工具 (custom-tools)
+%APPDATA%\ExcelAiAssistant\skills\&lt;技能名&gt;\SKILL.md   # AI 技能包
+%LocalAppData%\XaiAssistant\      # 安装的应用文件 app\x64 / app\x86 + 注册脚本</pre>
+  <h3 data-page-node-id="iwZCsgtcHzrI7Mx24ijm6H">写入偏好语义</h3>
+  <p data-page-node-id="wpifJolc8SYMymqo9NfRhB">影响助手写入计算结果的默认方式：<code data-page-node-id="Anlag2IN1Bw7TZCGQS3e4j">公式优先</code>（写入 <code data-page-node-id="vDwoLyNN9lJgvJmdpYiBto">=item</code> 引用，可联动追溯）、<code data-page-node-id="32a2nIf6ysi5uJKEWFH7xw">直接写值</code>（数值/文本）、<code data-page-node-id="oc84CHSbe1uqrw5EN6UNuB">自动</code>（跟随模型判断）。</p>
+  <h3 data-page-node-id="iFjynBcG6lxXRfDDoosPAo">智能填充参考上下文</h3>
+  <p data-page-node-id="PzO31rQ2vQs7D2kPG2Cjim">采用“整行邻近上下文（同行各列值）+ 同列分布”双料；数值空格无语义依据时填 <code data-page-node-id="vuQkosXjo6GOeXfLrt8kDj">待补</code>；默认参考范围 <code data-page-node-id="zQ92TfHDxqjh7Lq4fNsA5C">same_sheet</code>，跨表需显式请求并提供来源。</p>
+</section>
+
+<section id="vba" data-page-node-id="EYw7jgkVxpWJTJQUxAFOyg">
+  <h2 data-page-node-id="eC80QAXND0ouCl6V5UkPYH">八、VBA 生成、执行与沉淀</h2>
+  <table data-page-node-id="IgFwqKCu7BtmzpyWOY1vNu">
+    <tr data-page-node-id="peZuX6IQ367iKtF0bmnm9z"><th data-page-node-id="4Me8taV1T8tzcdfHCrqTwB">能力</th><th data-page-node-id="hWwKEqt6dK0MX7rAukvif7">实现</th></tr>
+    <tr data-page-node-id="vVMkEzkRLomdCL0uB5f1Ig"><td data-page-node-id="l2jqE1Ppq1nFORFDLPbrug">预置模板库</td><td data-page-node-id="slhksErShVhRFDusnC3A9z"><code data-page-node-id="DZh9iHdXNrMMkrENav3O5q">VbaPresetCatalog</code>：覆盖人事、财务等多领域；模板“输入含表头 + 循环从第 2 行起”避免表头被首个数据覆盖；跨领域结果写新表避免覆盖用户数据；频数表补溢出桶</td></tr>
+    <tr data-page-node-id="PqQ105YZ3eZm3jHEMvQs0J"><td data-page-node-id="uhCuktsv8Icdq5DSBAzfA5">自动沉淀</td><td data-page-node-id="2QxL30XrvETzX38OwaFLEz"><code data-page-node-id="DpbqZha96VXlmY7H6UNdbE">VbaReusabilizer + VbaAutoSinkPolicy</code>：成功执行的宏自动进入代码库；模板命名 ≤20 字、凝练、突出重点</td></tr>
+    <tr data-page-node-id="fWSBgel9c6k2BiyVtNHyb4"><td data-page-node-id="DaSp11atbXz1KUV1Z8slZ9">自定义工具</td><td data-page-node-id="qAPEtC99ehvcWajf5kRK2X"><code data-page-node-id="EqpKBcVybozDq4cGsSfZ6j">CustomToolStore</code>：用户保存的自定义工具模板</td></tr>
+    <tr data-page-node-id="gsjbCNtlEBZVe4JJ1m7VlT"><td data-page-node-id="3g5bJSGxdwKazOrvjE4ZBF">执行门控</td><td data-page-node-id="V3F4cLnP6q3REY46iloYqk"><code data-page-node-id="yIekgPoDNB2ua104djwdZq">run_vba_snippet</code> 执行前经 <code data-page-node-id="empezdParWI4FuAZ4ZQhAe">PreRunVbaGate</code> 静态护栏</td></tr>
+  </table>
+  <p data-page-node-id="qfrDyMQiKBKBzpmjhQN97w">「载入VBA面板」用于把本轮成功执行的（但未自动沉淀的）代码复制到 VBA 面板手动处理：可修改、再校验、执行，或另存为模板。校验为普通操作直接返回结果；执行为高危操作需在弹出的确认面板审阅后点「执行代码」。</p>
+</section>
+
+<section id="skills" data-page-node-id="PXnQ0OTCBTtZigccl3LsHC">
+  <h2 data-page-node-id="LXqNp25G7RY2BIJe0SzUcT">九、技能包与流程编排</h2>
+  <h3 data-page-node-id="ugksHsAHsBgStmM11KBRnv">AI 技能包</h3>
+  <p data-page-node-id="oNFlZyuwoePZi8sfqwd0qw"><code data-page-node-id="zZU1BtHsJHv3LNrfa6VIg5">SkillCatalog</code> 扫描 <code data-page-node-id="j8DJSeO8FZfQT78VSnkoEL">%APPDATA%\ExcelAiAssistant\skills\</code> 下的 <code data-page-node-id="EPhFmOQIi2YDGU45eLoDjf">SKILL.md</code>，聊天中以 <code data-page-node-id="FhHhzvaDk4Fp1dDfJObkk3">/技能名</code> 强制加载调用。技能包导入需作 zip-slip 防护：手动逐条解压校验，条目路径不得含 <code data-page-node-id="scomjvHVUE2cGavz9G45W9">../</code> 或绝对路径，目标须在安全范围内，越界抛异常。</p>
+  <h3 data-page-node-id="43nCZvjw24ytaDCgs66t4T">流程编排</h3>
+  <p data-page-node-id="HG69cp53B2pxhO0Gt1kpji"><code data-page-node-id="fR81OrYY7tl4wtV0y84WRa">WorkflowExecutor / WorkflowStore / WorkflowTemplate / FlowScopeNormalizer</code> 实现可复用多步骤模板：<code data-page-node-id="tuQTxrPvhJf79DgeNAXzYJ">@workflow:名称</code> 触发、把本次成功工具步骤另存为流程、逐条调用并支持危险确认与单步失败重试。流程范围经 <code data-page-node-id="1rozcSGrcHh8z5o6ufJBaD">FlowScopeNormalizer</code> 归一化，骨架跨工作簿/跨工作表保持一致。</p>
+</section>
+
+<section id="build" data-page-node-id="x2CafXhQD5IoEcR6xp9Is4">
+  <h2 data-page-node-id="dZ47TlKkQmfUbrsemaHq3R">十、构建与打包</h2>
+  <pre data-page-node-id="fwse39wvt5ukRTFSXahxnc">src/ExcelAiAssistant.Addin.csproj → 版本 (Version / InformationalVersion) 2.18.6.0
+tools/package-xai.ps1  →  分别构建 x64 与 x86 的完整 app + 各架构原生依赖
+                          →  dist\JYYJ助手-&lt;ver&gt;-x64\app 与 -x86\app
+tools/installer/*.iss →  Inno Setup 6 打包合并安装器
+                          →  dist\installer\JYYJ助手-&lt;ver&gt;-Setup.exe</pre>
+  <p data-page-node-id="7XaAx12g6T9tki3nSIHNVM">版本维护要点：加载项当前版本需在 <code data-page-node-id="3yOc85ulsMJV9HES8ySeho">ExcelAiAssistant.Addin.csproj</code> 的 <code data-page-node-id="HZPqX9iSzu5O7jEctHaCDg">Version/InformationalVersion</code>、ISS 的 <code data-page-node-id="UsrF4c2cdpHZkn5tFyen8b">#define AppVersion</code>、及安装器元数据三处<b data-page-node-id="Jpcy231eaUNFaV137Km74q">同步一致</b>。</p>
+  <h3 data-page-node-id="ZOFs6GMlF2T0ANBRU3ApPX">双架构依赖布局</h3>
+  <pre data-page-node-id="KEtNEV8BYwdBLV2L0Wf2YQ">app\x64\   → ExcelAiAssistant.*.dll + x64 的 SQLite.Interop.dll + WebView2Loader.dll
+app\x86\   → ExcelAiAssistant.*.dll + x86 的 SQLite.Interop.dll + WebView2Loader.dll</pre>
+</section>
+
+<section id="install" data-page-node-id="NvQCUbZrC4JIv1Yqq5EFjr">
+  <h2 data-page-node-id="3g8YzBogtY2YqwDzjZOEfP">十一、安装、COM 注册与卸载</h2>
+  <p data-page-node-id="Q904mxpS15DW8N5E4rfaOC">合并安装器 <code data-page-node-id="ETIlUaotHvMMBILwC4niwl">JYYJ助手-2.18.6.0-Setup.exe</code>（Inno Setup 6）同时装 x64 与 x86 两套产物，自动探测 Excel 位数并写对应注册表视图：</p>
+  <h3 data-page-node-id="8ybDy41ZW0UyzCe41OGBU6">注册原理</h3>
+  <pre data-page-node-id="idTMAA6mhAbe95jNnVwaj6">探测 Excel 位数：读 HKLM App Paths\excel.exe → 取 PE 头 machine 值
+  0x8664 → x64  → 写 Registry64 视图
+  0x014C → x86  → 写 Registry32 视图
+用 .NET Registry API (显式 RegistryView) 写：
+  HKCU\Software\Classes\CLSID\{GUID}        (Assembly/Class/ProgID/InprocServer32/CodeBase…)
+  HKCU\Software\Classes\{ProgId}
+  HKCU\Software\Classes\CLSID\{GUID}\Implemented Categories\{catId}
+  HKCU\Software\Microsoft\Office\Excel\Addins\{ProgId}   LoadBehavior = 3</pre>
+  <p data-page-node-id="XBYOf3aOXI4dWq6RuJe04o">注册编排脚本：<code data-page-node-id="QaLyzuxvEOpHYsyeywSCwp">register-auto.ps1</code>（UTF-8 带 BOM），由 64 位 PowerShell（<code data-page-node-id="vE7NtqIPY5gOkBMZfPIo4x">{sysnative}</code>）静默执行，显式 <code data-page-node-id="TtQpFDrEDprwKBTYA57JHr">RegistryView</code> 对进程位数免疫，保证 32/64 位 Excel 各从对应视图加载。</p>
+  <h3 data-page-node-id="ObOEbfqA8nUot44YtZHXnj">前置检测（ISS [Code]）</h3>
+  <ul data-page-node-id="WKGTn9gg9pdxXQEZwzeDEE">
+    <li data-page-node-id="PzbahCDiooVOxDGTfW36un">检测 Excel 是否运行（<code data-page-node-id="WIKHt1jB1L6sFCG6qFnkAJ">FindWindow("XLMAIN")</code>），占用则提示关闭（重试/取消，阻断）。</li>
+    <li data-page-node-id="TGx9rl8ZFNLnfaiLjHNF55">检测 .NET Framework 4.x（<code data-page-node-id="cV51jXYGwzoMWxcTv2qBFS">NDP\v4\Full</code>）与 WebView2 Runtime（<code data-page-node-id="JAMr6h9UomxQmmRHFdJW1i">EdgeUpdate\Clients\{GUID}</code>），缺失仅友好提示、不阻断。</li>
+  </ul>
+  <h3 data-page-node-id="hhXVUnxgwibk3uRDNQmGZR">卸载</h3>
+  <p data-page-node-id="3ke8qOl9VuM3DWIYwGzCuq"><code data-page-node-id="Y070H4M0gtVuMZaDVdJd7S">unregister-all.ps1</code> 遍历 <code data-page-node-id="Ark3pftn3QeHbDSistNK1L">Registry64 / Registry32</code> 两个视图，清理 <code data-page-node-id="VRRyMZJDXEH0vpAuIPe7rE">CLSID</code>、<code data-page-node-id="q5OUtuwmfkVYdAtVCkwJH2">ProgId</code>、<code data-page-node-id="Gbi2qMuXPXpYwEAlkSarLS">Excel\Addins</code> 全部注册项，再删文件。数据目录（custom-tools / agent-settings.json / 记忆 / 技能）不被卸载删除，需手动清理。</p>
+  <div class="callout warn" data-page-node-id="oAQ5iuktyIe5j8daeudxoC"><div class="t" data-page-node-id="21LmQB73tlhSBiAz2ZiK2g">兼容性注意</div>COM 注册须用与 Excel PE 架构匹配的 <code data-page-node-id="ShSDGfRZAE642gx0HCUL4t">RegistryView</code>；安装必须保留用户数据、仅覆盖应用目录；PowerShell 脚本必须 UTF-8 带 BOM 以防 PowerShell 5.1 中文解析错误。</div>
+</section>
+
+<section id="trace" data-page-node-id="XcoNCwFl4F9HH9WGPa0avW">
+  <h2 data-page-node-id="RM6rmcVjGPboLaiaBDoBbl">十二、可观测性与质量保证</h2>
+  <h3 data-page-node-id="EYK9yrAFtNsuEB6mtCN36M">运行日志 · 一键自检</h3>
+  <p data-page-node-id="uZX2dgzDwpEvzCZ7rEOWfJ"><code data-page-node-id="iemCHNW5LoYwFbti1r1hku">DiagnosticsLog</code> 实时登记助手本轮的写入数据 / 生成的 VBA 代码 / 创建的图表（登录与否均登记）；侧边栏「运行日志 · 自检」的<b data-page-node-id="wy8fORzHWJNUKSaXE1lcqc">一键自检</b>用 AI 研判最近会话，核验 AI 生成的数据、代码与图表是否正确。</p>
+  <h3 data-page-node-id="8UbfKZjuNyT0oTH74AXWeA">写入后自检工具</h3>
+  <table data-page-node-id="TAdlSF8UYqMN04bsvJP0zB">
+    <tr data-page-node-id="ztGVIOJmZClLdCGPoL5POq"><th data-page-node-id="v9UXOHe4PiiKsyqMBchq5N">自检方向</th><th data-page-node-id="ZN7C4uF1VBrimfiiCvmlm8">验证器</th></tr>
+    <tr data-page-node-id="HDWtpkxQ5gyInzgqEfYPMO"><td data-page-node-id="flfdjTGDQsYqbeK1CqpTdJ">图表</td><td data-page-node-id="CCMlFQyQwrOwKNf6QEKvHu"><code data-page-node-id="qEFxUNkSFeJY8Be49tBOhC">verify_chart</code>：类型 / 系列 / 点数 / data_ranges / selfcheck，不合格须先修正再回复自检结论</td></tr>
+    <tr data-page-node-id="9B1K5Shv1vBudx3bJsm8ss"><td data-page-node-id="edio3MxvMqsDEKPazK1dI8">单元格格式</td><td data-page-node-id="vaBH8Aw8AW9xCESk4oc7vB"><code data-page-node-id="zqCeZPZ1ep88Yhg3VNb01l">verify_cell_format</code></td></tr>
+    <tr data-page-node-id="cCa5cdhQoucukzYUDTx2yA"><td data-page-node-id="AXFhkDR5uczgwSAwmaIiBS">条件格式</td><td data-page-node-id="oiqdSBxuN73r6B6Ebjeu4Y"><code data-page-node-id="rvSNIXgVwKamEPSHechbW5">verify_conditional_format</code></td></tr>
+    <tr data-page-node-id="C3D7ts1Ftap8Vd4HPMZFSO"><td data-page-node-id="jIoW74bDBNIcQ77z0reZvR">排序 / 筛选</td><td data-page-node-id="xiR9uxwR0U4Mk5ZtrNmQRA"><code data-page-node-id="tJuB5LEDxkJ4Ky1ied6sFJ">verify_sort_filter</code></td></tr>
+    <tr data-page-node-id="I7oxsiAXKuXoevBSvOEgxK"><td data-page-node-id="b7PN8aSRznUycolwcXeBXX">公式</td><td data-page-node-id="IWT67ypU5X6rKT4SLaIE6k"><code data-page-node-id="IFGScVKKSRyXAmVrMRXrYO">verify_formula</code></td></tr>
+  </table>
+  <h3 data-page-node-id="iTEZohQ6wrFapBVUDc6OPC">测试与验证</h3>
+  <p data-page-node-id="WhfAzBCP2RZEAFxv69K0pM"><code data-page-node-id="DRX7Af1dy5e0GRVknCo14b">ExcelAiAssistant.Tests</code> 含大量 NUnit 单测（安全管线、撤销、协议解析、技能目录、公式分析、异常检测、写偏好、VBA 门控等）；<code data-page-node-id="YArAdpiyVXLMIsy9pvg5RE">tools\Verify*</code> 系列是真机 harness，遵循<strong data-page-node-id="HiOIDRYYhnVdkTzrXjkB19">无状态</strong>原则：每次操作前重新解析工作表、跨表断言显式按 <code data-page-node-id="b98u6XBJbHQiOEEqZsvEYQ">Workbooks[...].Worksheets["name"]</code> 定位、不依赖 <code data-page-node-id="xAb6fh4B3rfJDwNEaAL2kN">ActiveSheet</code>、用 <code data-page-node-id="RJLGpVyzU9HWCQAvOveOzg">range.Cells.Item[1,1]</code> 作写回锚点。</p>
+</section>
+
+</div>
+</body>
+</html>
