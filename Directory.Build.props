@@ -1,0 +1,12 @@
+﻿<Project>
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <!-- 版本号单一来源（M17 沉淀）：全仓库唯一的版本号定义点。
+         升版只允许通过 tools/release/release.py bump 修改本文件，禁止手改 csproj/README/iss。 -->
+    <Version>3.9.10.0</Version>
+    <InformationalVersion>3.9.10.0</InformationalVersion>
+  </PropertyGroup>
+</Project>

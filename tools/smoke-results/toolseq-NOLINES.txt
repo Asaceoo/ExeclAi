@@ -1,0 +1,13 @@
+﻿
+ASM-LOADED
+FAIL System.Runtime.InteropServices.COMException (0x80080005): 检索 COM 类工厂中 CLSID 为 {00024500-0000-0000-C000-000000000046} 的组件失败，原因是出现以下错误: 80080005 服务器运行失败 (异常来自 HRESULT:0x80080005 (CO_E_SERVER_EXEC_FAILURE))。
+   在 System.Runtime.Remoting.RemotingServices.AllocateUninitializedObject(RuntimeType objectType)
+   在 System.Runtime.Remoting.Activation.ActivationServices.CreateInstance(RuntimeType serverType)
+   在 System.Runtime.Remoting.Activation.ActivationServices.IsCurrentContextOK(RuntimeType serverType, Object[] props, Boolean bNewObj)
+   在 System.RuntimeTypeHandle.CreateInstance(RuntimeType type, Boolean publicOnly, Boolean noCheck, Boolean& canBeCached, RuntimeMethodHandleInternal& ctor, Boolean& bNeedSecurityCheck)
+   在 System.RuntimeType.CreateInstanceSlow(Boolean publicOnly, Boolean skipCheckThis, Boolean fillCache, StackCrawlMark& stackMark)
+   在 System.Activator.CreateInstance(Type type, Boolean nonPublic)
+   在 System.RuntimeType.CreateInstanceImpl(BindingFlags bindingAttr, Binder binder, Object[] args, CultureInfo culture, Object[] activationAttributes, StackCrawlMark& stackMark)
+   在 System.Activator.CreateInstance(Type type, BindingFlags bindingAttr, Binder binder, Object[] args, CultureInfo culture, Object[] activationAttributes)
+   在 System.Activator.CreateInstance(Type type, Object[] args)
+   在 Microsoft.PowerShell.Commands.NewObjectCommand.SafeCreateInstance(Type t, Object[] args)
