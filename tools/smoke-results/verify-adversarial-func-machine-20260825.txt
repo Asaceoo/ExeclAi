@@ -1,0 +1,28 @@
+对抗性审查 + 功能验证 + 真机验证 — 2026-08-25
+==============================================
+
+结论：本轮（对抗性审查 → 修复 → 功能验证 → 真机验证）全绿。
+
+一、功能验证
+- 单元测试：224/224 通过（含中文宏名 SanitizeName / FindEntryProcedure / 数据工具等新增用例）
+- VerifyPhaseI 冒烟：152/152 通过（新工具注册、技能元数据与 triggers 搜索、沉淀库增删改、校验器等）
+
+二、真机验证（真实 Excel 环境）
+1) VerifyDataTools（数据加工五工具，经生产 ExcelToolHost.CreateRegistry 链路）：
+   - 修复前：RCW 已分离异常（COM RCW 按对象标识缓存，write 路径 FinalRelease 连带销毁 harness 持有的同名 Worksheet RCW）
+   - 修复后：sort/dedup/find_replace/transpose/cond_format 17/17 全绿
+   - 含排序、去重(指定列 JArray 契约)、查找替换大小写、转置(2x2 行列互换)、条件格式 greater/data_bar/clear/未知规则
+2) VerifySinkTool（沉淀链路，中文宏名 + 去重 + 注册 + 真机执行）：
+   - 11/11 全绿；中文名 `proc_汇总数据` 收敛为合法 ASCII、重复沉淀自动改名 proc_2、入口经 FindEntryProcedure 解析到末过程「统计」、真机宏执行成功并写回 C2=42（VBOM 信任已开启）
+
+三、本轮修复的缺陷
+1. 数据工具数组越界（1-based→0-based 索引修正）
+2. 中文宏名沉淀失败（SanitizeName 收敛 + FindEntryProcedure 入口解析）
+3. 查找替换大小写全局替换（StringBuilder 改写 ReplaceIgnoreCase）
+4. COM 对象双重 FinalRelease（读完全块先释放再交 writer）
+5. header_rows 无下界校验
+6. 沉淀去重后缀基于原始 baseName 累计
+
+四、遗留提示
+- 沉淀工具真机执行依赖 Excel「信任对 VBA 工程对象模型的访问」开关；未开启时返回 VBA_UNAVAILABLE（链路已通，非缺陷）
+- 真机 harness 必须无状态解析工作表（详见 memory：RCW 按对象标识缓存）

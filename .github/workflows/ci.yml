@@ -1,0 +1,37 @@
+name: ci
+
+# M28：CI 只覆盖无 Office 依赖的程序集（Addin 引用 office/Extensibility PIA，GitHub Runner 无 Office，构建不了；
+# 真机 harness / 打包仍需本机 Excel+WPS）。
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+
+jobs:
+  build-test:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Build office-free projects
+        run: |
+          dotnet build src/ExcelAiAssistant.Core/ExcelAiAssistant.Core.csproj -c Release --nologo
+          dotnet build src/ExcelAiAssistant.Excel/ExcelAiAssistant.Excel.csproj -c Release --nologo
+          dotnet build tools/McpServer/ExcelAiMcpServer.csproj -c Release --nologo
+          dotnet build tools/CliServer/ExcelAiCli.csproj -c Release --nologo
+
+      - name: Script syntax gates
+        run: |
+          node --check tools/npm-jyyj-mcp/bin/jyyj-mcp.js
+          python -m py_compile tools/release/release.py tools/release/gate.py tools/release/check_wps_full.py
+
+      - name: Build tests
+        run: dotnet build src/ExcelAiAssistant.Tests/ExcelAiAssistant.Tests.csproj -c Release --nologo
+
+      - name: Unit tests (Excel-dependent cases self-skip when COM unavailable)
+        run: dotnet test src/ExcelAiAssistant.Tests/ExcelAiAssistant.Tests.csproj -c Release --no-build --nologo

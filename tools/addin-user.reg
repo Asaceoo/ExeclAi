@@ -1,0 +1,75 @@
+REGEDIT4
+
+[HKEY_CLASSES_ROOT\ExcelAiAssistant.AddIn]
+@="ExcelAiAssistant.Addin.ExcelAiAddIn"
+
+[HKEY_CLASSES_ROOT\ExcelAiAssistant.AddIn\CLSID]
+@="{8F7A6D91-4C52-45BE-9F55-7D8C2A31E001}"
+
+[HKEY_CLASSES_ROOT\CLSID\{8F7A6D91-4C52-45BE-9F55-7D8C2A31E001}]
+@="ExcelAiAssistant.Addin.ExcelAiAddIn"
+
+[HKEY_CLASSES_ROOT\CLSID\{8F7A6D91-4C52-45BE-9F55-7D8C2A31E001}\InprocServer32]
+@="mscoree.dll"
+"ThreadingModel"="Both"
+"Class"="ExcelAiAssistant.Addin.ExcelAiAddIn"
+"Assembly"="ExcelAiAssistant.Addin, Version=1.4.0.0, Culture=neutral, PublicKeyToken=null"
+"RuntimeVersion"="v4.0.30319"
+"CodeBase"="file:///d:/execl1.0/src/ExcelAiAssistant.Addin/bin/x64/Release/net48/win-x64/ExcelAiAssistant.Addin.dll"
+
+[HKEY_CLASSES_ROOT\CLSID\{8F7A6D91-4C52-45BE-9F55-7D8C2A31E001}\InprocServer32\1.4.0.0]
+"Class"="ExcelAiAssistant.Addin.ExcelAiAddIn"
+"Assembly"="ExcelAiAssistant.Addin, Version=1.4.0.0, Culture=neutral, PublicKeyToken=null"
+"RuntimeVersion"="v4.0.30319"
+"CodeBase"="file:///d:/execl1.0/src/ExcelAiAssistant.Addin/bin/x64/Release/net48/win-x64/ExcelAiAssistant.Addin.dll"
+
+[HKEY_CLASSES_ROOT\CLSID\{8F7A6D91-4C52-45BE-9F55-7D8C2A31E001}\ProgId]
+@="ExcelAiAssistant.AddIn"
+
+[HKEY_CLASSES_ROOT\CLSID\{8F7A6D91-4C52-45BE-9F55-7D8C2A31E001}\Implemented Categories\{62C8FE65-4EBB-45E7-B440-6E39B2CDBF29}]
+
+[HKEY_CLASSES_ROOT\ExcelAiAssistant.TaskPaneHost]
+@="ExcelAiAssistant.Addin.ExcelAiTaskPaneHost"
+
+[HKEY_CLASSES_ROOT\ExcelAiAssistant.TaskPaneHost\CLSID]
+@="{8F7A6D91-4C52-45BE-9F55-7D8C2A31E002}"
+
+[HKEY_CLASSES_ROOT\CLSID\{8F7A6D91-4C52-45BE-9F55-7D8C2A31E002}]
+@="ExcelAiAssistant.Addin.ExcelAiTaskPaneHost"
+
+[HKEY_CLASSES_ROOT\CLSID\{8F7A6D91-4C52-45BE-9F55-7D8C2A31E002}\InprocServer32]
+@="mscoree.dll"
+"ThreadingModel"="Both"
+"Class"="ExcelAiAssistant.Addin.ExcelAiTaskPaneHost"
+"Assembly"="ExcelAiAssistant.Addin, Version=1.4.0.0, Culture=neutral, PublicKeyToken=null"
+"RuntimeVersion"="v4.0.30319"
+"CodeBase"="file:///d:/execl1.0/src/ExcelAiAssistant.Addin/bin/x64/Release/net48/win-x64/ExcelAiAssistant.Addin.dll"
+
+[HKEY_CLASSES_ROOT\CLSID\{8F7A6D91-4C52-45BE-9F55-7D8C2A31E002}\InprocServer32\1.4.0.0]
+"Class"="ExcelAiAssistant.Addin.ExcelAiTaskPaneHost"
+"Assembly"="ExcelAiAssistant.Addin, Version=1.4.0.0, Culture=neutral, PublicKeyToken=null"
+"RuntimeVersion"="v4.0.30319"
+"CodeBase"="file:///d:/execl1.0/src/ExcelAiAssistant.Addin/bin/x64/Release/net48/win-x64/ExcelAiAssistant.Addin.dll"
+
+[HKEY_CLASSES_ROOT\CLSID\{8F7A6D91-4C52-45BE-9F55-7D8C2A31E002}\ProgId]
+@="ExcelAiAssistant.TaskPaneHost"
+
+[HKEY_CLASSES_ROOT\CLSID\{8F7A6D91-4C52-45BE-9F55-7D8C2A31E002}\Implemented Categories\{62C8FE65-4EBB-45E7-B440-6E39B2CDBF29}]
+
+[HKEY_CLASSES_ROOT\Record\{289E9AF1-4973-11D1-AE81-00A0C90F26F4}\1.0.0.0]
+"Class"="Extensibility.ext_ConnectMode"
+"Assembly"="ExcelAiAssistant.Addin, Version=1.4.0.0, Culture=neutral, PublicKeyToken=null"
+"RuntimeVersion"="v4.0.30319"
+"CodeBase"="file:///d:/execl1.0/src/ExcelAiAssistant.Addin/bin/x64/Release/net48/win-x64/ExcelAiAssistant.Addin.dll"
+
+[HKEY_CLASSES_ROOT\Record\{289E9AF2-4973-11D1-AE81-00A0C90F26F4}\1.0.0.0]
+"Class"="Extensibility.ext_DisconnectMode"
+"Assembly"="ExcelAiAssistant.Addin, Version=1.4.0.0, Culture=neutral, PublicKeyToken=null"
+"RuntimeVersion"="v4.0.30319"
+"CodeBase"="file:///d:/execl1.0/src/ExcelAiAssistant.Addin/bin/x64/Release/net48/win-x64/ExcelAiAssistant.Addin.dll"
+
+[HKEY_CLASSES_ROOT\Record\{4FEF4D9B-E675-38B7-944A-16AE01054357}\1.0.0.0]
+"Class"="Microsoft.Office.Core.MsoCTPDockPosition"
+"Assembly"="ExcelAiAssistant.Addin, Version=1.4.0.0, Culture=neutral, PublicKeyToken=null"
+"RuntimeVersion"="v4.0.30319"
+"CodeBase"="file:///d:/execl1.0/src/ExcelAiAssistant.Addin/bin/x64/Release/net48/win-x64/ExcelAiAssistant.Addin.dll"

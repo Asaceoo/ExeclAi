@@ -1,0 +1,51 @@
+真机本地机器验证 —— 第二批 7 个通用数据加工工具
+================================================================================
+时间：2026-08-25
+工具：VerifyUtilityTools（真实 Excel COM 进程，ExcelToolHost.CreateRegistry 生产链路）
+覆盖：text_clean / text_split / text_merge / date_normalize / number_pad / fill_formula / merge_sheets
+结果：PASSED=16  FAILED=0
+
+逐项断言
+--------------------------------------------------------------------------------
+PASS textclean-ok          text_clean 执行成功
+PASS textclean-trim-case   text_clean 去首尾空格+统一大写
+PASS textclean-replace     text_clean 查找替换 E→?
+PASS textsplit-ok          text_split 执行成功
+PASS textsplit-parts       text_split 拆分段写入 B/C 列（逗号前/后）
+PASS textmerge-ok          text_merge 执行成功
+PASS textmerge-out         text_merge 将 A/B 合并到 C，分隔符 _
+PASS date-ok               date_normalize 执行成功
+PASS date-out              date_normalize 输出 yyyy-MM-dd 文本
+PASS numpad-ok             number_pad 执行成功
+PASS numpad-out            number_pad 补零+前缀 NO-
+PASS fill-ok               fill_formula 执行成功
+PASS fill-result           fill_formula 批量填入 =ROW() 得到行号 2/3
+PASS merge-ok              merge_sheets 执行成功
+PASS merge-header          merge_sheets 带首个源表表头
+PASS merge-rows            merge_sheets 纵向合并 m1+m2 数据
+
+真机捕获并修复的缺陷（2 处，ExcelUtilityToolsService.cs）
+--------------------------------------------------------------------------------
+1) merge_sheets 表头行被误当数据合入
+   复现：include_headers=true 合并 m1/{Name,alice} 与 m2/{Name,bob} 时，
+   结果 A1:A4 = Name,alice,Name,bob —— m2 的 "Name" 表头被当作数据行合入。
+   根因：原守卫 `header==null && dataStart>0`，当 start_row=1 时 dataStart=0
+   使守卫恒假：首个源表取不到表头；且后续源表从不跳过各自首行。
+   修复：include_headers 时——首个源表取 matrix[0] 作合并表头，其余源表假定
+   共享同一表头，一律 dataStart>=1 跳过首行，不再把后续表头当数据。
+
+2) date_normalize 输出格式被 Excel 自动转换失效
+   复现：输入 {2024/1/5,…} 期望输出文本 "2024-01-05"，回读却是数值（OADate 45296）。
+   根因：value 模式经 Value2 写字符串日期时，Excel 自动把可解析日期转回数值序列，
+   使"按指定文本格式写回"契约失效。
+   修复：写回前对目标范围 range.NumberFormat="@"，强制按字面文本存储。
+
+回归确认
+--------------------------------------------------------------------------------
+单测   ：225/225 通过
+相位冒烟：154/154 通过（含 zip-slip-reject 断言）
+
+harness 无状态改造
+--------------------------------------------------------------------------------
+SeedSheets 改为从 app.Worksheets 直接解析、用完即释放，完全不触碰 workbook 句柄，
+也绝不 FinalRelease ActiveWorkbook（共享根 RCW，会连带销毁调用方持有的 wb）。
