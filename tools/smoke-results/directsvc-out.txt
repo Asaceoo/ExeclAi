@@ -1,0 +1,17 @@
+﻿BOOT
+ASM-LOADED
+COM-CREATED
+BOOK-ADDED
+SERVICE-CREATED
+CALL-START
+FAIL System.Management.Automation.MethodInvocationException: Exception calling "Invoke" with "2" argument(s): "Object of type 'System.Management.Automation.PSObject' cannot be converted to type 'System.Collections.Generic.Dictionary`2[System.String,System.Object]'." ---> System.ArgumentException: Object of type 'System.Management.Automation.PSObject' cannot be converted to type 'System.Collections.Generic.Dictionary`2[System.String,System.Object]'.
+   at System.RuntimeType.TryChangeType(Object value, Binder binder, CultureInfo culture, Boolean needsSpecialCast)
+   at System.Reflection.MethodBase.CheckArguments(Object[] parameters, Binder binder, BindingFlags invokeAttr, CultureInfo culture, Signature sig)
+   at System.Reflection.RuntimeMethodInfo.InvokeArgumentsCheck(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+   at System.Reflection.RuntimeMethodInfo.Invoke(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+   at CallSite.Target(Closure , CallSite , Object , Object , Object[] )
+   --- End of inner exception stack trace ---
+   at System.Management.Automation.ExceptionHandlingOps.CheckActionPreference(FunctionContext funcContext, Exception exception)
+   at System.Management.Automation.Interpreter.ActionCallInstruction`2.Run(InterpretedFrame frame)
+   at System.Management.Automation.Interpreter.EnterTryCatchFinallyInstruction.Run(InterpretedFrame frame)
+   at System.Management.Automation.Interpreter.EnterTryCatchFinallyInstruction.Run(InterpretedFrame frame)

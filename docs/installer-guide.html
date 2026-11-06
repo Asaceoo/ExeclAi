@@ -1,0 +1,188 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JYYJ助手 安装器 用户操作说明</title>
+<style>
+:root{
+  --brand:#1677ff; --brand-weak:#e6f0ff; --ink:#1f2329; --sub:#6b7280;
+  --line:#e5e7eb; --bg:#f7f8fa; --card:#fff; --ok:#16a34a; --warn:#ea580c;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;color:var(--ink);background:var(--bg);line-height:1.75;padding-bottom:80px}
+.wrap{max-width:880px;margin:0 auto;padding:0 20px}
+header{background:linear-gradient(135deg,#1677ff,#0e5fd8);color:#fff;padding:44px 0 36px;margin-bottom:8px}
+header .wrap{display:flex;align-items:center;gap:18px}
+.logo{width:58px;height:58px;border-radius:14px;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:20px;letter-spacing:1px;flex:none}
+h1{font-size:26px;font-weight:700}
+.sub{opacity:.92;font-size:14px;margin-top:6px}
+nav{position:sticky;top:0;background:var(--card);border-bottom:1px solid var(--line);z-index:10}
+nav .wrap{display:flex;gap:4px;overflow-x:auto;padding-top:0;padding-bottom:0}
+nav a{display:block;padding:12px 14px;color:var(--sub);text-decoration:none;font-size:14px;white-space:nowrap;border-bottom:2px solid transparent}
+nav a:hover{color:var(--brand)}
+nav a.active{color:var(--brand);border-bottom-color:var(--brand);font-weight:600}
+section{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:26px 28px;margin:24px 0}
+h2{font-size:20px;border-left:4px solid var(--brand);padding-left:12px;margin-bottom:18px}
+h3{font-size:16px;margin:22px 0 10px;color:#111}
+h3::before{content:'';display:inline-block;width:8px;height:8px;background:var(--brand);border-radius:2px;margin-right:8px}
+p{margin:8px 0}
+ol,ul{margin:8px 0 8px 24px}
+li{margin:6px 0}
+code{background:#f2f3f5;border:1px solid var(--line);border-radius:5px;padding:1px 7px;font-family:Consolas,Monaco,monospace;font-size:13px;color:#c026d3}
+pre{background:#0f172a;color:#e2e8f0;border-radius:10px;padding:16px 18px;overflow-x:auto;font-size:13px;line-height:1.7;margin:12px 0;font-family:Consolas,Monaco,monospace}
+pre code{background:none;border:none;color:inherit;padding:0}
+.callout{border-radius:10px;padding:14px 18px;margin:14px 0;font-size:14px}
+.callout.info{background:var(--brand-weak);border-left:4px solid var(--brand)}
+.callout.warn{background:#fff4e5;border-left:4px solid var(--warn)}
+.callout.ok{background:#e8f7ee;border-left:4px solid var(--ok)}
+.callout .t{font-weight:700;margin-bottom:4px}
+table{width:100%;border-collapse:collapse;margin:12px 0;font-size:14px}
+th,td{border:1px solid var(--line);padding:9px 12px;text-align:left;vertical-align:top}
+th{background:var(--bg);font-weight:600}
+.step{display:flex;gap:14px;margin:16px 0}
+.stepn{width:30px;height:30px;flex:none;border-radius:50%;background:var(--brand);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700}
+.path{font-family:Consolas,Monaco,monospace;font-size:13px;color:#0f172a}
+b.cmd{color:#c026d3}
+@media(max-width:640px){header .wrap{flex-direction:column;text-align:center}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="logo">JYYJ</div>
+    <div>
+      <h1>JYYJ助手 安装器</h1>
+      <div class="sub">双架构合并安装器 · 用户操作说明 · 版本 2.18.6.0</div>
+    </div>
+  </div>
+</header>
+
+<nav>
+  <div class="wrap">
+    <a href="#before">安装前准备</a>
+    <a href="#install">安装步骤</a>
+    <a href="#verify">安装后核对</a>
+    <a href="#use">初次使用</a>
+    <a href="#upgrade">升级</a>
+    <a href="#uninstall">卸载</a>
+    <a href="#faq">常见问题</a>
+  </div>
+</nav>
+
+<div class="wrap">
+
+<section id="before">
+  <h2>一、安装前准备</h2>
+  <p>本安装器是一个<strong>同时适配 32 位与 64 位 Excel</strong> 的合并安装包<br>
+  文件：<code>JYYJ助手-2.18.6.0-Setup.exe</code>。安装时会自动探测你电脑上 Excel 的位数，并注册到对应的系统位置，无需你手动区分版本。</p>
+
+  <div class="callout warn"><div class="t">务必提前确认</div>
+    <ul>
+      <li>已安装受支持的 <b>Microsoft Excel</b>（Excel 2016 / 2019 / 2021 / Microsoft 365 等桌面版）。</li>
+      <li>安装前<strong>保存并关闭所有打开的 Excel 窗口</strong>，否则安装会提示你关闭后才能继续。</li>
+      <li>系统为 Windows 7 SP1 及以上（Win10 / Win11 最佳）。</li>
+    </ul>
+  </div>
+
+  <h3>系统级依赖说明</h3>
+  <p>加载项自带全部托管程序集与各架构的原生依赖（SQLite.Interop、WebView2Loader.dll），无需单独下载。<br>另有两项系统级依赖，安装程序会自动检测并友好提示（提示不阻断安装）：</p>
+  <table>
+    <tr><th>依赖</th><th>作用</th><th>缺失时的提示</th></tr>
+    <tr><td>.NET Framework 4.x</td><td>加载项运行所必需</td><td>建议先安装 .NET Framework 4.8 再使用</td></tr>
+    <tr><td>WebView2 Runtime</td><td>侧边栏界面渲染</td><td>若缺失界面可能空白，需安装 Evergreen WebView2 Runtime</td></tr>
+  </table>
+</section>
+
+<section id="install">
+  <h2>二、安装步骤</h2>
+  <div class="step"><div class="stepn">1</div><div><b>双击运行安装包</b><br>找到 <code>JYYJ助手-2.18.6.0-Setup.exe</code>，双击启动。若弹出 Windows 用户账户控制（UAC），点「是」允许。</div></div>
+  <div class="step"><div class="stepn">2</div><div><b>等待关闭 Excel 检查</b><br>安装程序会检测 Excel 是否在运行。若正在运行，会弹出提示，请保存文件并关闭所有 Excel 后再点「重试」。</div></div>
+  <div class="step"><div class="stepn">3</div><div><b>默认安装位置</b><br>程序默认安装到用户数据目录，无需修改权限：<br><code class="path">%LocalAppData%\XaiAssistant</code>（即 <code class="path">C:\Users\你的用户名\AppData\Local\XaiAssistant</code>）</div></div>
+  <div class="step"><div class="stepn">4</div><div><b>自动注册加载项</b><br>安装完成时会自动执行注册脚本（状态提示「正在注册 Excel 加载项…」），把加载项注册到当前 Excel 位数对应的系统位置。全程无额外窗口弹出。</div></div>
+  <div class="step"><div class="stepn">5</div><div><b>安装完成</b><br>点「完成」结束安装。本安装器不创建桌面/开始菜单快捷方式，一切入口都在 Excel 内。</div></div>
+
+  <div class="callout info"><div class="t">安装到同一台电脑的修复/重建</div>
+  如需修复，直接再次运行同一安装包即可（覆盖更新，不会影响你的数据目录）。安装前同样需要先关闭 Excel。</div>
+</section>
+
+<section id="verify">
+  <h2>三、安装后核对</h2>
+  <ol>
+    <li><b>启动 Excel</b>，在功能区（Ribbon）顶部应出现<strong>「JYYJ助手」</strong>选项卡。</li>
+    <li>点击该选项卡（或其中的侧边栏按钮），Excel 右侧弹出<strong>侧边栏面板</strong>。</li>
+    <li>侧边栏左下角或顶部应显示<strong>连接状态</strong>为「就绪」，说明加载项与 Excel 通讯正常。</li>
+    <li>在侧边栏「设置」→「关于 / 版本」中核对版本号应为 <code>2.18.6.0</code>。</li>
+  </ol>
+  <div class="callout warn"><div class="t">首次启动若看不到侧边栏</div>
+    Excel 会自动加载已注册的加载项。若功能区没有出现「JYYJ助手」选项卡，请完全退出 Excel（含后台进程）后重新打开；仍无效则参见「常见问题」。</div>
+</section>
+
+<section id="use">
+  <h2>四、初次使用（配置模型）</h2>
+  <p>JYYJ助手需要一个 <b>OpenAI 兼容接口</b> 的模型服务才能对话和操作表格。首次使用请先在侧边栏完成配置：</p>
+  <ol>
+    <li>打开侧边栏，切到<strong>「设置」</strong>视图。</li>
+    <li>找到<strong>「模型方案（OpenAI 兼容）」</strong>卡片。</li>
+    <li>填写接口地址（Base URL）、<strong>API Key</strong>，选择或填写模型名称。</li>
+    <li>保存后回到<strong>「聊天」</strong>视图，即可开始提问，例如：<code>把 A 列金额求和到 C1</code>。</li>
+  </ol>
+  <div class="callout info"><div class="t">配置保存位置</div>模型配置保存在 <code class="path">%APPDATA%\ExcelAiAssistant\</code> 下的本地配置文件中，仅存于你本机。</div>
+</section>
+
+<section id="upgrade">
+  <h2>五、升级到新版本</h2>
+  <ol>
+    <li>关闭所有 Excel 窗口。</li>
+    <li>双击运行<strong>新版安装包</strong>（版本号比已装的高）。</li>
+    <li>安装程序会覆盖应用文件并重新注册加载项；你的模型配置、记忆、自建技能等<strong>用户数据会原样保留</strong>。</li>
+    <li>完成后重新打开 Excel 即可使用新版本（可在「关于 / 版本」中确认）。</li>
+  </ol>
+</section>
+
+<section id="uninstall">
+  <h2>六、卸载</h2>
+  <p>两种方式任选其一：</p>
+  <h3>方式一：通过「应用和功能」卸载（推荐）</h3>
+  <ol>
+    <li>先关闭所有 Excel 窗口（否则清理注册项时可能受限）。</li>
+    <li>Windows「设置」→「应用」→「已安装的应用」→ 搜索 <code>JYYJ助手</code>。</li>
+    <li>点击「卸载」并确认。卸载程序会自动清理 32/64 两个注册表视图下的全部注册项，再删除安装文件。</li>
+  </ol>
+  <h3>方式二：通过控制面板卸载</h3>
+  <p>「控制面板」→「程序和功能」→ 找到 <code>JYYJ助手 2.18.6.0（Excel 加载项）</code> → 右键「卸载」。</p>
+  <div class="callout info"><div class="t">卸载后保留</div>模型配置、长期记忆、自建技能等<strong>用户数据目录不会被删除</strong>，若需彻底清除请手动删除 <code class="path">%APPDATA%\ExcelAiAssistant\</code> 与 <code class="path">%LocalAppData%\XaiAssistant\</code>。</div>
+</section>
+
+<section id="faq">
+  <h2>七、常见问题（FAQ）</h2>
+  <h3>1. 我的 Excel 是 64 位还是 32 位？需要自己选安装包吗？</h3>
+  <p>不需要。<b>这个合并安装包会自动识别</b>你的 Excel 位数，32 位和 64 位 Excel 都能用，请放心使用同一个安装文件。</p>
+
+  <h3>2. 安装时提示「检测到 Excel 正在运行」？</h3>
+  <p>安装会更新被 Excel 占用的加载项文件，必须先关闭 Excel。保存文件后点「重试」。若已关闭仍有提示，请在任务管理器结束残留的 <code>excel.exe</code> 进程。</p>
+
+  <h3>3. 安装后打开 Excel，功能区没有「JYYJ助手」选项卡？</h3>
+  <ul>
+    <li>确认安装包与启动的 Excel 位数匹配（本包自适配，一般不会出现）；</li>
+    <li>完全退出 Excel（右下角托盘及任务管理器都无 <code>excel.exe</code>）再重新打开；</li>
+    <li>检查是否被 Excel 的「加载项」安全设置禁用：文件 → 选项 → 加载项 → 管理处选择「COM 加载项」→ 转到，勾选「ExcelAiAssistant.AddIn / JYYJ助手」。</li>
+  </ul>
+
+  <h3>4. 侧边栏打开是空白？</h3>
+  <p>通常是 WebView2 Runtime 缺失。请安装「Evergreen WebView2 Runtime」后重启 Excel；Win10/11 通常已自带。</p>
+
+  <h3>5. 升级后会丢失我的配置吗？</h3>
+  <p>不会。升级只覆盖应用目录，你的模型配置、记忆、技能均保留。安装时同样请先关闭 Excel。</p>
+
+  <h3>6. 如何彻底卸载并清理所有痕迹？</h3>
+  <p>按「六、卸载」操作后，再手动删除两个数据目录（见卸载章节的提示），即可完全清除。</p>
+
+  <h3>7. 本安装器是否会修改系统其它地方？</h3>
+  <p>仅写入当前用户注册表下的 .NET COM 加载项与 Excel Addins 键（并支持 32/64 双视图清理），隶属于你的用户账户，无需管理员权限。</p>
+</section>
+
+</div>
+</body>
+</html>
